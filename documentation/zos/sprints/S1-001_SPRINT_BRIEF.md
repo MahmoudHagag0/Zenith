@@ -1,7 +1,9 @@
 # S1-001 SPRINT BRIEF — Foundation Setup
 
+**Document ID:** ZOS-S1-001
 **Template Reference:** `SPRINT_BRIEF_TEMPLATE.md` (ZOS-SBT)
 **Status:** Approved
+**Supersedes:** `documentation/zos/21_SPRINT_S1-001.md` (historical approved record of this sprint, retained for reference; no longer authoritative)
 
 ------------------------------------------------------------------------
 
@@ -140,6 +142,7 @@ Per `SPRINT_BRIEF_TEMPLATE.md` Governance and Constitution Rule 2, this Sprint B
 
 # Related Documents
 
+- `documentation/zos/21_SPRINT_S1-001.md` (superseded by this document)
 - `documentation/zos/SPRINT_BRIEF_TEMPLATE.md`
 - `documentation/zos/08_ROADMAP.md`
 - `documentation/zos/04_TECH_STACK.md`
