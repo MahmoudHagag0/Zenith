@@ -92,13 +92,11 @@ Examples
 
 @zenith/validation
 
-@zenith/config
-
-@zenith/logger
-
 @zenith/types
 
 @zenith/utils
+
+@zenith/tooling
 
 Folders
 
@@ -488,7 +486,7 @@ PROJECT_HISTORY.md
 
 CHANGELOG.md
 
-ROADMAP.md
+RELEASE_NOTES.md
 
 ZOS documents use
 

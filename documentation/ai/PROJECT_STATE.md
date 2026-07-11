@@ -99,22 +99,22 @@ Confirmed present (uploaded and read in this session):
 - `documentation/zos/16_NAMING_CONVENTIONS.md`
 - `documentation/zos/17_RELEASE_PROCESS.md`
 - `documentation/zos/18_PROJECT_GLOSSARY.md`
-
-Referenced by ZOS but **not present** in the material available to this Implementation Engineer:
-
 - `documentation/zos/19_ONBOARDING_GUIDE.md`
 - `documentation/zos/20_AI_BOOT_SEQUENCE.md`
-- `ZENITH_AI_SYSTEM_PROMPT.md`
-- `ZENITH_MASTER_CONTEXT.md`
-- `SPRINT_BRIEF_TEMPLATE.md`
-- `NOVA_STARTUP_PACKAGE.md`
+- `documentation/zos/21_SPRINT_S1-001.md` (Status: Superseded)
+- `documentation/zos/sprints/S1-001_SPRINT_BRIEF.md`
+- `documentation/zos/NOVA_STARTUP_PACKAGE.md`
+- `documentation/zos/SPRINT_BRIEF_TEMPLATE.md`
+- `documentation/zos/ZENITH_AI_SYSTEM_PROMPT.md`
+- `documentation/zos/ZENITH_MASTER_CONTEXT.md`
+
+**Update (Documentation Baseline Closure Phase):** the six documents formerly listed here as "referenced but not present" (`19_ONBOARDING_GUIDE.md`, `20_AI_BOOT_SEQUENCE.md`, `ZENITH_AI_SYSTEM_PROMPT.md`, `ZENITH_MASTER_CONTEXT.md`, `SPRINT_BRIEF_TEMPLATE.md`, `NOVA_STARTUP_PACKAGE.md`) have been confirmed present in `documentation/zos/` and are now included in the list above (BL-001, resolved).
 
 ---
 
 # Pending Work
 
 - Confirmation of the current Milestone/Phase/Sprint by the Architecture Team (i.e., populating `09_PROJECT_BRAIN.md`).
-- Provision of the missing documents listed above, if they are intended to exist.
 - Verification of the live repository tree against the approved structure in `13_FOLDER_STRUCTURE.md`.
 - Any work scoped by an approved Sprint Brief, once one is issued.
 

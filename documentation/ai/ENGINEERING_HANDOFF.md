@@ -15,7 +15,7 @@ This document is the entry point for every future implementation session on Zeni
 
 # Documentation Status
 
-Documentation Baseline Approved (per `documentation/ai/FINAL_DOCUMENTATION_BASELINE_REPORT.md`). The ZOS Layer (23 documents) and AI Layer (13 documents, including this one) have been audited, repaired within approved scope, and verified internally consistent — unique Document IDs, resolving cross-references, and unchanged version numbers across both layers.
+Documentation Baseline Approved (per `documentation/ai/FINAL_DOCUMENTATION_BASELINE_REPORT.md`). The ZOS Layer (28 documents, verified count as of the Documentation Baseline Closure Phase — corrected from a prior stated count of 23) and AI Layer (13 documents, including this one) have been audited, repaired within approved scope, and verified internally consistent — unique Document IDs, resolving cross-references, and unchanged version numbers across both layers.
 
 Three documentation items remain open on the backlog and do not block engineering work: `PROJECT_STATE.md` and `ZENITH_TRANSFER_CONTEXT.md` contain some stale statements (BL-001, BL-002), and `09_PROJECT_BRAIN.md`, while now populated with current-state fields, should be kept current as sprints close (BL-003 tracked its prior unfilled state).
 

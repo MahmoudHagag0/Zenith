@@ -79,10 +79,12 @@ All project knowledge is authoritative only in `documentation/zos/`. This transf
 | 16 | `16_NAMING_CONVENTIONS.md` | Naming, branching, commit conventions |
 | 17 | `17_RELEASE_PROCESS.md` | Release lifecycle and versioning |
 | 18 | `18_PROJECT_GLOSSARY.md` | Standardized terminology |
-| 19 | `19_ONBOARDING_GUIDE.md` | **Referenced but not currently available** |
-| 20 | `20_AI_BOOT_SEQUENCE.md` | **Referenced but not currently available** — canonical boot doc; see note below |
+| 19 | `19_ONBOARDING_GUIDE.md` | Procedures for integrating new engineers and AIs |
+| 20 | `20_AI_BOOT_SEQUENCE.md` | Initialization protocols for AI cognitive layers — canonical boot doc |
 
-Also referenced by `00_INDEX.md` but not currently available: `ZENITH_AI_SYSTEM_PROMPT.md`, `ZENITH_MASTER_CONTEXT.md`, `SPRINT_BRIEF_TEMPLATE.md`, `NOVA_STARTUP_PACKAGE.md`.
+Also referenced by `00_INDEX.md`, and confirmed present in `documentation/zos/`: `ZENITH_AI_SYSTEM_PROMPT.md`, `ZENITH_MASTER_CONTEXT.md`, `SPRINT_BRIEF_TEMPLATE.md`, `NOVA_STARTUP_PACKAGE.md`.
+
+**Update (Documentation Baseline Closure Phase):** all documents in this table, and all four listed above, were confirmed present in `documentation/zos/` during this phase (BL-002, resolved). This table previously described several of them as "not currently available"; that was accurate at the time this document was generated and is no longer accurate.
 
 ---
 
