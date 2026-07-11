@@ -19,10 +19,10 @@ Three IDs in the sequence (`AI-009`–`AI-013`) were reserved for the AI Documen
 
 | Document ID | Filename | Assignment Basis |
 |:---|:---|:---|
-| AI-009 | `00_AI_INDEX.md` | This document (assigned now) |
-| AI-010 | `FINAL_DOCUMENTATION_BASELINE_REPORT.md` | Reserved, not yet created — see Document Registry |
+| AI-009 | `00_AI_INDEX.md` | Assigned (this document) |
+| AI-010 | `FINAL_DOCUMENTATION_BASELINE_REPORT.md` | Assigned — created following Architecture Team baseline approval |
 | AI-011 | `ZENITH_TRANSFER_CONTEXT.md` | Already in use (existing file) |
-| AI-012 | `BASELINE_SNAPSHOT.md` | Assigned now |
+| AI-012 | `BASELINE_SNAPSHOT.md` | Assigned |
 | AI-013 | `ENGINEERING_HANDOFF.md` | Already in use (existing file) |
 
 This mapping was established by Architecture Team decision as part of the AI Documentation Baseline preparation. It fills the previously-unassigned gap at `AI-009`, `AI-010`, and `AI-012`; it is not a recovered historical fact, since no prior document assigns these IDs.
@@ -40,17 +40,16 @@ This mapping was established by Architecture Team decision as part of the AI Doc
 | AI-007 | `POST_REPAIR_VERIFICATION.md` | Verification Report — awaiting Architecture Team sign-off | Verifies the repair report's changes against their approved sources; registers unresolved items as backlog. | Verifies `AI_BOOTSTRAP.md` edits and `20_AI_BOOT_SEQUENCE.md` content against `06_PROJECT_CONSTITUTION.md`, `07_ENGINEERING_WORKFLOW.md`, `10_AI_ENGINEER_GUIDE.md`. |
 | AI-008 | `PROJECT_BACKLOG.md` | Approved | Single authoritative backlog of deferred, not-yet-scoped work items (BL-001–BL-003). | References `documentation/zos/09_PROJECT_BRAIN.md`; explicit that backlog entries are not sprint authorization. |
 | AI-009 | `00_AI_INDEX.md` | Approved | This document. | Indexes the AI layer only; does not restate or override ZOS content. |
-| AI-010 | `FINAL_DOCUMENTATION_BASELINE_REPORT.md` | **Not yet created** | Reserved for a report asserting the documentation baseline is reviewed and approved. | Not created — no verified Architecture Team approval decision exists yet to report (see `documentation/ai/PROJECT_BACKLOG.md`-adjacent readiness checklist). |
+| AI-010 | `FINAL_DOCUMENTATION_BASELINE_REPORT.md` | Approved | Records the Architecture Team's baseline approval decision, audit scope, and completed repair/reconciliation activities. | Reports on, but does not itself modify, `documentation/zos/`; records the approval event only. |
 | AI-011 | `ZENITH_TRANSFER_CONTEXT.md` | Operational Layer — Official AI Entry Point | First document an AI session should open; points to where project knowledge lives and the order to acquire it. | Defers entirely to `documentation/zos/`; does not duplicate its content. |
 | AI-012 | `BASELINE_SNAPSHOT.md` | Approved | Point-in-time snapshot of repository/documentation state, dated at generation. | Records counts and structure of both `documentation/zos/` and `documentation/ai/` as observed, not as ZOS content itself. |
 | AI-013 | `ENGINEERING_HANDOFF.md` | Approved | Entry point marking the transition from Documentation Phase to Engineering Phase; mandatory boot order for implementation sessions. | Cites `documentation/zos/09_PROJECT_BRAIN.md` for current phase/sprint; mandates reading `04_TECH_STACK.md`, `05_ARCHITECTURE.md`, `13_FOLDER_STRUCTURE.md`, `14_DEPENDENCY_POLICY.md`, `15_CODING_STANDARDS.md`, `16_NAMING_CONVENTIONS.md` before S1-001 implementation. |
 
 # Known Open Items
 
-This index does not resolve the following; they are tracked in `documentation/ai/PROJECT_BACKLOG.md` and in the AI Documentation Baseline readiness checklist:
+All items previously tracked here (FR-003, FR-004, FR-006, FR-009, FR-012, BL-001, BL-002, the ZOS document-count discrepancy) were resolved or accurately recorded as accepted backlog prior to the Architecture Team's baseline approval — see `documentation/ai/FINAL_DOCUMENTATION_BASELINE_REPORT.md` (AI-010) for the full closure record. The one item still open by design, not by omission:
 
-- `FINAL_DOCUMENTATION_BASELINE_REPORT.md` cannot be created until an actual Architecture Team approval decision exists covering the items listed in that checklist (FR-003, FR-004, FR-006, FR-009, FR-012, BL-001, BL-002, BL-003, and the ZOS document-count discrepancy noted below).
-- `ENGINEERING_HANDOFF.md` states the ZOS layer contains 23 documents; the verified current count is 28 (`documentation/zos/*.md` plus `documentation/zos/sprints/*.md`). This discrepancy is unresolved and is not corrected by this index.
+- `documentation/zos/09_PROJECT_BRAIN.md` (BL-003) remains an unfilled template. It may only be completed by the Architecture Team after an approved sprint closes; this index does not treat that as a defect.
 
 # Related Documents
 
