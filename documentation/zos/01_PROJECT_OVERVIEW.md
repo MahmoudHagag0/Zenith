@@ -64,6 +64,6 @@ Maintainable - Well documented - Architecture compliant - AI friendly
 # Related Documents
 
 -   00_README.md
--   04_ARCHITECTURE.md
+-   05_ARCHITECTURE.md
 -   09_PROJECT_BRAIN.md
 -   10_AI_ENGINEER_GUIDE.md

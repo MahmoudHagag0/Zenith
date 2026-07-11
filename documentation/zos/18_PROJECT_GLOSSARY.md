@@ -1,48 +1,34 @@
+# 18_PROJECT_GLOSSARY
 
+**Document ID:** ZOS-018
+**Version:** 1.0.0
+**Status:** Approved
+**Owner:** Architecture Team
 
-# ZOS Project Glossary
+------------------------------------------------------------------------
 
-**Version:** 1.0.0  
+# Purpose
 
-**Status:** OFFICIAL  
+This document defines standardized terminology used throughout the Zenith project and its documentation.
 
-**Owner:** Architecture Team  
+# A-Z Definitions
 
-**Related Documents:** 00_INDEX.md
-
-
-
-## A-Z Definitions
-
-
-
-### Architecture Team
+## Architecture Team
 
 The primary governing body responsible for ZOS design decisions and final approvals.
 
-
-
-### Nova-Class AI
+## Nova-Class AI
 
 An implementation-focused AI entity optimized for ZOS documentation and engineering tasks.
 
-
-
-### Project Brain
+## Project Brain
 
 The central cognitive and logic repository governing ZOS operations.
 
-
-
-### Zenith Operating System (ZOS)
+## Zenith Operating System (ZOS)
 
 The comprehensive framework and methodology for the project’s execution.
 
+# Related Documents
 
-
----
-
-*Documentation Path: documentation/zos/18_PROJECT_GLOSSARY.md*
-
-
-
+- `00_INDEX.md`

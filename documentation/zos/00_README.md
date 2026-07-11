@@ -1,12 +1,12 @@
 # Zenith Operating System (ZOS)
 
-**Version:** 1.0.0\
-**Status:** Approved\
+**Version:** 1.0.0
+**Status:** Approved
 **Owner:** Architecture Team
 
 ------------------------------------------------------------------------
 
-## Purpose
+# Purpose
 
 The Zenith Operating System (ZOS) is the official engineering knowledge
 system for the Zenith project.
@@ -23,7 +23,7 @@ It is the single source of truth for:
 Every engineer and every AI agent working on Zenith must follow the
 rules defined by ZOS.
 
-## Goals
+# Goals
 
 -   Consistent engineering decisions
 -   Long-term maintainability
@@ -32,7 +32,7 @@ rules defined by ZOS.
 -   Accurate project knowledge
 -   Standardized implementation workflow
 
-## ZOS Structure
+# ZOS Structure
 
 1.  Project Overview
 2.  Product Vision
@@ -55,7 +55,7 @@ rules defined by ZOS.
 19. Onboarding Guide
 20. AI Boot Sequence
 
-## Source of Truth
+# Source of Truth
 
 Order of authority:
 
@@ -68,13 +68,13 @@ Order of authority:
 If code conflicts with approved architecture or documentation, the
 Architecture Team must review and resolve the conflict.
 
-## Engineering Rules
+# Engineering Rules
 
 -   No implementation without an approved Sprint Brief.
 -   No architecture changes without Architecture Team approval.
 -   AI implementation agents may not modify ZOS directly.
 
-## Updating ZOS
+# Updating ZOS
 
 ZOS is updated only after:
 
@@ -83,14 +83,18 @@ ZOS is updated only after:
 -   Major engineering decisions
 -   Approved architecture changes
 
-## Audience
+# Audience
 
 -   Architecture Team
 -   AI Implementation Engineers
 -   Human Contributors
 -   Future Maintainers
 
-## Mission
+# Mission
 
 Build Zenith as a scalable, maintainable, AI-assisted platform while
 preserving engineering quality and architectural integrity.
+
+# Related Documents
+
+- `00_INDEX.md`

@@ -1,56 +1,30 @@
-
-
 # ZOS Document Index
 
-**Version:** 1.0.0  
+**Version:** 1.0.0
+**Status:** Approved
+**Owner:** Architecture Team
 
-**Status:** OFFICIAL  
+------------------------------------------------------------------------
 
-**Owner:** Architecture Team  
-
-**Related Documents:** All ZOS Modules
-
-
-
-## Executive Summary
+# Purpose
 
 This index serves as the central directory for the Zenith Operating System (ZOS) documentation suite. It provides a structured overview of all architectural, operational, and engineering specifications.
 
-
-
-## Document Registry
-
-
+# Document Registry
 
 | ID | Document Name | Description |
-
 |:---|:---|:---|
-
 | 00 | 00_INDEX.md | Master directory and document status tracker. |
-
 | 09 | 09_PROJECT_BRAIN.md | Core logic, state management, and cognitive architecture. |
-
 | 17 | 17_RELEASE_PROCESS.md | Deployment, versioning, and approval workflows. |
-
 | 18 | 18_PROJECT_GLOSSARY.md | Standardized terminology and definitions. |
-
 | 19 | 19_ONBOARDING_GUIDE.md | Procedures for integrating new engineers and AIs. |
-
 | 20 | 20_AI_BOOT_SEQUENCE.md | Initialization protocols for AI cognitive layers. |
-
 | -- | ZENITH_AI_SYSTEM_PROMPT.md | Core behavioral and operational constraints. |
-
 | -- | ZENITH_MASTER_CONTEXT.md | Global project background and architectural vision. |
-
 | -- | SPRINT_BRIEF_TEMPLATE.md | Standardized format for sprint planning. |
-
 | -- | NOVA_STARTUP_PACKAGE.md | Pre-configured environment for Nova-class entities. |
 
+# Related Documents
 
-
----
-
-*Documentation Path: documentation/zos/00_INDEX.md*
-
-
-
+- All ZOS modules (see Document Registry above).

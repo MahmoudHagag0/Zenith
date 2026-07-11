@@ -1,20 +1,25 @@
 # 14_DEPENDENCY_POLICY
 
-**Document ID:** ZOS-014 **Version:** 1.0.0 **Status:** Approved
+**Document ID:** ZOS-014
+**Version:** 1.0.0
+**Status:** Approved
+**Owner:** Architecture Team
 
-## Purpose
+------------------------------------------------------------------------
+
+# Purpose
 
 Defines how dependencies are evaluated, approved, introduced, updated,
 and removed.
 
-## Principles
+# Principles
 
 -   Prefer standard library and existing workspace packages.
 -   Minimize runtime dependencies.
 -   Prefer official, well-maintained libraries.
 -   Pin and review versions consistently.
 
-## Approval Rules
+# Approval Rules
 
 Runtime dependencies require: 1. Technical justification. 2.
 Architecture approval. 3. Documentation update. 4. Validation in CI.
@@ -22,13 +27,13 @@ Architecture approval. 3. Documentation update. 4. Validation in CI.
 Development dependencies require engineering justification and
 compatibility verification.
 
-## Prohibited
+# Prohibited
 
 -   Duplicate libraries with overlapping purpose.
 -   Unmaintained packages.
 -   Unapproved framework replacements.
 
-## Review Checklist
+# Review Checklist
 
 -   Is it necessary?
 -   Is there an existing workspace package?
@@ -36,12 +41,12 @@ compatibility verification.
 -   License acceptable?
 -   Long-term maintenance likely?
 
-## Updates
+# Updates
 
 Dependency updates should be tested, documented, and reflected in the
 lockfile.
 
-## Related
+# Related Documents
 
 -   04_TECH_STACK.md
 -   05_ARCHITECTURE.md
