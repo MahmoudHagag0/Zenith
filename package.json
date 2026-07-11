@@ -1,0 +1,11 @@
+{
+  "name": "zenith",
+  "version": "0.1.0",
+  "description": "Zenith - Official Repository",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "backend",
+    "frontend"
+  ]
+}
