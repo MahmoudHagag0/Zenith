@@ -1,0 +1,3 @@
+git add .
+git commit -m "docs(zos): add official ZOS v1.0 documentation"
+git push
