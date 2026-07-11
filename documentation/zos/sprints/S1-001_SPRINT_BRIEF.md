@@ -32,7 +32,7 @@ Per `08_ROADMAP.md`, Milestone M0 lists eight objectives: Monorepo setup, Backen
 2. **Backend foundation** — `apps/api`, a NestJS application, per `04_TECH_STACK.md` and `05_ARCHITECTURE.md`.
 3. **Frontend foundation** — `apps/web`, a Next.js application, per `04_TECH_STACK.md` and `05_ARCHITECTURE.md`.
 4. **Database foundation** — `packages/database`, using Prisma as ORM against PostgreSQL, per `04_TECH_STACK.md`.
-5. **Authentication foundation** — A baseline authentication mechanism for `apps/api`. **Note:** no ZOS document formally specifies the authentication mechanism via an approved ADR (`12_ADR_INDEX.md` has no approved ADRs). `16_NAMING_CONVENTIONS.md` includes JWT-related naming examples (`JwtGuard`, `JwtStrategy`, `JWT_SECRET`, `JWT_EXPIRATION`, and the route example `/api/v1/auth/login`), which suggests but does not formally establish JWT as the approved mechanism. This must be confirmed by the Architecture Team before implementation of authentication logic begins — it is flagged as an INFERENCE, not a FACT, per Constitution Rule 8.
+5. **Authentication foundation** — JWT-based authentication for `apps/api`, confirmed by Architecture Team decision on 2026-07-11 (see `documentation/zos/12_ADR_INDEX.md`, ADR-001, and `documentation/zos/11_DECISION_LOG.md`, DEC-2026-001). Scope is limited to: authentication foundation, authentication middleware/base services, and protected-route capability. Explicitly out of scope: OAuth providers, social login, advanced identity management, and any authentication complexity beyond this baseline.
 6. **API documentation** — Swagger/OpenAPI integration for `apps/api`, per `04_TECH_STACK.md`.
 7. **Engineering standards** — ESLint and Prettier configured and enforced via `packages/tooling`, per `04_TECH_STACK.md` and the Formatting section of `15_CODING_STANDARDS.md`.
 
@@ -47,6 +47,7 @@ The following are explicitly excluded from S1-001, per `08_ROADMAP.md` Milestone
 - Business services
 - Authorization refinement (beyond the baseline authentication foundation listed above)
 - Core APIs beyond what is required to demonstrate the foundation layer (e.g., the health endpoint in Acceptance Criteria)
+- OAuth providers, social login, advanced identity management, and any authentication complexity beyond the JWT baseline (per Architecture Team decision 2026-07-11, DEC-2026-001)
 
 Also explicitly out of scope, per Constitution Rule 1 and Rule 3:
 
@@ -77,7 +78,7 @@ Per `07_ENGINEERING_WORKFLOW.md` Deliverables, applied to this sprint's scope:
 - `apps/api` has Swagger/OpenAPI documentation available.
 - Structured logging via Pino is in place in `apps/api`, per `04_TECH_STACK.md` and the Logging Standards in `15_CODING_STANDARDS.md`.
 - ESLint and Prettier are configured via `packages/tooling` and enforced across `apps/` and `packages/`.
-- A baseline authentication mechanism exists in `apps/api`, with its specific design explicitly confirmed by the Architecture Team before or during this sprint (see Scope item 5).
+- A baseline JWT authentication mechanism exists in `apps/api`, per the Architecture Team's confirmation on 2026-07-11 (see Scope item 5, ADR-001, DEC-2026-001).
 - No dependency outside `04_TECH_STACK.md`'s approved stack was introduced without following `14_DEPENDENCY_POLICY.md`.
 - All code satisfies the Code Review Checklist in `15_CODING_STANDARDS.md`.
 
@@ -92,15 +93,15 @@ Restated from `07_ENGINEERING_WORKFLOW.md`: this sprint is complete only when sc
 # Dependencies
 
 - No new runtime dependency is currently anticipated beyond what `04_TECH_STACK.md` already approves (NestJS, Next.js, Prisma, Zod, Swagger/OpenAPI, Pino, Jest, and the `@zenith/*` shared packages).
-- Verification of the actual current repository state is a prerequisite, since no live repository access has been available during the Documentation Phase (`documentation/ai/BASELINE_SNAPSHOT.md` — Git Status: Not Available). Work in this sprint should begin with a repository audit per `documentation/ai/AI_BOOTSTRAP.md` Section 3, to confirm what, if any, of the Scope items already exists before implementing further.
-- Confirmation of the authentication mechanism (Scope item 5) by the Architecture Team.
+- Verification of the actual current repository state remains a prerequisite before coding begins. The specific `apps/` vs. `backend`/`frontend` structural conflict identified during the implementation readiness review has been resolved (Architecture Team decision, 2026-07-11: `backend/`→`apps/api`, `frontend/`→`apps/web`, `package.json` workspaces updated). A repository audit per `documentation/ai/AI_BOOTSTRAP.md` Section 3 should still precede coding, to confirm what, if any, remaining Scope items already exist.
+- ~~Confirmation of the authentication mechanism (Scope item 5) by the Architecture Team.~~ Resolved 2026-07-11 — see Scope item 5, ADR-001, DEC-2026-001.
 
 ---
 
 # Risks
 
-- **Unverified starting state.** Because no independent verification of the live repository has occurred during the Documentation Phase, this sprint may discover that some Scope items are already partially or fully implemented, or that the repository diverges from `13_FOLDER_STRUCTURE.md`. Either case requires an updated repository audit before proceeding, not silent assumption.
-- **Undefined authentication mechanism.** Scope item 5 depends on an Architecture Team confirmation that does not yet exist as an approved ADR. Proceeding with implementation before that confirmation risks producing unapproved architecture, which Constitution Rule 1 prohibits.
+- **Unverified starting state.** The structural divergence from `13_FOLDER_STRUCTURE.md` found during the implementation readiness review has been corrected (see Dependencies). A repository audit should still precede coding to confirm no other Scope items are already partially implemented.
+- ~~**Undefined authentication mechanism.**~~ Resolved 2026-07-11 — JWT confirmed by Architecture Team decision (ADR-001, DEC-2026-001).
 - **Dependency discovery mid-sprint.** If implementation reveals a need for a dependency not listed in `04_TECH_STACK.md`, `07_ENGINEERING_WORKFLOW.md`'s Escalation Rules and `14_DEPENDENCY_POLICY.md` require the Implementation Engineer to stop and escalate, which may pause the sprint.
 
 ---
@@ -138,12 +139,16 @@ Per `15_CODING_STANDARDS.md`:
 
 Per `SPRINT_BRIEF_TEMPLATE.md` Governance and Constitution Rule 2, this Sprint Brief is not valid for implementation until its Approval Status is marked **Approved** by the Architecture Team. Drafting this document does not constitute that approval.
 
+**Implementation Authorization (2026-07-11):** the Architecture Team gave explicit approval to this Sprint Brief in a separate decision from the Documentation Baseline approval, confirming the Approval Status above and authorizing implementation planning. This is the actual approval event; the pre-existing checkbox and date above reflect this document's original drafted state and are retained unchanged as the historical record.
+
 ---
 
 # Related Documents
 
 - `documentation/zos/21_SPRINT_S1-001.md` (superseded by this document)
 - `documentation/zos/SPRINT_BRIEF_TEMPLATE.md`
+- `documentation/zos/12_ADR_INDEX.md` (ADR-001 — JWT authentication decision)
+- `documentation/zos/11_DECISION_LOG.md` (DEC-2026-001, DEC-2026-002)
 - `documentation/zos/08_ROADMAP.md`
 - `documentation/zos/04_TECH_STACK.md`
 - `documentation/zos/05_ARCHITECTURE.md`
