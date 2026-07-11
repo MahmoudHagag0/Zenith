@@ -2,7 +2,7 @@
 
 **Version:** 1.0.0  
 
-**Status:** OFFICIAL  
+**Status:** Approved  
 
 **Owner:** Architecture Team  
 

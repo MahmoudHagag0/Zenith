@@ -15,9 +15,9 @@ This document is the entry point for every future implementation session on Zeni
 
 # Documentation Status
 
-Documentation Baseline Approved (per `documentation/ai/FINAL_DOCUMENTATION_BASELINE_REPORT.md`). The ZOS Layer (28 documents, verified count as of the Documentation Baseline Closure Phase — corrected from a prior stated count of 23) and AI Layer (13 documents, including this one) have been audited, repaired within approved scope, and verified internally consistent — unique Document IDs, resolving cross-references, and unchanged version numbers across both layers.
+Documentation Baseline: audit and repair cycles complete, not yet formally approved. `documentation/ai/FINAL_DOCUMENTATION_BASELINE_REPORT.md` does not yet exist, and no Architecture Team sign-off of the baseline as a whole has been recorded — this status line should not be read as an approval claim until that report exists and is approved. The ZOS Layer (28 documents, verified count as of the Documentation Baseline Closure Phase — corrected from a prior stated count of 23) and AI Layer (13 documents, including this one) have been audited and repaired within approved scope; internal-consistency verification (unique Document IDs, resolving cross-references, unchanged version numbers) has been performed but not yet formally signed off.
 
-Three documentation items remain open on the backlog and do not block engineering work: `PROJECT_STATE.md` and `ZENITH_TRANSFER_CONTEXT.md` contain some stale statements (BL-001, BL-002), and `09_PROJECT_BRAIN.md`, while now populated with current-state fields, should be kept current as sprints close (BL-003 tracked its prior unfilled state).
+BL-001 and BL-002 (stale statements in `PROJECT_STATE.md` and `ZENITH_TRANSFER_CONTEXT.md`) were resolved during the Documentation Baseline Closure Phase. `09_PROJECT_BRAIN.md` remains an approved template (BL-003) — it has not been populated with current-state fields. Per its own Update Policy, it may only be completed by the Architecture Team after an approved sprint closes; an implementation engineer must not populate it directly. This does not block engineering work but means it is not yet a source of live project state.
 
 # Current Phase
 
