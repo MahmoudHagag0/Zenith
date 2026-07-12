@@ -2,7 +2,7 @@
 
 **Document ID:** ZOS-S1-002
 **Template Reference:** `SPRINT_BRIEF_TEMPLATE.md` (ZOS-SBT)
-**Status:** Proposed
+**Status:** Approved
 
 ------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@
 - **Milestone:** M1 — Core Platform (per `08_ROADMAP.md`), first increment
 - **Phase:** Phase 1 — Engineering Foundation (per `09_PROJECT_BRAIN.md`)
 - **Date Drafted:** 2026-07-12
-- **Approved By:** *(pending — see Approval Section)*
+- **Approved By:** Architecture Team (2026-07-12 — see Approval Section)
 
 ---
 
@@ -126,14 +126,14 @@ Per `15_CODING_STANDARDS.md`: strict TypeScript mode; all external input validat
 # Approval Section
 
 - **Approval Status:**
-  - [x] Proposed
+  - [ ] Proposed
   - [ ] Under Review
-  - [ ] Approved
+  - [x] Approved
   - [ ] Rejected / Returned for Revision
-- **Approved By:** *(pending)*
-- **Date Approved:** *(pending)*
+- **Approved By:** Architecture Team
+- **Date Approved:** 2026-07-12
 
-Per `SPRINT_BRIEF_TEMPLATE.md` Governance and Constitution Rule 2, this Sprint Brief is not valid for implementation until its Approval Status is explicitly marked **Approved** by the Architecture Team as a distinct action. The underlying decisions in this Brief (scope, password hashing, schema, registration policy, token lifecycle) have already been approved individually by the Architecture Team; this Brief itself still requires its own explicit approval before implementation begins, consistent with how S1-001 was handled.
+Approved on the basis stated by the Architecture Team: scope is appropriately bounded, architecture is consistent with ZOS v1.0 and prior decisions (ADR-001, ADR-002), the Sprint Objective aligns with Zenith's product goal (user identity enabling personalized analysis, risk insights, and future AI capabilities), and deferred areas are intentionally sequenced, not ignored. This Sprint Brief is now valid for implementation per Constitution Rule 2.
 
 ---
 
