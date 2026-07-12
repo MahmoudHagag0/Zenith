@@ -7,4 +7,17 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// No domain models yet — out of scope for S1-001 (see Sprint Brief Non-Scope).
+// User identity model — S1-002 (see Sprint Brief Scope item 1).
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(USER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum Role {
+  USER
+  ADMIN
+}

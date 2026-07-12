@@ -1,6 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 
-export { PrismaClient };
+export { Prisma, PrismaClient };
 
 export async function checkDatabaseConnection(client: PrismaClient): Promise<boolean> {
   await client.$queryRaw`SELECT 1`;

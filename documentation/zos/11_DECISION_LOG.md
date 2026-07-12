@@ -85,6 +85,18 @@ Sprint or milestone where the decision was applied.
 -   **Affected Components:** `apps/api`, `apps/web`, `package.json`.
 -   **Implemented In:** S1-001.
 
+## DEC-2026-003
+
+-   **Date:** 2026-07-12
+-   **Title:** Argon2id Password Hashing for S1-002 User Management
+-   **Status:** Approved
+-   **Decision Summary:** S1-002's `User` model stores passwords hashed with Argon2id. No other hashing algorithm is authorized.
+-   **Business Rationale:** A confirmed hashing mechanism was required before any credential-handling code could be written, per Constitution Rule 1/5; no prior ZOS document specified one.
+-   **Technical Impact:** `apps/api` registration/login depends on an Argon2id-capable library, to be selected and reviewed under `14_DEPENDENCY_POLICY.md` at implementation time. Password hashes must never be logged or returned in API responses (per `15_CODING_STANDARDS.md` Logging Standards).
+-   **Related ADR:** ADR-002.
+-   **Affected Components:** `apps/api`, `packages/database`.
+-   **Implemented In:** S1-002.
+
 # Rules
 
 -   Every architectural decision must have a Decision Log entry.

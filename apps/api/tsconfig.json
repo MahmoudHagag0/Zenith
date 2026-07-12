@@ -6,6 +6,7 @@
     "baseUrl": "./",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "incremental": true
+    "incremental": true,
+    "declaration": false
   }
 }
