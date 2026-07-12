@@ -12,6 +12,7 @@ import { FavouritesModule } from './favourites/favourites.module';
 import { PortfoliosModule } from './portfolios/portfolios.module';
 import { PositionsModule } from './positions/positions.module';
 import { MarketDataModule } from './market-data/market-data.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { MarketDataModule } from './market-data/market-data.module';
     PortfoliosModule,
     PositionsModule,
     MarketDataModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}
