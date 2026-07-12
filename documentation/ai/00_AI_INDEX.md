@@ -44,12 +44,11 @@ This mapping was established by Architecture Team decision as part of the AI Doc
 | AI-011 | `ZENITH_TRANSFER_CONTEXT.md` | Operational Layer — Official AI Entry Point | First document an AI session should open; points to where project knowledge lives and the order to acquire it. | Defers entirely to `documentation/zos/`; does not duplicate its content. |
 | AI-012 | `BASELINE_SNAPSHOT.md` | Approved | Point-in-time snapshot of repository/documentation state, dated at generation. | Records counts and structure of both `documentation/zos/` and `documentation/ai/` as observed, not as ZOS content itself. |
 | AI-013 | `ENGINEERING_HANDOFF.md` | Approved | Entry point marking the transition from Documentation Phase to Engineering Phase; mandatory boot order for implementation sessions. | Cites `documentation/zos/09_PROJECT_BRAIN.md` for current phase/sprint; mandates reading `04_TECH_STACK.md`, `05_ARCHITECTURE.md`, `13_FOLDER_STRUCTURE.md`, `14_DEPENDENCY_POLICY.md`, `15_CODING_STANDARDS.md`, `16_NAMING_CONVENTIONS.md` before S1-001 implementation. |
+| AI-014 | `S1-001_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-001, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-001's closure. |
 
 # Known Open Items
 
-All items previously tracked here (FR-003, FR-004, FR-006, FR-009, FR-012, BL-001, BL-002, the ZOS document-count discrepancy) were resolved or accurately recorded as accepted backlog prior to the Architecture Team's baseline approval — see `documentation/ai/FINAL_DOCUMENTATION_BASELINE_REPORT.md` (AI-010) for the full closure record. The one item still open by design, not by omission:
-
-- `documentation/zos/09_PROJECT_BRAIN.md` (BL-003) remains an unfilled template. It may only be completed by the Architecture Team after an approved sprint closes; this index does not treat that as a defect.
+All items previously tracked here (FR-003, FR-004, FR-006, FR-009, FR-012, BL-001, BL-002, BL-003, the ZOS document-count discrepancy) were resolved or accurately recorded as accepted backlog. `documentation/zos/09_PROJECT_BRAIN.md` (BL-003) was populated by the Architecture Team upon S1-001 closure (2026-07-12) — see `documentation/ai/S1-001_COMPLETION_REPORT.md` (AI-014). No items remain open on this index beyond ordinary sprint-to-sprint tracking in `documentation/ai/PROJECT_BACKLOG.md`.
 
 # Related Documents
 

@@ -143,12 +143,28 @@ Per `SPRINT_BRIEF_TEMPLATE.md` Governance and Constitution Rule 2, this Sprint B
 
 ---
 
+---
+
+# Sprint Closure
+
+- **Sprint Status:** CLOSED
+- **Closed Date:** 2026-07-12
+- **Completion Report:** `documentation/ai/S1-001_COMPLETION_REPORT.md` (AI-014), reviewed and approved by the Architecture Team 2026-07-11.
+- **Final Implementation Commit:** `f29785a`
+- **Related ADR:** ADR-001
+- **Related Decisions:** DEC-2026-001, DEC-2026-002
+
+This Sprint Status is distinct from the Approval Status in the Approval Section above, which records approval of this Brief for implementation and remains unchanged as the historical record of that event.
+
+---
+
 # Related Documents
 
 - `documentation/zos/21_SPRINT_S1-001.md` (superseded by this document)
 - `documentation/zos/SPRINT_BRIEF_TEMPLATE.md`
 - `documentation/zos/12_ADR_INDEX.md` (ADR-001 — JWT authentication decision)
 - `documentation/zos/11_DECISION_LOG.md` (DEC-2026-001, DEC-2026-002)
+- `documentation/ai/S1-001_COMPLETION_REPORT.md`
 - `documentation/zos/08_ROADMAP.md`
 - `documentation/zos/04_TECH_STACK.md`
 - `documentation/zos/05_ARCHITECTURE.md`
