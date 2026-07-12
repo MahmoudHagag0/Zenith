@@ -121,6 +121,42 @@ Sprint or milestone where the decision was applied.
 -   **Affected Components:** `packages/database` (`Position`, `Transaction` models), `apps/api` (positions/portfolios modules).
 -   **Implemented In:** S1-004.
 
+## DEC-2026-006
+
+-   **Date:** 2026-07-12
+-   **Title:** Market Data Provider Abstraction and Simulated Default Provider
+-   **Status:** Approved
+-   **Decision Summary:** Records the technical implementation of ADR-003: `apps/api` sources market data exclusively through a `MarketDataProvider` interface; the only implementation registered in S1-005 is a deterministic `SimulatedMarketDataProvider`, clearly documented as not real market data.
+-   **Business Rationale:** See ADR-003 — this allows the market-data foundation (caching, rate limiting, retry, background sync, API surface) to be built and verified now, without waiting on a future vendor-approval decision, while keeping every future consumer of market data completely isolated from that eventual choice.
+-   **Technical Impact:** `apps/api/src/market-data/providers/` contains the interface and the simulated implementation; the module registers the simulated provider under the `MarketDataProvider` interface token, so a future provider swap requires no change outside that one registration.
+-   **Related ADR:** ADR-003.
+-   **Affected Components:** `apps/api/src/market-data`.
+-   **Implemented In:** S1-005.
+
+## DEC-2026-007
+
+-   **Date:** 2026-07-12
+-   **Title:** `@nestjs/schedule` for Market Data Background Synchronization
+-   **Status:** Approved
+-   **Decision Summary:** Records the technical implementation of ADR-004: background market-data synchronization uses `@nestjs/schedule`'s `@Cron()` decorator, added as a new runtime dependency.
+-   **Business Rationale:** See ADR-004 — an official, already-maintained NestJS module is preferred over a hand-rolled interval loop or a new infrastructure dependency (e.g. Redis-backed job queue) disproportionate to this sprint's needs.
+-   **Technical Impact:** `apps/api` depends on `@nestjs/schedule`; `MarketDataSyncService` runs a periodic job that refreshes cached quotes only for assets currently tracked by at least one trader (watchlisted, favourited, or held in a position), not the entire catalog, reusing the same rate limiter and retry logic as on-demand reads.
+-   **Related ADR:** ADR-004.
+-   **Affected Components:** `apps/api` (`package.json`, `market-data` module).
+-   **Implemented In:** S1-005.
+
+## DEC-2026-008
+
+-   **Date:** 2026-07-12
+-   **Title:** Database-Backed Market Data Caching (No New Infrastructure)
+-   **Status:** Approved
+-   **Decision Summary:** S1-005's local caching layer is implemented entirely in PostgreSQL via two new Prisma models — `MarketQuote` (one row per asset, refreshed on a short TTL) and `Candle` (one row per asset per trading day, cached permanently once fetched, since historical daily data does not change). No new caching infrastructure (e.g. Redis, in-memory process cache) is introduced.
+-   **Business Rationale:** The existing PostgreSQL/Prisma stack is already approved and already the system of record for every other domain; reusing it for market-data caching avoids introducing new infrastructure, new operational surface, and new failure modes for a foundation sprint, consistent with `04_TECH_STACK.md`'s "keep dependencies minimal" rule.
+-   **Technical Impact:** `packages/database`'s Prisma schema gains `MarketQuote` and `Candle` models. `MarketDataService` treats a quote as fresh if its `fetchedAt` is within a short TTL window, and treats a requested candle date range as fully cached only once every day in that range has a row, refetching from the provider only for genuinely missing data.
+-   **Related ADR:** None — this decision applies the already-approved PostgreSQL/Prisma stack to a new caching requirement; it introduces no new technology or infrastructure, consistent with the DEC-2026-002/DEC-2026-004/DEC-2026-005 precedent.
+-   **Affected Components:** `packages/database` (`MarketQuote`, `Candle` models), `apps/api` (`market-data` module).
+-   **Implemented In:** S1-005.
+
 # Rules
 
 -   Every architectural decision must have a Decision Log entry.

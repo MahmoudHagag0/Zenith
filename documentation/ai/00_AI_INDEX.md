@@ -48,6 +48,7 @@ This mapping was established by Architecture Team decision as part of the AI Doc
 | AI-015 | `S1-002_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-002, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-002's closure. |
 | AI-016 | `S1-003_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-003, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-003's closure. |
 | AI-017 | `S1-004_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-004, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-004's closure. |
+| AI-018 | `S1-005_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-005, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-005's closure. |
 
 # Known Open Items
 
