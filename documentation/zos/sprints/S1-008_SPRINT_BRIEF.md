@@ -2,7 +2,7 @@
 
 **Document ID:** ZOS-S1-008
 **Template Reference:** `SPRINT_BRIEF_TEMPLATE.md` (ZOS-SBT)
-**Status:** Proposed
+**Status:** Approved
 
 ------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@
 - **Milestone:** M1 — Core Platform (per `08_ROADMAP.md`, under the same Implementation-Engineer placement basis recorded in `S1-007_SPRINT_BRIEF.md`)
 - **Phase:** Phase 1 — Engineering Foundation (per `09_PROJECT_BRAIN.md`)
 - **Date Drafted:** 2026-07-12
-- **Approved By:** *(pending)*
+- **Approved By:** Architecture Team (2026-07-12 — see Approval Section)
 
 ---
 
@@ -134,31 +134,33 @@ Calibration choices within ADR-006's already-approved design, resolved via a Dec
 
 ---
 
-# Decisions Requiring Architecture Team Approval (Before Implementation)
+# Decisions Requiring Architecture Team Approval — RESOLVED
 
-These are not calibration values — they touch contract shape or a still-open architectural question, so they are proposed here for explicit sign-off rather than decided unilaterally:
+Approved by the Architecture Team, 2026-07-12, exactly as proposed:
 
-1. **`normalize()`'s placeholder signature.** ADR-006 requires the method to exist; ADR-007 (S1-012) defines its real vocabulary and return shape. Proposal: declare `normalize(): void` for this sprint — a no-op stub satisfying "the method exists" without inventing any placeholder vocabulary type that ADR-007 would then need to supersede. Nothing calls `normalize()` in this sprint (Confluence, its only consumer, does not exist yet).
-2. **Finding B (Provider Lifecycle × Computation Versioning) remains unresolved.** This sprint defines the `ACTIVE`/`DEPRECATED`/`RETIRED` state and its new-run participation gating only (unambiguous per architecture text); it will not implement any `computationVersion` mutability rule tied to lifecycle state, since no real Provider exists yet to exercise one. Request: confirm this narrower scope is acceptable, and that Finding B's resolution (the architecture doc's own recommendation: DEPRECATED may still increment for historical-accuracy corrections, RETIRED is frozen) will be settled before S1-009 registers the first real Provider.
-3. **Trace Store non-persistence for this sprint.** Confirm that returning `traceability` as an in-memory field on Provider output — with no persistence layer, no new Prisma model, and no TTL/retention mechanics — is acceptable for S1-008, deferring actual storage to whichever of S1-009 or S1-012 first needs to retain a trace beyond a single request/response.
+1. **`normalize()`'s placeholder signature — Approved.** `normalize()` remains a documented no-op placeholder (`normalize(): void`) until ADR-007/S1-012 defines its real vocabulary and return shape. Nothing calls `normalize()` in this sprint.
+2. **Finding B (Provider Lifecycle × Computation Versioning) — Approved as scoped.** S1-008 defines only the `ACTIVE`/`DEPRECATED`/`RETIRED` state and its new-run participation gating. The `computationVersion` mutability question remains deferred exactly as documented, to be resolved before S1-009 registers the first real Provider.
+3. **Trace Store non-persistence — Approved.** `traceability` remains in-memory only during S1-008 — no persistence layer, Prisma model, migration, repository, or storage layer of any kind.
 
 ---
 
 # Approval Section
 
 - **Approval Status:**
-  - [x] Proposed
+  - [ ] Proposed
   - [ ] Under Review
-  - [ ] Approved
+  - [x] Approved
   - [ ] Rejected / Returned for Revision
-- **Approved By:** *(pending)*
-- **Date Approved:** *(pending)*
+- **Approved By:** Architecture Team
+- **Date Approved:** 2026-07-12
+
+Approved on the basis that the independent audit found no Critical findings and the three Decisions Requiring Architecture Team Approval were resolved exactly as proposed (see that section, now marked RESOLVED). This Sprint Brief is valid for implementation per Constitution Rule 2.
 
 ---
 
 # Sprint Closure
 
-- **Sprint Status:** NOT STARTED — Proposed, pending Architecture Team review and the three decisions above.
+- **Sprint Status:** NOT STARTED — Approved, awaiting Task Breakdown approval.
 - **Closed Date:** *(pending)*
 - **Completion Report:** *(pending)*
 - **Final Implementation Commits:** *(pending)*
