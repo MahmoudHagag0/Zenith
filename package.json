@@ -3,9 +3,15 @@
   "version": "0.1.0",
   "description": "Zenith - Official Repository",
   "private": true,
-  "workspaces": [
-    "packages/*",
-    "backend",
-    "frontend"
-  ]
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test"
+  },
+  "devDependencies": {
+    "eslint": "^9.17.0",
+    "turbo": "^2.10.4"
+  }
 }

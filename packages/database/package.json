@@ -1,0 +1,21 @@
+{
+  "name": "@zenith/database",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Prisma-based database access layer for Zenith.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "prisma generate && tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "db:generate": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0"
+  },
+  "devDependencies": {
+    "@zenith/tooling": "workspace:*",
+    "prisma": "^6.1.0",
+    "typescript": "^5.7.2"
+  }
+}

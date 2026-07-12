@@ -1,0 +1,16 @@
+{
+  "name": "@zenith/utils",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared utility functions for Zenith applications and packages.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@zenith/tooling": "workspace:*",
+    "typescript": "^5.7.2"
+  }
+}

@@ -1,36 +1,63 @@
-# ZOS Onboarding Guide
+# 19_ONBOARDING_GUIDE
 
-**Version:** 1.0.0  
+**Document ID:** ZOS-019
+**Version:** 1.0.0
+**Status:** Approved
+**Owner:** Architecture Team
 
-**Status:** OFFICIAL  
+------------------------------------------------------------------------
 
-**Owner:** Operations  
+# Purpose
 
-**Related Documents:** 20_AI_BOOT_SEQUENCE.md, NOVA_STARTUP_PACKAGE.md
+This document defines the procedure for integrating a new contributor — human or AI — into the Zenith project. It does not restate engineering rules, architecture, or workflow; it points to where each is defined and specifies the order in which they must be read.
 
+# Audience
 
+- New human engineers joining the project.
+- New AI implementation agents beginning a session on the project (see also `documentation/ai/AI_BOOTSTRAP.md` for the AI-specific mechanical boot sequence).
 
-## 1. Introduction
+# Onboarding Steps
 
-This guide outlines the mandatory steps for new human and AI assets joining the Zenith Project.
+## Step 1 — Understand ZOS Itself
 
+Read `00_README.md` to understand what ZOS is, its structure, and its source-of-truth hierarchy.
 
+## Step 2 — Understand the Project
 
-## 2. Onboarding Workflow
+Read, in order: `01_PROJECT_OVERVIEW.md`, `02_PRODUCT_VISION.md`, `03_BUSINESS_GOALS.md`.
 
-1. **Access Provisioning:** Granting credentials to the ZOS repository.
+## Step 3 — Understand the Technical Foundation
 
-2. **Context Loading:** Sequential reading of `ZENITH_MASTER_CONTEXT.md` and `09_PROJECT_BRAIN.md`.
+Read, in order: `04_TECH_STACK.md`, `05_ARCHITECTURE.md`, `13_FOLDER_STRUCTURE.md`.
 
-3. **Environment Setup:** Local initialization of the development stack.
+## Step 4 — Understand the Rules
 
-4. **Verification:** Completion of the initial boot sequence check.
+Read, in order: `06_PROJECT_CONSTITUTION.md`, `07_ENGINEERING_WORKFLOW.md`, `10_AI_ENGINEER_GUIDE.md`.
 
+## Step 5 — Understand Current State
 
+Read `09_PROJECT_BRAIN.md` for live project status, and `08_ROADMAP.md` for direction. For AI agents, `documentation/ai/PROJECT_STATE.md` provides an operational-layer summary that points into these same documents.
 
----
+## Step 6 — Understand Standards
 
-*Documentation Path: documentation/zos/19_ONBOARDING_GUIDE.md*
+Read, as relevant to the work: `14_DEPENDENCY_POLICY.md`, `15_CODING_STANDARDS.md`, `16_NAMING_CONVENTIONS.md`, `17_RELEASE_PROCESS.md`.
 
+## Step 7 — Understand Terminology
 
+Read `18_PROJECT_GLOSSARY.md` for standardized terms used throughout the other documents.
 
+## Step 8 — Understand How Work Begins
+
+No implementation work — by a human or an AI — begins without an approved Sprint Brief following `SPRINT_BRIEF_TEMPLATE.md`, per Constitution Rule 2.
+
+# AI-Specific Note
+
+AI implementation agents should treat this onboarding sequence as satisfied by following `documentation/ai/AI_BOOTSTRAP.md`, which operationalizes the same reading order together with repository initialization and stop conditions specific to automated sessions.
+
+# Related Documents
+
+- `00_README.md`
+- `06_PROJECT_CONSTITUTION.md`
+- `10_AI_ENGINEER_GUIDE.md`
+- `SPRINT_BRIEF_TEMPLATE.md`
+- `documentation/ai/AI_BOOTSTRAP.md`

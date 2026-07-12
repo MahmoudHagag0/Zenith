@@ -10,13 +10,20 @@ Version: 1.0.0
 
 
 
-Status: APPROVED
+Status: SUPERSEDED
 
 
 
 Owner: Architecture Team
 
 
+
+Superseded By: `documentation/zos/sprints/S1-001_SPRINT_BRIEF.md`
+
+
+
+
+Note: This document is superseded by `documentation/zos/sprints/S1-001_SPRINT_BRIEF.md`, which is the current authoritative Sprint Brief for S1-001. This document is retained as the historical approved record of the sprint and is no longer used to govern implementation.
 
 
 

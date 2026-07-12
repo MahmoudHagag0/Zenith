@@ -26,7 +26,9 @@ consistent across all development.
     │   ├── utils/
     │   └── tooling/
     ├── documentation/
-    │   └── zos/
+    │   ├── zos/
+    │   │   └── sprints/
+    │   └── ai/
     ├── scripts/
     ├── .github/
     └── package.json
@@ -50,6 +52,14 @@ Shared code belongs here rather than inside applications.
 ## documentation/
 
 Project documentation, including the ZOS knowledge system.
+
+-   **documentation/zos** --- The ZOS knowledge system: architecture,
+    standards, workflow, and governance documents.
+-   **documentation/zos/sprints** --- Individual approved Sprint Brief
+    documents, one per Sprint ID, following `SPRINT_BRIEF_TEMPLATE.md`.
+-   **documentation/ai** --- Operational layer for AI implementation
+    agents (boot sequence, workflow, project-state snapshots). Derived
+    from and subordinate to `documentation/zos`; never overrides it.
 
 ## scripts/
 

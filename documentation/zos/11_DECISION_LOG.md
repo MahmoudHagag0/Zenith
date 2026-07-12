@@ -59,6 +59,32 @@ List impacted applications, packages, or modules.
 
 Sprint or milestone where the decision was applied.
 
+# Decisions
+
+## DEC-2026-001
+
+-   **Date:** 2026-07-11
+-   **Title:** JWT-Based Authentication for S1-001 Foundation
+-   **Status:** Approved
+-   **Decision Summary:** S1-001's authentication foundation uses JWT-based authentication, scoped to authentication foundation, authentication middleware/base services, and protected-route capability.
+-   **Business Rationale:** A confirmed mechanism was required before authentication-related implementation could begin, per Constitution Rule 1; JWT was already implied by existing naming-convention examples.
+-   **Technical Impact:** `apps/api` implements JWT issuance/validation as its baseline authentication mechanism. OAuth providers, social login, and advanced identity management are explicitly out of scope and require a superseding decision.
+-   **Related ADR:** ADR-001.
+-   **Affected Components:** `apps/api`.
+-   **Implemented In:** S1-001.
+
+## DEC-2026-002
+
+-   **Date:** 2026-07-11
+-   **Title:** Repository Structure Conformance — `apps/api` / `apps/web`
+-   **Status:** Approved
+-   **Decision Summary:** The repository's placeholder `backend/` and `frontend/` directories were renamed to `apps/api` and `apps/web`, and `package.json`'s `workspaces` field updated accordingly, to conform to the already-approved structure in `13_FOLDER_STRUCTURE.md` and `01_PROJECT_OVERVIEW.md`.
+-   **Business Rationale:** The live repository had diverged from previously-approved architecture (flagged during the S1-001 implementation readiness review); this decision conforms the repository to existing approved architecture rather than changing it.
+-   **Technical Impact:** No architectural change — `13_FOLDER_STRUCTURE.md` already specified `apps/api`/`apps/web`. This decision authorizes bringing the repository into line with that existing specification.
+-   **Related ADR:** None — this is a conformance action, not a new architectural decision; no ADR was created.
+-   **Affected Components:** `apps/api`, `apps/web`, `package.json`.
+-   **Implemented In:** S1-001.
+
 # Rules
 
 -   Every architectural decision must have a Decision Log entry.
