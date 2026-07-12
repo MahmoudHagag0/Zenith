@@ -15,9 +15,97 @@ model User {
   role         Role     @default(USER)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  watchlists       Watchlist[]
+  favouriteAssets  FavouriteAsset[]
 }
 
 enum Role {
   USER
   ADMIN
+}
+
+// Trading Catalog — S1-003 (see Sprint Brief Scope item 1). Shared reference data.
+model Exchange {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  markets Market[]
+}
+
+enum MarketType {
+  EQUITY
+  CRYPTO
+  FOREX
+  COMMODITY
+}
+
+model Market {
+  id         String     @id @default(uuid())
+  exchangeId String
+  name       String
+  type       MarketType
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  exchange Exchange @relation(fields: [exchangeId], references: [id], onDelete: Cascade)
+  assets   Asset[]
+
+  @@unique([exchangeId, name])
+}
+
+model Asset {
+  id        String   @id @default(uuid())
+  marketId  String
+  symbol    String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  market          Market           @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  watchlistItems  WatchlistItem[]
+  favouritedBy    FavouriteAsset[]
+
+  @@unique([marketId, symbol])
+}
+
+// User Watchlist foundation — S1-003 (see Sprint Brief Scope item 1). Strictly user-owned.
+model Watchlist {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items WatchlistItem[]
+
+  @@unique([userId, name])
+}
+
+model WatchlistItem {
+  id          String   @id @default(uuid())
+  watchlistId String
+  assetId     String
+  addedAt     DateTime @default(now())
+
+  watchlist Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+  asset     Asset     @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, assetId])
+}
+
+model FavouriteAsset {
+  id        String   @id @default(uuid())
+  userId    String
+  assetId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, assetId])
 }

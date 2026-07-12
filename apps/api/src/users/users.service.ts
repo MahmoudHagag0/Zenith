@@ -1,9 +1,7 @@
 import { ConflictException, Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { Prisma } from '@zenith/database';
 import { PrismaService } from '../database/prisma.service';
-
-const UNIQUE_CONSTRAINT_VIOLATION = 'P2002';
+import { isUniqueConstraintViolation } from '../common/prisma-errors';
 
 @Injectable()
 export class UsersService {
@@ -19,12 +17,9 @@ export class UsersService {
     try {
       return await this.prisma.user.create({ data: { email: normalizedEmail, passwordHash } });
     } catch (error) {
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === UNIQUE_CONSTRAINT_VIOLATION
-      ) {
-        // Two concurrent registrations can both pass the findUnique check above;
-        // the database's unique constraint is the real source of truth.
+      // Two concurrent registrations can both pass the findUnique check above;
+      // the database's unique constraint is the real source of truth.
+      if (isUniqueConstraintViolation(error)) {
         throw new ConflictException('Email already registered');
       }
       throw error;
