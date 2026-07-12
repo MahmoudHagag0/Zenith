@@ -103,3 +103,35 @@ export const createFavouriteAssetSchema = z.object({
 });
 
 export type CreateFavouriteAssetInput = z.infer<typeof createFavouriteAssetSchema>;
+
+// Portfolio & Position validation — S1-004 (see Sprint Brief Scope item 8).
+
+export const createPortfolioSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be at most 255 characters'),
+});
+
+export type CreatePortfolioInput = z.infer<typeof createPortfolioSchema>;
+
+export const updatePortfolioSchema = createPortfolioSchema;
+
+export type UpdatePortfolioInput = z.infer<typeof updatePortfolioSchema>;
+
+const positiveFinanceNumber = (label: string) =>
+  z
+    .number()
+    .finite(`${label} must be a finite number`)
+    .positive(`${label} must be greater than zero`)
+    .max(1_000_000_000_000, `${label} is too large`);
+
+export const buySchema = z.object({
+  assetId: z.string().uuid('assetId must be a valid UUID'),
+  quantity: positiveFinanceNumber('quantity'),
+  price: positiveFinanceNumber('price'),
+  executedAt: z.string().datetime('executedAt must be an ISO 8601 datetime').optional(),
+});
+
+export type BuyInput = z.infer<typeof buySchema>;
+
+export const sellSchema = buySchema;
+
+export type SellInput = z.infer<typeof sellSchema>;

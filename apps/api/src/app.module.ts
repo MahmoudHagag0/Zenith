@@ -8,6 +8,8 @@ import { MarketsModule } from './markets/markets.module';
 import { AssetsModule } from './assets/assets.module';
 import { WatchlistsModule } from './watchlists/watchlists.module';
 import { FavouritesModule } from './favourites/favourites.module';
+import { PortfoliosModule } from './portfolios/portfolios.module';
+import { PositionsModule } from './positions/positions.module';
 
 @Module({
   imports: [
@@ -25,6 +27,8 @@ import { FavouritesModule } from './favourites/favourites.module';
     AssetsModule,
     WatchlistsModule,
     FavouritesModule,
+    PortfoliosModule,
+    PositionsModule,
   ],
 })
 export class AppModule {}

@@ -18,6 +18,7 @@ model User {
 
   watchlists       Watchlist[]
   favouriteAssets  FavouriteAsset[]
+  portfolios       Portfolio[]
 }
 
 enum Role {
@@ -68,6 +69,7 @@ model Asset {
   market          Market           @relation(fields: [marketId], references: [id], onDelete: Cascade)
   watchlistItems  WatchlistItem[]
   favouritedBy    FavouriteAsset[]
+  positions       Position[]
 
   @@unique([marketId, symbol])
 }
@@ -108,4 +110,56 @@ model FavouriteAsset {
   asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
   @@unique([userId, assetId])
+}
+
+// Portfolio & Position accounting foundation — S1-004 (see Sprint Brief Scope item 1).
+// Strictly user-owned. Position quantity/averageCost/realizedPnl are derived exclusively
+// from recorded Transactions (see DEC-2026-005) — never set directly by a client.
+model Portfolio {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  positions Position[]
+
+  @@unique([userId, name])
+}
+
+model Position {
+  id          String   @id @default(uuid())
+  portfolioId String
+  assetId     String
+  quantity    Decimal  @default(0) @db.Decimal(24, 8)
+  averageCost Decimal  @default(0) @db.Decimal(24, 8)
+  realizedPnl Decimal  @default(0) @db.Decimal(24, 8)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  portfolio    Portfolio     @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  // Restrict (not Cascade): an Asset with open positions must not be silently
+  // deletable, since that would destroy a trader's financial history.
+  asset        Asset         @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  transactions Transaction[]
+
+  @@unique([portfolioId, assetId])
+}
+
+enum TransactionType {
+  BUY
+  SELL
+}
+
+model Transaction {
+  id         String          @id @default(uuid())
+  positionId String
+  type       TransactionType
+  quantity   Decimal         @db.Decimal(24, 8)
+  price      Decimal         @db.Decimal(24, 8)
+  executedAt DateTime        @default(now())
+  createdAt  DateTime        @default(now())
+
+  position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
 }

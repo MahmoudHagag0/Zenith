@@ -1,7 +1,11 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import type { CreateAssetInput, UpdateAssetInput } from '@zenith/validation';
 import { PrismaService } from '../database/prisma.service';
-import { isRecordNotFoundError, isUniqueConstraintViolation } from '../common/prisma-errors';
+import {
+  isForeignKeyConstraintViolation,
+  isRecordNotFoundError,
+  isUniqueConstraintViolation,
+} from '../common/prisma-errors';
 
 const DUPLICATE_SYMBOL_MESSAGE = 'An asset with this symbol already exists in this market';
 
@@ -67,6 +71,9 @@ export class AssetsService {
     } catch (error) {
       if (isRecordNotFoundError(error)) {
         throw new NotFoundException('Asset not found');
+      }
+      if (isForeignKeyConstraintViolation(error)) {
+        throw new ConflictException('Cannot delete an asset that has open positions');
       }
       throw error;
     }

@@ -77,4 +77,15 @@ describe('AssetsService', () => {
 
     await expect(service.findOne('missing-id')).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  it('rejects deleting an asset that has open positions instead of a raw 500', async () => {
+    prisma.asset.findUnique.mockResolvedValue({ id: 'as-1' });
+    const fkViolation = new Prisma.PrismaClientKnownRequestError('Foreign key constraint failed', {
+      code: 'P2003',
+      clientVersion: 'test',
+    });
+    prisma.asset.delete.mockRejectedValue(fkViolation);
+
+    await expect(service.remove('as-1')).rejects.toBeInstanceOf(ConflictException);
+  });
 });
