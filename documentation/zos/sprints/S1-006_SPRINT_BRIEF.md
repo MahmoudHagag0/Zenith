@@ -2,7 +2,7 @@
 
 **Document ID:** ZOS-S1-006
 **Template Reference:** `SPRINT_BRIEF_TEMPLATE.md` (ZOS-SBT)
-**Status:** Proposed
+**Status:** Approved
 
 ------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@
 - **Milestone:** M1 — Core Platform (per `08_ROADMAP.md`), first increment of the **Business Services** planned focus area
 - **Phase:** Phase 1 — Engineering Foundation (per `09_PROJECT_BRAIN.md`)
 - **Date Drafted:** 2026-07-12
-- **Approved By:** Pending — see Approval Section
+- **Approved By:** Architecture Team (2026-07-12 — see Approval Section)
 
 ---
 
@@ -216,23 +216,23 @@ These are not oversights — they are explicitly recognized and consciously defe
 - **Approval Status:**
   - [ ] Proposed
   - [ ] Under Review
-  - [ ] Approved
+  - [x] Approved
   - [ ] Rejected / Returned for Revision
-- **Approved By:** Pending
-- **Date Approved:** Pending
+- **Approved By:** Architecture Team
+- **Date Approved:** 2026-07-12
 
-This Sprint Brief is a proposal awaiting Architecture Team review and approval. Per Constitution Rule 2 (Sprint Authority), implementation must not begin until this Brief's Approval Status is marked Approved by the Architecture Team.
+Approved on the basis stated by the Architecture Team: the sprint direction is sound, and the three required revisions (Explainability, Confidence, Machine-Consumable Outputs — see Scope item 9) have been incorporated. This Sprint Brief is now valid for implementation per Constitution Rule 2.
 
 ---
 
 # Sprint Closure
 
-- **Sprint Status:** NOT STARTED
-- **Closed Date:** N/A
-- **Completion Report:** N/A — to be created only after implementation
-- **Final Implementation Commits:** N/A
-- **Related ADR:** None anticipated (see Missing Decisions)
-- **Related Decisions:** None yet — one Decision Log entry anticipated at implementation time (see Missing Decisions); not yet created
+- **Sprint Status:** CLOSED
+- **Closed Date:** 2026-07-12
+- **Completion Report:** `documentation/ai/S1-006_COMPLETION_REPORT.md` (AI-019)
+- **Final Implementation Commits:** `ba8f4ab` (implementation, including a fix for a pre-existing S1-005 defect surfaced during verification — see completion report)
+- **Related ADR:** None (see DEC-2026-009, DEC-2026-010)
+- **Related Decisions:** DEC-2026-009 (scoring/staleness calibration), DEC-2026-010 (fix for S1-005's quote-cache `fetchedAt` defect)
 
 This Sprint Status is distinct from the Approval Status in the Approval Section above.
 

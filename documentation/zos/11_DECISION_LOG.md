@@ -157,6 +157,31 @@ Sprint or milestone where the decision was applied.
 -   **Affected Components:** `packages/database` (`MarketQuote`, `Candle` models), `apps/api` (`market-data` module).
 -   **Implemented In:** S1-005.
 
+## DEC-2026-009
+
+-   **Date:** 2026-07-12
+-   **Title:** Trading Analytics Scoring and Staleness Thresholds
+-   **Status:** Approved
+-   **Decision Summary:** Records the implementation-time calibration anticipated by the S1-006 Sprint Brief's Missing Decisions section: a quote is treated as stale for analytics purposes once its `fetchedAt` age exceeds 5 minutes; the Concentration Score uses a Herfindahl-Hirschman-Index-style calculation (sum of squared position weight fractions, scaled to 0-100); the Portfolio Health Score starts at 100 and subtracts bounded penalties for four named rules (position concentration, allocation balance i.e. fewer than 3 positions, missing market data, and excessive single-market-type exposure above 75%); and missing historical candle data is reported as an informational Decision Readiness factor without independently downgrading readiness, since no candle-derived metric is exposed by this sprint.
+-   **Business Rationale:** These are calibration choices within an already-approved rule-based scoring design (Sprint Brief Scope items 3-5), not new architecture — analogous to choosing a cache TTL value under DEC-2026-008. Recording them here provides traceability for why a given score/status was produced, satisfying this sprint's Explainability requirement (Scope item 9) at the level of the rules themselves, not just their output.
+-   **Technical Impact:** `apps/api/src/analytics/analytics.service.ts` implements these exact thresholds and formulas. Adjusting any of them (e.g. a different staleness window, different penalty weights) is a future recalibration, not a scope or architecture change, and does not require a superseding ADR.
+-   **Related ADR:** None — this decision calibrates an already-approved rule-based scoring approach; it introduces no new technology or mechanism, consistent with the DEC-2026-002/DEC-2026-004/DEC-2026-005/DEC-2026-008 precedent.
+-   **Affected Components:** `apps/api/src/analytics`.
+-   **Implemented In:** S1-006.
+
+## DEC-2026-010
+
+-   **Date:** 2026-07-12
+-   **Title:** Fix — Market Quote Cache Never Refreshed `fetchedAt` on Update
+-   **Status:** Approved
+-   **Decision Summary:** `MarketDataService.getQuote()`'s cache-freshness check compares the current time against `MarketQuote.fetchedAt`, but the S1-005 implementation's `upsert` only set `fetchedAt` on the `create` branch (relying on the column's `@default(now())`, which Prisma applies solely on INSERT). The `update` branch never included `fetchedAt`, so after an asset's very first quote, `fetchedAt` never advanced again on any subsequent refresh — meaning the cache appeared permanently stale past the initial TTL window, causing every later `getQuote()` call to make a real provider call regardless of how recently the quote was actually refreshed. This defect was dormant throughout S1-005 (whose own verification only exercised the cache within a single TTL window) and was only surfaced by S1-006 exercising the same code path over a longer time horizon for Data Quality/Confidence reporting.
+-   **Decision:** `getQuote()`'s upsert now explicitly sets `fetchedAt: new Date()` on both the `create` and `update` branches.
+-   **Business Rationale:** Confidence and Data Quality reporting (S1-006 Scope items 2, 6) depend on `fetchedAt` being accurate; an always-stale cache would have made every analytics response report artificially degraded confidence, and would have defeated the S1-005 quote cache's entire purpose (redundant provider calls, and unnecessary load against the rate limiter, on every single quote request).
+-   **Technical Impact:** `apps/api/src/market-data/market-data.service.ts`. No schema change; no behavior change to any other field. Verified live: a quote refreshed after its TTL expired now shows an advancing `fetchedAt` on each subsequent genuine refresh, and Data Quality/Confidence correctly report `FRESH`/`HIGH` immediately after a refresh instead of `STALE`/`MEDIUM`.
+-   **Related ADR:** None — this is a bug fix within already-approved architecture (DEC-2026-008's caching design), not a new decision or mechanism.
+-   **Affected Components:** `apps/api/src/market-data/market-data.service.ts`.
+-   **Implemented In:** S1-006 (fixing a defect introduced in S1-005).
+
 # Rules
 
 -   Every architectural decision must have a Decision Log entry.
