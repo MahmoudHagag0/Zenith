@@ -1,8 +1,8 @@
 # 22_ANALYSIS_ENGINE_ARCHITECTURE
 
 **Document ID:** ZOS-022\
-**Version:** 1.0.0\
-**Status:** Proposed — pending ADR-005 / ADR-006 / ADR-007 approval\
+**Version:** 1.1.0\
+**Status:** Proposed — ADR-005 / ADR-006 / ADR-007 drafted, pending Architecture Team approval\
 **Owner:** Architecture Team (via Implementation Engineer)
 
 ------------------------------------------------------------------------
@@ -527,17 +527,26 @@ Every Provider carries an explicit lifecycle state:
 -   **ADR-005 — Shared Deterministic Computation Infrastructure**
     (Indicator Engine, Swing Detection Infrastructure, Regime/Context
     Service). Formalizes the "centralize computation" half of this
-    document. *Status: drafting.*
+    document, including the internal note distinguishing the
+    Regime/Context Service's research-driven provenance from the
+    Indicator Engine's. *Status: Proposed — drafted, pending
+    Architecture Team approval.* See `12_ADR_INDEX.md`.
 -   **ADR-006 — Analysis Provider Plugin Architecture & Standard
     Output Contract** (Evidence/Interpretation/Limitations,
     Traceability, Confidence Model, dependency-ordered execution,
     Provider Lifecycle). Formalizes the Analysis Provider Framework
-    section of this document. *Status: not yet drafted.*
+    section of this document, and establishes `normalize()` as part of
+    the `AnalysisProvider` interface (its target vocabulary is defined
+    by ADR-007, not this ADR, to avoid overlapping ownership).
+    *Status: Proposed — drafted, pending Architecture Team approval.*
+    See `12_ADR_INDEX.md`.
 -   **ADR-007 — Confluence Architecture: Normalization &
     Weighting-Readiness** (Normalization vocabulary, `normalize()`
-    ownership model, `ConfluenceWeightStrategy`, methodology-family
-    grouping). Formalizes the Normalization and Confluence Engine
-    sections of this document. *Status: not yet drafted.*
+    target semantics and conformance requirements, `ConfluenceWeightStrategy`,
+    methodology-family grouping). Formalizes the Normalization and
+    Confluence Engine sections of this document. *Status: Proposed —
+    drafted, pending Architecture Team approval.* See
+    `12_ADR_INDEX.md`.
 
 # Related Documents
 
