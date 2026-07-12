@@ -13,6 +13,7 @@ import { PortfoliosModule } from './portfolios/portfolios.module';
 import { PositionsModule } from './positions/positions.module';
 import { MarketDataModule } from './market-data/market-data.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { AnalysisEngineModule } from './analysis-engine/analysis-engine.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
     PositionsModule,
     MarketDataModule,
     AnalyticsModule,
+    AnalysisEngineModule,
   ],
 })
 export class AppModule {}
