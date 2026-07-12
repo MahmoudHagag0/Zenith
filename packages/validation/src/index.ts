@@ -23,3 +23,83 @@ export const loginSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+
+// Trading Catalog & Watchlist validation — S1-003 (see Sprint Brief Scope items 4).
+
+export const createExchangeSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be at most 255 characters'),
+  code: z
+    .string()
+    .min(1, 'Code is required')
+    .max(20, 'Code must be at most 20 characters')
+    .toUpperCase(),
+});
+
+export type CreateExchangeInput = z.infer<typeof createExchangeSchema>;
+
+export const updateExchangeSchema = createExchangeSchema.partial();
+
+export type UpdateExchangeInput = z.infer<typeof updateExchangeSchema>;
+
+export const marketTypeSchema = z.enum(['EQUITY', 'CRYPTO', 'FOREX', 'COMMODITY']);
+
+export const createMarketSchema = z.object({
+  exchangeId: z.string().uuid('exchangeId must be a valid UUID'),
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be at most 255 characters'),
+  type: marketTypeSchema,
+});
+
+export type CreateMarketInput = z.infer<typeof createMarketSchema>;
+
+export const updateMarketSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be at most 255 characters').optional(),
+  type: marketTypeSchema.optional(),
+});
+
+export type UpdateMarketInput = z.infer<typeof updateMarketSchema>;
+
+export const createAssetSchema = z.object({
+  marketId: z.string().uuid('marketId must be a valid UUID'),
+  symbol: z
+    .string()
+    .min(1, 'Symbol is required')
+    .max(20, 'Symbol must be at most 20 characters')
+    .toUpperCase(),
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be at most 255 characters'),
+});
+
+export type CreateAssetInput = z.infer<typeof createAssetSchema>;
+
+export const updateAssetSchema = z.object({
+  symbol: z
+    .string()
+    .min(1, 'Symbol is required')
+    .max(20, 'Symbol must be at most 20 characters')
+    .toUpperCase()
+    .optional(),
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be at most 255 characters').optional(),
+});
+
+export type UpdateAssetInput = z.infer<typeof updateAssetSchema>;
+
+export const createWatchlistSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(255, 'Name must be at most 255 characters'),
+});
+
+export type CreateWatchlistInput = z.infer<typeof createWatchlistSchema>;
+
+export const updateWatchlistSchema = createWatchlistSchema;
+
+export type UpdateWatchlistInput = z.infer<typeof updateWatchlistSchema>;
+
+export const addWatchlistItemSchema = z.object({
+  assetId: z.string().uuid('assetId must be a valid UUID'),
+});
+
+export type AddWatchlistItemInput = z.infer<typeof addWatchlistItemSchema>;
+
+export const createFavouriteAssetSchema = z.object({
+  assetId: z.string().uuid('assetId must be a valid UUID'),
+});
+
+export type CreateFavouriteAssetInput = z.infer<typeof createFavouriteAssetSchema>;
