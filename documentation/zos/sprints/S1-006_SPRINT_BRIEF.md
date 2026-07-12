@@ -98,6 +98,17 @@ The entire response above is generated **dynamically, on request, computed live*
 - Explicit, tested graceful degradation: a single missing or failed quote/candle lookup must degrade that position's (or the portfolio's) analytics — reflected honestly via Data Quality / Decision Readiness — and must never fail the entire response.
 - Full regression against S1-001 through S1-005.
 
+### 9. Explainability, Confidence, and Machine-Consumable Output Design (applies to items 1–6 above)
+
+Required by Architecture Team review, prior to implementation approval:
+
+- **Explainability.** Every computed score defined by this sprint — including, but not limited to, the Portfolio Health Score (item 4), the Concentration Score (item 3), any other Risk Exposure score, and the Decision Readiness assessment (item 5) — must never be returned as an isolated number or label. Each must be modeled as a structured result carrying at minimum:
+  - `score` (or the relevant label/enum value)
+  - `reasoning` — a human-readable explanation of what drove the result
+  - `contributingFactors` — a structured, enumerable list of the specific factors that contributed, positively or negatively (for example: diversified holdings, fresh market data, one asset dominating the portfolio, stale quotes on specific positions). The exact shape and wording of `reasoning`/`contributingFactors` is an implementation detail, not fixed by this Brief, but the presence of both alongside every score is a hard requirement, not optional polish.
+- **Confidence.** Every analytics metric produced by this sprint (not only the scores in item 3–5, but individual metrics such as a position's Unrealized P/L or a portfolio's Total Portfolio Value) must expose a confidence level (for example `HIGH` / `MEDIUM` / `LOW`) together with a `confidenceExplanation` describing why — factors such as stale quotes, missing quotes, incomplete position data, or outdated candles. Confidence is distinct from Data Quality (item 6): Data Quality describes the state of the underlying market data itself (age, freshness, completeness), while Confidence describes how trustworthy a specific *computed* metric is as a result of that underlying data. This Brief requires that the architecture support exposing confidence per metric; it does not define the final confidence-scoring algorithm or thresholds (see Missing Decisions).
+- **Machine-Consumable Outputs.** This Analytics Layer is not built for human display alone — it is explicitly the foundation later consumed directly by the Dashboard, Alerts, Risk Engine, Decision Engine, and AI Engine named in the Sprint Objective. Every analytics response must therefore be designed for both audiences simultaneously: a human-readable summary (for direct display) and fully structured, machine-consumable fields (typed numbers, enums, and the `score`/`reasoning`/`contributingFactors`/`confidence` objects described above) that a future service can consume programmatically without parsing prose. This is a response-design requirement for this sprint's own API surface — it does not require building any of those future consuming systems, and none of them are implemented by this sprint.
+
 ---
 
 # Non-Scope
@@ -126,7 +137,7 @@ Also explicitly out of scope, per Constitution Rule 1 and Rule 3:
 
 Per `07_ENGINEERING_WORKFLOW.md` Deliverables, applied to this sprint's scope:
 
-- Source code implementing the eight in-scope items listed above, as a new, self-contained analytics module composing `PortfoliosService`, `PositionsService`, and `MarketDataService`.
+- Source code implementing the nine in-scope items listed above, as a new, self-contained analytics module composing `PortfoliosService`, `PositionsService`, and `MarketDataService`.
 - Updated documentation where required.
 - A completion report per the structure in `10_AI_ENGINEER_GUIDE.md`.
 - A final assessment against this Sprint Brief's Acceptance Criteria and Definition of Done.
@@ -175,6 +186,7 @@ Restated from `07_ENGINEERING_WORKFLOW.md`: this sprint is complete only when sc
 - The Analytics module must not create a new dependency *from* `PositionsModule` or `MarketDataModule` back toward itself — dependencies flow one way (Analytics depends on the three existing services; none of them depend on Analytics), preserving S1-005's provider-abstraction isolation (ADR-003) and S1-004's accounting isolation (DEC-2026-005) exactly as they exist today.
 - Ownership resolution reuses the existing `PortfoliosService.findOwned()` 404-on-mismatch pattern rather than reimplementing ownership logic inside the new module.
 - All computed monetary/quantity arithmetic uses `Prisma.Decimal`, per DEC-2026-005 — never native JavaScript numbers — including when combining a `Position`'s `Decimal` fields with a `MarketQuote`'s `Decimal` price.
+- Per Scope item 9 (Architecture Team review requirement): every score-bearing response field must be modeled as a structured object (`score`/`reasoning`/`contributingFactors`), never a bare primitive; every metric must carry a `confidence`/`confidenceExplanation` pair distinct from Data Quality; and response schemas must be designed for simultaneous human-readable and machine-consumable consumption, since future services (Dashboard, Alerts, Risk Engine, Decision Engine, AI Engine) are expected to consume this layer's structured fields directly, not parse prose.
 
 Per ADR-001, ADR-003, ADR-004: unchanged — JWT remains the sole authentication mechanism; the market-data provider abstraction and its simulated default, and the background-sync scheduling mechanism, are unaffected by this sprint. Per `15_CODING_STANDARDS.md`: strict TypeScript mode; all external input validated; centralized exception handling; no secrets logged.
 
