@@ -2,7 +2,7 @@
 
 **Document ID:** ZOS-022\
 **Version:** 1.3.0\
-**Status:** Proposed — ADR-005 / ADR-006 / ADR-007 revised to resolve Final Architecture Validation findings, including Additional Finding A (MarketSeries Data Quality propagation); pending Architecture Team approval\
+**Status:** Approved — Architecture Team final approval, 2026-07-12 (research, independent validation, governance synchronization, and Sprint Brief approval all complete; see ADR-005/006/007)\
 **Owner:** Architecture Team (via Implementation Engineer)
 
 ------------------------------------------------------------------------
@@ -882,9 +882,7 @@ as a separate box to keep the diagram readable.
     mandatory computation metadata, and `computationVersion` ownership
     for all three services, including the internal note distinguishing
     the Regime/Context Service's research-driven provenance from the
-    Indicator Engine's. *Status: Proposed — revised to resolve Final
-    Architecture Validation findings, pending Architecture Team
-    approval.* See `12_ADR_INDEX.md`.
+    Indicator Engine's. *Status: Approved (Architecture Team, 2026-07-12).* See `12_ADR_INDEX.md`.
 -   **ADR-006 — Analysis Provider Plugin Architecture & Standard
     Output Contract** (Evidence/Interpretation/Limitations,
     Traceability, Confidence Model, dependency-ordered execution,
@@ -894,8 +892,7 @@ as a separate box to keep the diagram readable.
     by ADR-007, not this ADR); establishes token-based dependency
     references, self-declared `methodologyFamily`, the Provider
     circuit breaker, and `computationVersion` at the Provider level.
-    *Status: Proposed — revised to resolve Final Architecture
-    Validation findings, pending Architecture Team approval.* See
+    *Status: Approved (Architecture Team, 2026-07-12).* See
     `12_ADR_INDEX.md`.
 -   **ADR-007 — Confluence Architecture: Normalization &
     Weighting-Readiness** (Normalization vocabulary, `normalize()`
@@ -903,9 +900,8 @@ as a separate box to keep the diagram readable.
     `ConfluenceWeightStrategy` with mandatory `weightExplanation`,
     Provider-declared methodology-family grouping, dimension-level
     disagreement explanation). Formalizes the Normalization and
-    Confluence Engine sections of this document. *Status: Proposed —
-    revised to resolve Final Architecture Validation findings, pending
-    Architecture Team approval.* See `12_ADR_INDEX.md`.
+    Confluence Engine sections of this document. *Status: Approved
+    (Architecture Team, 2026-07-12).* See `12_ADR_INDEX.md`.
 
 # Additional Findings
 
