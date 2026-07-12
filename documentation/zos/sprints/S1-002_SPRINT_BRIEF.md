@@ -19,7 +19,9 @@
 
 # Sprint Objective
 
-Complete the authentication story S1-001 began: introduce the first real domain model (`User`) and let the existing JWT foundation issue tokens against real, persisted credentials, using Argon2id password hashing (ADR-002) and the already-approved JWT mechanism (ADR-001). This sprint does not introduce new architecture — it implements decisions already made by the Architecture Team.
+User Management is not an authentication task performed for its own sake — it is the identity foundation that lets Zenith become a professional, personalized trading platform. Every future capability that makes Zenith valuable to a trader (personalized trading data, performance analysis, risk insights, and eventually AI-assisted guidance) depends on reliably knowing *whose* data and activity is being analyzed. This sprint establishes that foundation: a real, persisted `User` identity that the platform can trust, secured with Argon2id password hashing (ADR-002) and the already-approved JWT mechanism (ADR-001).
+
+The chain this sprint enables: **user identity → personalized trading data → performance analysis → risk insights → future AI assistance.** None of those later capabilities can be built correctly without this sprint first establishing who a trader is and how their session is authenticated. This sprint does not introduce new architecture — it implements decisions already made by the Architecture Team.
 
 ---
 
@@ -40,7 +42,7 @@ Per the Architecture Team's approved planning proposal, S1-002 is scoped to User
 
 Explicitly excluded from S1-002, per the Architecture Team's approved planning proposal and Roadmap Planning Rules:
 
-- Trading domain, business services (separate M1 areas — future sprints).
+- Trading domain, business services, and advanced trading features (separate M1 areas — future sprints). These are deferred because they require a trusted user identity foundation first: personalized trading data, performance analysis, and risk insights only have value if they are reliably tied to the correct, authenticated trader. Building them before this sprint would mean building on an identity layer that doesn't yet exist.
 - Full authorization/permissions refinement beyond the basic `role` field — no route-level RBAC logic beyond what already exists.
 - OAuth providers, social login, MFA.
 - Password reset and email verification flows.
@@ -67,6 +69,7 @@ Per `07_ENGINEERING_WORKFLOW.md` Deliverables, applied to this sprint's scope:
 
 # Acceptance Criteria
 
+- **Outcome:** a trader can create an account, authenticate securely, and thereby establish the identity foundation required for future personalized Zenith capabilities (trading data, performance analysis, risk insights, AI assistance). The technical criteria below are how that outcome is verified.
 - `User` Prisma model exists with a migration applied against PostgreSQL, matching the approved schema exactly.
 - Registration creates a user with an Argon2id-hashed password; the password is never stored, logged, or returned in plaintext.
 - Duplicate-email registration is rejected with a clear error.
@@ -98,6 +101,15 @@ Restated from `07_ENGINEERING_WORKFLOW.md`: this sprint is complete only when sc
 - **Credential-handling risk.** Mitigated by ADR-002's explicit algorithm choice and the Logging Standards in `15_CODING_STANDARDS.md` (never log secrets/credentials).
 - **Scope-creep risk.** Registration/login naturally invites password reset, email verification, and social login; these are explicitly fenced off in Non-Scope and require their own future Sprint Brief.
 - **Dependency-selection risk.** The exact Argon2id library is not yet chosen. If no suitable library is found within `04_TECH_STACK.md`'s existing ecosystem constraints, this is an escalation trigger, not an automatic scope change.
+
+---
+
+# Missing Decisions (Acknowledged, Intentionally Deferred)
+
+These are not oversights — they are explicitly recognized and consciously deferred, not silently skipped:
+
+- **Extended user profile fields for future personalization.** The approved `User` schema is deliberately minimal (identity and access only). Fields needed for personalized trading data, performance analysis, or risk insights are not yet defined, because those requirements aren't clear yet. Adding them speculatively now would risk building the wrong schema; they will be defined in a future sprint once the relevant product requirements exist.
+- **Compliance, KYC, and session-policy considerations.** A professional trading platform may eventually require identity verification, audit trails, or stricter session policies beyond what this sprint implements. These are acknowledged as real future considerations and are intentionally out of scope for this foundation sprint, not overlooked.
 
 ---
 
