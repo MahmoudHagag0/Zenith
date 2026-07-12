@@ -1,5 +1,6 @@
 import { ConflictException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Prisma } from '@zenith/database';
 import { UsersService } from './users.service';
 import { PrismaService } from '../database/prisma.service';
 
@@ -42,6 +43,29 @@ describe('UsersService', () => {
       ConflictException,
     );
     expect(prisma.user.create).not.toHaveBeenCalled();
+  });
+
+  it('treats email as case-insensitive for both lookup and storage', async () => {
+    prisma.user.findUnique.mockResolvedValue(null);
+    prisma.user.create.mockImplementation(({ data }) => ({ id: 'user-1', ...data }));
+
+    await service.create('Trader@Example.com', 'correct-horse-battery-staple');
+
+    expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { email: 'trader@example.com' } });
+    expect(prisma.user.create.mock.calls[0][0].data.email).toBe('trader@example.com');
+  });
+
+  it('converts a concurrent unique-constraint violation into a clean 409, not a raw 500', async () => {
+    prisma.user.findUnique.mockResolvedValue(null);
+    const uniqueViolation = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+      code: 'P2002',
+      clientVersion: 'test',
+    });
+    prisma.user.create.mockRejectedValue(uniqueViolation);
+
+    await expect(service.create('trader@example.com', 'another-password')).rejects.toBeInstanceOf(
+      ConflictException,
+    );
   });
 
   it('verifies a correct password against its hash', async () => {
