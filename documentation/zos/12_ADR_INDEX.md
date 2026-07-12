@@ -25,6 +25,7 @@ The ADR Index is the master catalog of all Architecture Decision Records
   ADR ID    Title                                   Status     Date         Related Sprint
   --------- --------------------------------------- ---------- ------------ ----------------
   ADR-001   JWT-Based Authentication (S1-001 Foundation)   Approved   2026-07-11   S1-001
+  ADR-002   Argon2id Password Hashing (S1-002 User Management)   Approved   2026-07-12   S1-002
 
 ## ADR-001 — JWT-Based Authentication (S1-001 Foundation)
 
@@ -37,6 +38,16 @@ The ADR Index is the master catalog of all Architecture Decision Records
 -   **Related Decision Log Entry:** DEC-2026-001.
 
 Explicitly out of scope under this ADR: OAuth providers, social login, advanced identity management, and any authentication complexity beyond this baseline. Introducing any of these requires a superseding ADR.
+
+## ADR-002 — Argon2id Password Hashing (S1-002 User Management)
+
+-   **Status:** Approved
+-   **Context:** S1-002 introduces the first real `User` domain model and self-registration/login, requiring a password-hashing mechanism. No ZOS document previously specified one, and `04_TECH_STACK.md` does not list a hashing library.
+-   **Decision:** User passwords are hashed with Argon2id. No other hashing algorithm (e.g. bcrypt, scrypt, plain SHA) is authorized for S1-002.
+-   **Consequences:** `apps/api`'s registration/login flow depends on an Argon2id-capable library (subject to `14_DEPENDENCY_POLICY.md` review at implementation time). Password hashes are never logged or exposed via API responses.
+-   **Alternatives Considered:** None recorded beyond the Architecture Team's direct selection of Argon2id; no competing algorithm was proposed for evaluation.
+-   **Related Components:** `apps/api`, `packages/database` (`User.passwordHash`).
+-   **Related Decision Log Entry:** DEC-2026-003.
 
 ## ADR Template
 
