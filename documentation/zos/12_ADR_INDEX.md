@@ -26,6 +26,8 @@ The ADR Index is the master catalog of all Architecture Decision Records
   --------- --------------------------------------- ---------- ------------ ----------------
   ADR-001   JWT-Based Authentication (S1-001 Foundation)   Approved   2026-07-11   S1-001
   ADR-002   Argon2id Password Hashing (S1-002 User Management)   Approved   2026-07-12   S1-002
+  ADR-003   Market Data Provider Abstraction (S1-005 Market Data Foundation)   Approved   2026-07-12   S1-005
+  ADR-004   Background Job Scheduling for Market Data Synchronization (S1-005)   Approved   2026-07-12   S1-005
 
 ## ADR-001 — JWT-Based Authentication (S1-001 Foundation)
 
@@ -48,6 +50,28 @@ Explicitly out of scope under this ADR: OAuth providers, social login, advanced 
 -   **Alternatives Considered:** None recorded beyond the Architecture Team's direct selection of Argon2id; no competing algorithm was proposed for evaluation.
 -   **Related Components:** `apps/api`, `packages/database` (`User.passwordHash`).
 -   **Related Decision Log Entry:** DEC-2026-003.
+
+## ADR-003 — Market Data Provider Abstraction (S1-005 Market Data Foundation)
+
+-   **Status:** Approved
+-   **Context:** S1-005 requires Zenith to source quotes and historical candles for catalog assets. `04_TECH_STACK.md` does not list any market-data vendor, and no external paid or free market-data service has been reviewed or approved by the Architecture Team. Constitution Rule 1 (no undocumented architecture) prohibits silently integrating an unapproved external dependency, and the Sprint's own instructions explicitly disallow external paid services unless already approved. At the same time, the product goal requires a real, working market-data foundation now, not a stalled sprint waiting on a future vendor-selection decision.
+-   **Decision:** Market data is sourced through a `MarketDataProvider` interface (`getQuote`, `getCandles`, `checkHealth`), so that `apps/api`'s business logic (caching, rate limiting, retry, background sync, the HTTP API) depends only on this interface, never on a concrete vendor. The only implementation shipped in this sprint is a `SimulatedMarketDataProvider` — a deterministic, in-process generator of quotes and candles (seeded by asset symbol and time bucket, not random), clearly labeled in code and documentation as simulated, not real market data. No real external market-data vendor is integrated by this decision.
+-   **Consequences:** Every quote and candle returned by S1-005's API is simulated, not a real market price, until a future ADR selects and integrates a real vendor behind this same interface — at which point only a new `MarketDataProvider` implementation and its module registration change; caching, rate limiting, retry, background sync, and the HTTP API are unaffected. This is a deliberate, transparent placeholder, not a claim of real market data.
+-   **Alternatives Considered:** (1) Integrate a free, no-API-key public market-data endpoint directly — rejected because no such vendor has been reviewed or approved by the Architecture Team, and doing so without that review would be an undocumented architecture change and an unapproved external dependency. (2) Defer the entire sprint until a vendor is approved — rejected because the caching, retry, rate-limiting, background-sync, and API-surface foundation this sprint builds is valuable and testable independent of which provider eventually supplies real data, and building it now against a stable interface directly enables a future vendor swap with no business-logic change.
+-   **Related Components:** `apps/api/src/market-data` (provider interface and `SimulatedMarketDataProvider`).
+-   **Related Decision Log Entry:** DEC-2026-006.
+
+Explicitly out of scope under this ADR: selecting or integrating any real external market-data vendor. Introducing one requires a superseding or additional ADR at the time a vendor is actually reviewed and approved.
+
+## ADR-004 — Background Job Scheduling for Market Data Synchronization (S1-005)
+
+-   **Status:** Approved
+-   **Context:** S1-005 requires periodic background synchronization of market data for assets traders actually track (watchlisted, favourited, or held), so cached quotes do not silently go stale between requests. No prior sprint introduced any background/scheduled job execution capability, and `04_TECH_STACK.md` does not list a scheduling mechanism.
+-   **Decision:** Background synchronization uses `@nestjs/schedule`, the official NestJS scheduling module, via its `@Cron()` decorator. No other scheduling mechanism (custom `setInterval` loops, an external job queue, a separate worker process) is authorized for this sprint.
+-   **Consequences:** `apps/api` gains a `MarketDataSyncService` that periodically refreshes cached quotes for tracked assets only (not the entire catalog), respecting the same rate limiter and retry logic as on-demand requests. `@nestjs/schedule` becomes a new runtime dependency, reviewed under `14_DEPENDENCY_POLICY.md` at implementation time (official NestJS-maintained package, no license concern, minimal footprint, no overlapping existing dependency).
+-   **Alternatives Considered:** An external job queue (e.g. BullMQ with Redis) was considered and rejected as disproportionate to this sprint's needs and would introduce a new infrastructure dependency (Redis) not present in `04_TECH_STACK.md`; a hand-rolled `setInterval` loop was considered and rejected because it duplicates functionality `@nestjs/schedule` already provides as a maintained, officially-supported NestJS module, contrary to `04_TECH_STACK.md`'s "prefer official libraries" rule.
+-   **Related Components:** `apps/api/src/market-data` (`MarketDataSyncService`).
+-   **Related Decision Log Entry:** DEC-2026-007.
 
 ## ADR Template
 
