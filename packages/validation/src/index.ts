@@ -135,3 +135,23 @@ export type BuyInput = z.infer<typeof buySchema>;
 export const sellSchema = buySchema;
 
 export type SellInput = z.infer<typeof sellSchema>;
+
+// Market Data validation — S1-005 (see Sprint Brief Scope item 14).
+
+export const searchAssetsQuerySchema = z.object({
+  q: z.string().min(1, 'q is required').max(100, 'q must be at most 100 characters'),
+});
+
+export type SearchAssetsQueryInput = z.infer<typeof searchAssetsQuerySchema>;
+
+export const candlesQuerySchema = z
+  .object({
+    from: z.string().datetime('from must be an ISO 8601 datetime'),
+    to: z.string().datetime('to must be an ISO 8601 datetime'),
+  })
+  .refine((value) => new Date(value.from).getTime() <= new Date(value.to).getTime(), {
+    message: 'from must not be after to',
+    path: ['from'],
+  });
+
+export type CandlesQueryInput = z.infer<typeof candlesQuerySchema>;

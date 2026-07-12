@@ -70,6 +70,8 @@ model Asset {
   watchlistItems  WatchlistItem[]
   favouritedBy    FavouriteAsset[]
   positions       Position[]
+  quote           MarketQuote?
+  candles         Candle[]
 
   @@unique([marketId, symbol])
 }
@@ -162,4 +164,37 @@ model Transaction {
   createdAt  DateTime        @default(now())
 
   position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+}
+
+// Market Data Foundation — S1-005 (see Sprint Brief Scope items 3-4). Shared cache,
+// not user-owned. All data is sourced via the MarketDataProvider interface (ADR-003);
+// as of S1-005 the only registered provider is simulated, not real market data.
+model MarketQuote {
+  id        String   @id @default(uuid())
+  assetId   String   @unique
+  price     Decimal  @db.Decimal(24, 8)
+  currency  String   @default("USD")
+  provider  String
+  asOf      DateTime
+  fetchedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+}
+
+model Candle {
+  id        String   @id @default(uuid())
+  assetId   String
+  date      DateTime
+  open      Decimal  @db.Decimal(24, 8)
+  high      Decimal  @db.Decimal(24, 8)
+  low       Decimal  @db.Decimal(24, 8)
+  close     Decimal  @db.Decimal(24, 8)
+  volume    Decimal  @db.Decimal(24, 8)
+  provider  String
+  createdAt DateTime @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, date])
 }

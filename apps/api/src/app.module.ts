@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { LoggerModule } from 'nestjs-pino';
 import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
@@ -10,10 +11,12 @@ import { WatchlistsModule } from './watchlists/watchlists.module';
 import { FavouritesModule } from './favourites/favourites.module';
 import { PortfoliosModule } from './portfolios/portfolios.module';
 import { PositionsModule } from './positions/positions.module';
+import { MarketDataModule } from './market-data/market-data.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ScheduleModule.forRoot(),
     LoggerModule.forRoot({
       pinoHttp: {
         level: process.env.LOG_LEVEL || 'info',
@@ -29,6 +32,7 @@ import { PositionsModule } from './positions/positions.module';
     FavouritesModule,
     PortfoliosModule,
     PositionsModule,
+    MarketDataModule,
   ],
 })
 export class AppModule {}
