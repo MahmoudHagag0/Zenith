@@ -19,35 +19,38 @@ always reflects the current project state.
 
 -   Name: Zenith
 -   Version: 0.1.0
--   Current Milestone: M0 — Foundation — COMPLETE (all eight objectives per `08_ROADMAP.md` satisfied: ZOS establishment and the seven S1-001 scope items)
+-   Current Milestone: M1 — Core Platform — In Progress (first increment, S1-002 User Management, complete; Trading domain, business services, and full authorization refinement not yet started)
 -   Current Phase: Phase 1 — Engineering Foundation
--   Current Sprint: None active — S1-001 is closed; no subsequent Sprint Brief has been proposed or approved
+-   Current Sprint: None active — S1-002 is closed; no subsequent Sprint Brief has been proposed or approved
 
 ## Completed Sprints
 
 -   S1-001 — Foundation Setup. Closed 2026-07-12. Sprint Brief: `documentation/zos/sprints/S1-001_SPRINT_BRIEF.md`. Completion Report: `documentation/ai/S1-001_COMPLETION_REPORT.md`. Final implementation commit: `f29785a`.
+-   S1-002 — User Management Foundation. Closed 2026-07-12. Sprint Brief: `documentation/zos/sprints/S1-002_SPRINT_BRIEF.md`. Completion Report: `documentation/ai/S1-002_COMPLETION_REPORT.md`. Final implementation commits: `6abeafc`, `5325c44`.
 
 ## Active Modules
 
--   API (`apps/api`) — NestJS foundation: health check, Swagger, Pino logging, JWT authentication foundation.
+-   API (`apps/api`) — NestJS foundation: health check, Swagger, Pino logging, JWT authentication with real user registration/login (Argon2id).
 -   Web (`apps/web`) — Next.js foundation.
--   Database (`packages/database`) — Prisma client, no domain models yet.
+-   Database (`packages/database`) — Prisma client with a real `User` model (identity only; no trading/business domain models yet).
 -   Shared Packages (`packages/{tooling,types,utils,validation}`).
 -   Documentation (`documentation/zos`, `documentation/ai`).
 
 ## Pending Work
 
--   No approved Sprint Brief beyond S1-001; the next sprint (per `08_ROADMAP.md` Milestone M1 — Core Platform) has not been proposed or approved.
--   Non-blocking deviations accepted at S1-001 closure (see Known Technical Debt).
+-   No approved Sprint Brief beyond S1-002; the remaining M1 areas (trading domain, business services, full authorization refinement, core APIs) have not been proposed or approved.
+-   Non-blocking deviations accepted at S1-001 and S1-002 closure (see Known Technical Debt).
 
 ## Architecture Decisions
 
 -   ADR-001 — JWT-Based Authentication (S1-001 Foundation). Approved 2026-07-11. See `12_ADR_INDEX.md`.
+-   ADR-002 — Argon2id Password Hashing (S1-002 User Management). Approved 2026-07-12. See `12_ADR_INDEX.md`.
 
 ## Known Technical Debt
 
--   Formal per-dependency `14_DEPENDENCY_POLICY.md` review was not run individually for S1-001's supporting libraries (e.g. `nestjs-pino`, `@nestjs/passport`). Owner: Architecture Team. Planned resolution: address in a future dependency audit; accepted as non-blocking at S1-001 closure.
--   Automated test coverage is limited to one controller spec (`apps/api` health check); `apps/web`, the auth module, and `packages/database` have no automated tests yet. Owner: next implementation sprint. Planned resolution: expand alongside future feature work.
+-   Formal per-dependency `14_DEPENDENCY_POLICY.md` review was not run individually for S1-001/S1-002's supporting libraries (e.g. `nestjs-pino`, `@nestjs/passport`, `argon2`). Owner: Architecture Team. Planned resolution: address in a future dependency audit; accepted as non-blocking at S1-001 and S1-002 closure.
+-   Automated test coverage now includes health, auth, and user-registration/login flows, but `apps/web` still has no automated tests. Owner: next implementation sprint. Planned resolution: expand alongside future feature work.
+-   Extended user profile fields (for personalized trading data, performance analysis, risk insights) and compliance/KYC/session-policy considerations were intentionally deferred at S1-002 — see `documentation/zos/sprints/S1-002_SPRINT_BRIEF.md`, Missing Decisions section.
 
 ## Known Risks
 

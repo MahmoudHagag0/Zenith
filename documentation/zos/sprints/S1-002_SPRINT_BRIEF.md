@@ -137,6 +137,19 @@ Approved on the basis stated by the Architecture Team: scope is appropriately bo
 
 ---
 
+# Sprint Closure
+
+- **Sprint Status:** CLOSED
+- **Closed Date:** 2026-07-12
+- **Completion Report:** `documentation/ai/S1-002_COMPLETION_REPORT.md` (AI-015)
+- **Final Implementation Commits:** `6abeafc` (implementation), `5325c44` (hardening fixes found during post-implementation review)
+- **Related ADR:** ADR-002
+- **Related Decisions:** DEC-2026-003
+
+This Sprint Status is distinct from the Approval Status in the Approval Section above, which records approval of this Brief for implementation and remains unchanged as the historical record of that event.
+
+---
+
 # Related Documents
 
 - `documentation/zos/sprints/S1-001_SPRINT_BRIEF.md` (prior sprint; JWT foundation this sprint builds on)
@@ -147,4 +160,5 @@ Approved on the basis stated by the Architecture Team: scope is appropriately bo
 - `documentation/zos/09_PROJECT_BRAIN.md`
 - `documentation/zos/12_ADR_INDEX.md` (ADR-001, ADR-002)
 - `documentation/zos/11_DECISION_LOG.md` (DEC-2026-001, DEC-2026-002, DEC-2026-003)
+- `documentation/ai/S1-002_COMPLETION_REPORT.md`
 - `documentation/ai/AI_BOOTSTRAP.md`
