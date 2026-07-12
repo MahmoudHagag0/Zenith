@@ -1,8 +1,8 @@
 # 22_ANALYSIS_ENGINE_ARCHITECTURE
 
 **Document ID:** ZOS-022\
-**Version:** 1.2.0\
-**Status:** Proposed — ADR-005 / ADR-006 / ADR-007 revised to resolve Final Architecture Validation findings; pending Architecture Team approval\
+**Version:** 1.3.0\
+**Status:** Proposed — ADR-005 / ADR-006 / ADR-007 revised to resolve Final Architecture Validation findings, including Additional Finding A (MarketSeries Data Quality propagation); pending Architecture Team approval\
 **Owner:** Architecture Team (via Implementation Engineer)
 
 ------------------------------------------------------------------------
@@ -145,12 +145,56 @@ practical"), no Analysis Engine domain service may depend on
 `Candle`/`MarketQuote` directly.
 
 -   **`MarketSeries` / `PriceSeries`** is a value object owned by the
-    Analysis Engine: an ordered, immutable series of `(timestamp,
-    open, high, low, close, volume)` points, with no knowledge of
-    Prisma, `Candle`'s column names, or how the data was persisted.
-    (Its relationship to the existing Data Quality Model's freshness/
-    staleness propagation is flagged in "Additional Findings" at the
-    end of this document — not resolved here.)
+    Analysis Engine: an ordered, immutable series of points, each
+    carrying **both** normalized market data **and** Data Quality
+    metadata. It has no knowledge of Prisma, `Candle`'s column names,
+    or how the data was persisted.
+    -   **Ownership:** owned and evolved exclusively by the Analysis
+        Engine. The Market Data domain has no knowledge of
+        `MarketSeries` and never constructs or consumes it.
+    -   **Responsibilities:** (1) carry the normalized OHLCV series
+        (`timestamp`, `open`, `high`, `low`, `close`, `volume`); (2)
+        carry Data Quality metadata (`freshness`: FRESH/STALE/MISSING,
+        and an age value), translated from the source at the moment
+        of translation — never omitted, and never re-queried from
+        Market Data by any downstream service.
+    -   **Propagated fields:** from `Candle` — `date`, `open`, `high`,
+        `low`, `close`, `volume`; from `MarketQuote` — `price`,
+        `currency`, `asOf`, `fetchedAt`. The translation adapter
+        computes `freshness` from `fetchedAt` using the same
+        staleness threshold already established by DEC-2026-009 (5
+        minutes) and attaches it to the corresponding `MarketSeries`
+        point. No other `Candle`/`MarketQuote` field (internal IDs,
+        `provider`, foreign keys) is propagated — only what a
+        downstream computation could legitimately need.
+    -   **Lifecycle:** `MarketSeries` is a transient translation
+        artifact, not a persisted or independently identified entity.
+        It is produced fresh from current `Candle`/`MarketQuote` state
+        on every translation, carries no `computationVersion` of its
+        own (it performs field mapping, not formula application), and
+        is not cached or referenced by ID; only the Indicator
+        Engine/Swing Detector/Regime Service outputs computed *from* a
+        `MarketSeries` are cached and versioned.
+    -   **Why Data Quality travels with it:** the Data Quality Model
+        (below) requires that "Indicator Engine output inherits the
+        freshness of the candles/quotes it consumed." If freshness
+        were stripped at this boundary, every downstream service would
+        need a side-channel query back into the Market Data domain to
+        recover it — reintroducing exactly the direct dependency the
+        Anti-Corruption Layer exists to prevent. Carrying Data Quality
+        forward as part of the value object keeps the boundary a
+        single, one-way translation step.
+    -   **Why this does not violate bounded-context isolation:**
+        `freshness`/age is not a Market-Data-domain type — it is not
+        `Candle` or `MarketQuote` — it is a generic, timestamp-derived
+        classification the Analysis Engine already independently
+        defines and owns in its own Data Quality Model. Translating
+        "this quote is 3 minutes old" into `freshness: FRESH,
+        ageSeconds: 180` at the boundary is precisely what a
+        translation layer is for: expressing the other domain's
+        concept in this domain's own vocabulary. This is distinct from
+        — and does not regress toward — embedding a `Candle` or
+        `MarketQuote` object directly, which would violate isolation.
 -   **Translation boundary:** a thin adapter (owned by the Analysis
     Engine, not by Market Data) translates `Candle`/`MarketQuote` rows
     into `MarketSeries` at the point of entry to the Indicator Engine,
@@ -490,11 +534,13 @@ staleness).
     from Confidence (Data Quality describes the input data's own
     freshness/completeness; Confidence describes trust in the
     analytical conclusion).
--   Staleness/freshness metadata propagates end-to-end: Indicator
-    Engine output inherits the freshness of the candles/quotes it
-    consumed; Provider output inherits the freshness of every
-    Indicator/Swing/Regime input it used; Confluence output reports
-    the weakest Data Quality among its contributing Providers.
+-   Staleness/freshness metadata propagates end-to-end, carried by the
+    `MarketSeries` value object across the Anti-Corruption Layer (see
+    "Anti-Corruption Layer"): Indicator Engine output inherits the
+    freshness of the candles/quotes it consumed; Provider output
+    inherits the freshness of every Indicator/Swing/Regime input it
+    used; Confluence output reports the weakest Data Quality among its
+    contributing Providers.
 -   Missing data never produces a thrown exception from a Provider —
     it produces a populated `Limitations` entry with `dataQuality:
     MISSING`.
@@ -739,11 +785,11 @@ Every Provider carries an explicit lifecycle state:
     S1-007 ships a first computation and, later, a first correction to
     it.
 -   **The `MarketSeries`/`PriceSeries` translation adapter's exact
-    field list is an S1-007 implementation decision**, not fixed by
-    this document beyond the requirement that it never expose
-    `Candle`/`MarketQuote` types to domain services — see "Additional
-    Findings" for an open question about its relationship to the Data
-    Quality Model.
+    implementation (the concrete class, its construction from Prisma
+    query results) is an S1-007 implementation decision**, not fixed
+    by this document — the field list itself, including the mandatory
+    Data Quality metadata, is now fixed by "Anti-Corruption Layer"
+    above (see "Additional Findings," Finding A, resolved).
 -   **Trace Store retention/TTL values are specified as a model (see
     "Traceability") but not yet numerically calibrated** — exact
     durations are a Decision Log item at S1-008 implementation time.
@@ -805,9 +851,9 @@ as a separate box to keep the diagram readable.
 
 ```
  Raw Data ──► MarketSeries ──► Indicator/Swing/Regime output ──► Provider Evidence
- (Market Data   (ACL)          (value + metadata +                    │
-  domain)                       computationVersion)                  ▼
-    │  (freshness)      │ (Data Quality inherited*)     Detection Confidence
+ (Market Data   (ACL; carries   (value + metadata +                    │
+  domain)        Data Quality)   computationVersion)                  ▼
+    │  (freshness)      │ (Data Quality inherited)      Detection Confidence
     │                   │                              Interpretation Confidence
     │                   │                              Regime-Adjusted Confidence
     │                   │                              Methodology Confidence Ceiling
@@ -826,9 +872,6 @@ as a separate box to keep the diagram readable.
                          ▼
      Confluence output (trace IDs; full chain on drill-down)
 ```
-*See "Additional Findings" — whether Data Quality survives the
-`MarketSeries` boundary unchanged is an open question, not yet
-resolved.
 
 # References to ADR-005 / ADR-006 / ADR-007
 
@@ -867,38 +910,38 @@ resolved.
 # Additional Findings
 
 Discovered while applying the Final Architecture Validation's Critical
-and Recommended fixes above. Per the governing instruction for this
-edit pass, these are **reported, not silently resolved** — each
-includes a severity, reasoning, a recommendation, and whether
-implementation should stop because of it. None have been applied to
-the sections above.
+and Recommended fixes above. Per the governing instruction for that
+edit pass, these were **reported, not silently resolved** at the time
+— each includes a severity, reasoning, a recommendation, and whether
+implementation should stop because of it. Finding A has since been
+resolved, by explicit instruction, in a follow-up edit (see below);
+Findings B and C remain open and deferred to S1-008/S1-012 as
+recommended.
 
-## Finding A — `MarketSeries` / Data Quality Model interaction is unspecified
+## Finding A — `MarketSeries` / Data Quality Model interaction is unspecified — **RESOLVED**
 
--   **Severity:** High.
+-   **Severity:** High (at time of discovery).
 -   **Reasoning:** The Data Quality Model section states "Indicator
     Engine output inherits the freshness of the candles/quotes it
-    consumed." The newly added Anti-Corruption Layer section defines
-    `MarketSeries` as an ordered series of `(timestamp, open, high,
-    low, close, volume)` points with no stated freshness/staleness
-    field. If `MarketSeries` does not carry this metadata forward, the
-    Data Quality Model's inheritance chain is severed at the exact
-    boundary this edit pass introduced — a genuine internal
-    contradiction between two sections of the same document, not a
-    hypothetical future concern.
--   **Recommendation:** `MarketSeries`/`PriceSeries` must include the
-    source `Candle`/`MarketQuote`'s freshness/staleness metadata as
-    part of its own value object (e.g. a `dataQuality` field per
-    point or per series), so the Anti-Corruption Layer boundary does
-    not break Data Quality propagation. This should be decided and
-    written into ADR-005 before, not during, S1-007 implementation.
--   **Should implementation stop because of it?** **Yes, for this item
-    specifically** — it is a S1-007-relevant contract gap of the same
-    severity class as the three original Critical findings, discovered
-    one step too late to fold into this edit pass's scope (it only
-    became visible once the Anti-Corruption Layer section existed to
-    compare against). It does not reopen any of the eleven items
-    already resolved above.
+    consumed." The Anti-Corruption Layer section, as first drafted,
+    defined `MarketSeries` as an ordered series of `(timestamp, open,
+    high, low, close, volume)` points with no stated freshness/
+    staleness field. If `MarketSeries` did not carry this metadata
+    forward, the Data Quality Model's inheritance chain would be
+    severed at that boundary — a genuine internal contradiction
+    between two sections of the same document, not a hypothetical
+    future concern.
+-   **Resolution:** "Anti-Corruption Layer" now specifies that
+    `MarketSeries` carries both normalized market data and Data
+    Quality metadata (`freshness`, age) as a first-class
+    responsibility of the value object, translated from
+    `Candle`/`MarketQuote` at the point of translation, using the
+    staleness threshold already established by DEC-2026-009. The
+    ownership, propagated fields, lifecycle, and bounded-context
+    rationale are fully specified there. ADR-005 has been updated to
+    state the same requirement. No open question remains.
+-   **Should implementation stop because of it?** No longer applies —
+    resolved prior to S1-007 authorization, as recommended.
 
 ## Finding B — Provider Lifecycle × Computation Versioning interaction is undefined
 
