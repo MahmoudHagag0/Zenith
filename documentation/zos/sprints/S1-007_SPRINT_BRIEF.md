@@ -2,7 +2,7 @@
 
 **Document ID:** ZOS-S1-007
 **Template Reference:** `SPRINT_BRIEF_TEMPLATE.md` (ZOS-SBT)
-**Status:** Proposed
+**Status:** Approved
 
 ------------------------------------------------------------------------
 
@@ -10,10 +10,10 @@
 
 - **Sprint ID:** S1-007
 - **Sprint Name:** Analysis Engine Foundation — Indicator Engine, Swing Detection Infrastructure & Regime/Context Service
-- **Milestone:** M1 — Core Platform (per `08_ROADMAP.md`), first increment of the **Analysis Engine** phase within the **Trading domain** planned focus area
+- **Milestone:** M1 — Core Platform (per `08_ROADMAP.md`). `08_ROADMAP.md` does not itself name "Analysis Engine" as a designated sub-phase; this sprint is the Implementation Engineer's placement of that work under M1's existing **Trading domain** planned focus area, not an asserted roadmap update. A formal roadmap update naming the Analysis Engine work stream, if desired, remains an Architecture-Team-only action per `08_ROADMAP.md`'s Planning Rules.
 - **Phase:** Phase 1 — Engineering Foundation (per `09_PROJECT_BRAIN.md`)
 - **Date Drafted:** 2026-07-12
-- **Approved By:** *(pending — see Approval Section)*
+- **Approved By:** Architecture Team (2026-07-12 — see Approval Section)
 
 ---
 
@@ -38,6 +38,7 @@ Per `22_ANALYSIS_ENGINE_ARCHITECTURE.md` and ADR-005 (`12_ADR_INDEX.md`), S1-007
 - Carries **both** normalized OHLCV data (`timestamp`, `open`, `high`, `low`, `close`, `volume`) **and** Data Quality metadata (`freshness`: FRESH/STALE/MISSING, and age), computed from `fetchedAt` using the existing 5-minute staleness threshold (DEC-2026-009) — per the resolved Additional Finding A in `22_ANALYSIS_ENGINE_ARCHITECTURE.md`.
 - **`MarketSeries`'s historical points (translated from `Candle` rows) and its current-quote point (translated from `MarketQuote`) carry Data Quality with different meanings, and this sprint's implementation must keep them distinct rather than applying one uniform notion of "freshness" to both:** a historical `Candle`-derived point's Data Quality reflects *completeness* (`MISSING` only for an absent bar in the requested range — a historical bar is never `STALE`, since staleness is a recency concept that does not apply to a fixed past bar); the current-quote point's Data Quality reflects genuine *recency* (`FRESH`/`STALE`/`MISSING` computed from `fetchedAt` against the DEC-2026-009 threshold, exactly as `MarketQuote` already behaves today). The current quote is represented as a distinct, clearly-marked trailing point on the series, not silently merged into the historical OHLCV points with a borrowed staleness meaning.
 - The adapter composes the existing `MarketDataService` (`getQuote`/`getCandles`) rather than duplicating its caching, rate-limiting, or retry logic.
+- **Cache scope, clarified:** the `(computation, parameters, instrument, data-range)` cache required in items 2–4 below applies to Indicator/Swing/Regime *outputs*, not to the `MarketSeries` translation step itself. Within a single computation request, `MarketSeries` translation for a given `(instrument, timeframe, data-range)` is performed once and shared across every Indicator/Swing/Regime call made within that request, rather than re-translated per call — a request-scoped sharing behavior, not an additional persistent cache layer. `MarketDataService`'s own existing caching of `Candle`/`MarketQuote` rows (S1-005) is unaffected and unduplicated.
 
 ### 2. Indicator Engine
 - SMA, EMA, RSI, MACD (`line` and `histogram` tracked as separately source-attributed outputs — Appel, 1970s, for the line; Aspray, 1986, for the histogram), Bollinger Bands, ATR, ADX, a Fibonacci ratio calculator, a Donchian channel calculator.
@@ -59,11 +60,13 @@ Per `22_ANALYSIS_ENGINE_ARCHITECTURE.md` and ADR-005 (`12_ADR_INDEX.md`), S1-007
 - Threshold calibration (ADX trending cutoff, ATR volatility percentile) is **not** fixed by this sprint — see Missing Decisions.
 
 ### 5. Golden-Dataset / Reference-Dataset Conformance Testing
-- Every Indicator calculator ships with a conformance test reproducing at least one published, worked reference example from its cited primary source exactly (e.g. a worked RSI example from Wilder's own 1978 text) — per the Extension Guidelines requirement in `22_ANALYSIS_ENGINE_ARCHITECTURE.md`.
+- **A worked reference example from the cited primary source itself (Wilder, 1978, for RSI/ATR/ADX; Appel/Aspray for MACD; Bollinger for Bollinger Bands) is mandatory wherever that primary source is genuinely obtainable.** Substituting a secondary source is authorized only when the primary text's own worked example cannot be obtained after a documented attempt, and any such substitution must name the secondary source used and the reason the primary source was unavailable, disclosed in the test file and the completion report — never a silent or default choice. Per the Extension Guidelines requirement in `22_ANALYSIS_ENGINE_ARCHITECTURE.md`, which does not authorize secondary-source substitution at all; this Brief's disclosed-fallback allowance is a sprint-level accommodation for practical sourcing constraints, not a relaxation of the architecture document's own standard.
 - Swing Detection and Regime/Context Service ship with equivalent hand-computed/reference verification given their more structural (less formula-literature-bound) nature.
 
 ### 6. Observability
-- Per-computation latency, failure rate, and cache hit ratio are observable for every Indicator, the Swing Detector, and the Regime/Context Service, per "Operational Resilience & Observability" in `22_ANALYSIS_ENGINE_ARCHITECTURE.md`. This sprint uses the existing Pino structured-logging mechanism (per `04_TECH_STACK.md`) as the observability channel — no new metrics/tracing dependency is introduced.
+- Per-computation **latency** and **cache hit ratio** are observable for every Indicator, the Swing Detector, and the Regime/Context Service, per "Operational Resilience & Observability" in `22_ANALYSIS_ENGINE_ARCHITECTURE.md` (which itself scopes "failure rate" to Provider-level components introduced by ADR-006 at S1-008, not to this sprint's pure computations).
+- In place of a "failure rate" metric — not a meaningful concept for a deterministic pure function that cannot fail on valid input — this sprint observes a **computation rejection rate**: the rate at which a computation declines to produce a result because its input was insufficient or invalid (e.g. fewer bars than a given indicator's period requires, or a data-range gap the Swing Detector cannot confirm a swing within). A rejection is an expected, correctly-handled outcome, not a bug; an unhandled exception is separately and always a defect, never an accepted operational metric.
+- This sprint uses the existing Pino structured-logging mechanism (per `04_TECH_STACK.md`) as the observability channel for both metrics above — no new metrics/tracing dependency is introduced.
 
 ### 7. Quality and Governance Requirements (apply to all of the above)
 - Full unit test coverage matching the rigor of S1-001 through S1-006, including the golden-dataset conformance tests in item 5.
@@ -109,7 +112,7 @@ Per `07_ENGINEERING_WORKFLOW.md` Deliverables, applied to this sprint's scope:
 # Acceptance Criteria
 
 - **Outcome:** the Analysis Engine has a single, trustworthy, source-faithful computational substrate — indicators, swing points, and regime classification — that every future Analysis Provider can consume without ever needing to reimplement or second-guess it. The technical criteria below are how that outcome is verified.
-- RSI, ATR, and ADX are verified against a worked reference example from Wilder's own 1978 text (or the most authoritative available secondary confirmation, explicitly disclosed if the primary text's own worked example cannot be independently reproduced), confirming Wilder's specific smoothing method is used, not a plain EMA/SMA approximation.
+- RSI, ATR, and ADX are verified against a worked reference example from Wilder's own 1978 text, mandatory whenever that text is obtainable; a disclosed, named secondary-source substitution is permitted only on documented primary-source unavailability. Either way, the test confirms Wilder's specific smoothing method is used, not a plain EMA/SMA approximation.
 - MACD's `line` and `histogram` are verified against a known reference example, with the histogram's 1986 Aspray attribution recorded distinctly from the line's Appel attribution in computation metadata.
 - SMA, EMA, Bollinger Bands, the Fibonacci ratio calculator, and the Donchian channel calculator are verified against hand-computed expected values.
 - Every Indicator Engine, Swing Detector, and Regime/Context Service output includes computation metadata (parameters, formula/source citation, input data range, computation timestamp, intermediate values where applicable) and a `computationVersion`, verified present on every output, not just the "happy path."
@@ -118,7 +121,7 @@ Per `07_ENGINEERING_WORKFLOW.md` Deliverables, applied to this sprint's scope:
 - `MarketSeries`/`PriceSeries` correctly carries forward both OHLCV data and Data Quality (`freshness`, age) from `Candle`/`MarketQuote`; verified that no code outside the translation adapter imports `Candle` or `MarketQuote` Prisma types.
 - Historical (`Candle`-derived) points never report `STALE`, only `FRESH`-equivalent-or-`MISSING` (completeness), while the distinct current-quote point correctly reports genuine `FRESH`/`STALE`/`MISSING` recency — verified by a test asserting a historical point's Data Quality is unaffected by its age, while an old (unrefreshed) current quote is correctly marked `STALE`.
 - Shared caching, keyed by `(computation, parameters, instrument, data-range)`, is verified functioning: identical repeated calls do not recompute; differing parameters correctly bypass the cache.
-- Per-computation latency, failure rate, and cache hit ratio are observable via structured logging for every Indicator, the Swing Detector, and the Regime/Context Service.
+- Per-computation latency, cache hit ratio, and computation rejection rate (insufficient/invalid input, distinct from an unhandled exception) are observable via structured logging for every Indicator, the Swing Detector, and the Regime/Context Service.
 - No HTTP endpoint, controller, or Swagger surface is introduced.
 - No new Prisma model is introduced.
 - No new runtime dependency is introduced.
@@ -154,13 +157,31 @@ Restated from `07_ENGINEERING_WORKFLOW.md`: this sprint is complete only when sc
 
 ---
 
+# Assigned Implementation Engineer
+
+AI Implementation Engineer, per `documentation/ai/AI_WORKFLOW.md`, operating under Architecture Team supervision and strictly within this Brief's Approved Scope. No human engineer is separately assigned for this sprint; this does not alter the approval, escalation, or review requirements below.
+
+---
+
 # Risks
 
 - **Wilder-smoothing correctness risk.** The most common documented implementation error for RSI/ATR/ADX is silently substituting a plain EMA/SMA for Wilder's specific recursive smoothing. Mitigated by the mandatory golden-dataset conformance test against Wilder's own published example.
-- **Golden-dataset sourcing risk.** If a precise worked example cannot be independently reproduced from a cited primary source (Wilder, Appel, Bollinger, Carney/Pesavento for later sprints), the most authoritative available secondary confirmation must be used and explicitly disclosed as such in the test/commit, never silently substituted for primary-source verification.
+- **Golden-dataset sourcing risk.** Primary-source worked examples (Wilder, Appel, Bollinger) are mandatory whenever obtainable; only a documented, disclosed inability to obtain the primary source authorizes a named secondary substitution, and this must never be a silent or default choice. This risk is mitigated by an explicit disclosure requirement in both the test file and the completion report, not left to implementer discretion.
 - **Point-in-time determinism risk.** Swing-detection retroactive revision (of only the most recent unconfirmed swings) is a subtle mechanism to get right; an off-by-one in "how many subsequent bars are enough to confirm" could silently leak future information into a historical replay, undermining the Backtesting guarantee this sprint exists partly to protect.
 - **Scope-creep risk.** This sprint has no trader-visible output, which creates a natural temptation to "prove it end-to-end" with a trivial Provider or endpoint. That is explicitly S1-008's job (a trivial reference Provider proving the framework), not this sprint's — see Non-Scope.
 - **Anti-Corruption Layer completeness risk.** This is the first implementation of `MarketSeries`; missing the Data Quality propagation requirement (already resolved as Additional Finding A) or the "no other code touches `Candle`/`MarketQuote`" constraint would reintroduce exactly the coupling this sprint exists to prevent. Mitigated by an explicit acceptance criterion checking for stray Prisma-type imports outside the adapter.
+
+---
+
+# Escalation Triggers
+
+Per `07_ENGINEERING_WORKFLOW.md` and `10_AI_ENGINEER_GUIDE.md`, the assigned engineer must stop and escalate to the Architecture Team if:
+
+- A new runtime or development dependency is required beyond what Dependencies above anticipates.
+- Any change to `22_ANALYSIS_ENGINE_ARCHITECTURE.md` or ADR-005/006/007 is proposed or appears necessary.
+- Requirements are unclear or conflicting — including, specifically for this sprint, if a primary source's worked example genuinely cannot be located after a documented attempt (see Golden-Dataset sourcing risk) or if the `MarketSeries` historical-vs-current-quote Data Quality distinction (Scope item 1) proves insufficient during implementation.
+- Scope expansion is requested, including any request to build a trivial Analysis Provider or expose any part of this sprint's output via an HTTP endpoint (explicitly Non-Scope; see Risks).
+- Point-in-time determinism (Swing Detection, Regime/Context Service) cannot be verified as specified.
 
 ---
 
@@ -180,20 +201,20 @@ None of these require a new ADR (no new architectural mechanism is involved — 
 # Approval Section
 
 - **Approval Status:**
-  - [x] Proposed
+  - [ ] Proposed
   - [ ] Under Review
-  - [ ] Approved
+  - [x] Approved
   - [ ] Rejected / Returned for Revision
-- **Approved By:** *(pending)*
-- **Date Approved:** *(pending)*
+- **Approved By:** Architecture Team
+- **Date Approved:** 2026-07-12
 
-This Sprint Brief is not yet valid for implementation. Per Constitution Rule 2 (Sprint Authority), implementation may not begin until the Architecture Team marks this Brief Approved.
+Approved on the basis that every finding from the Independent Sprint Brief Audit has been resolved (Assigned Implementation Engineer and Escalation Triggers sections added; MarketSeries/MarketQuote cache scope clarified; roadmap-terminology wording corrected to no longer assert an unsupported `08_ROADMAP.md` category; primary-source conformance testing tightened to mandatory-when-obtainable; the "failure rate" criterion replaced with latency, cache hit ratio, and computation rejection rate, consistent with `22_ANALYSIS_ENGINE_ARCHITECTURE.md`'s own Provider-scoped use of "failure rate"), and a final cross-document consistency review against `22_ANALYSIS_ENGINE_ARCHITECTURE.md` and `12_ADR_INDEX.md` (ADR-005) found no remaining architectural, terminological, or governance inconsistency. This Sprint Brief is now valid for implementation per Constitution Rule 2. This approval covers this Sprint Brief only; ADR-005/006/007 remain `Proposed` in `12_ADR_INDEX.md` and are not separately approved by this action.
 
 ---
 
 # Sprint Closure
 
-- **Sprint Status:** NOT STARTED — pending Approval.
+- **Sprint Status:** NOT STARTED — Approved, awaiting implementation.
 - **Closed Date:** *(pending)*
 - **Completion Report:** *(pending)*
 - **Final Implementation Commits:** *(pending)*
@@ -216,3 +237,4 @@ This Sprint Status is distinct from the Approval Status in the Approval Section 
 - `documentation/zos/05_ARCHITECTURE.md`
 - `documentation/zos/09_PROJECT_BRAIN.md`
 - `documentation/zos/11_DECISION_LOG.md` (DEC-2026-001 through DEC-2026-010 — none superseded or added by this Brief; new entries anticipated per Missing Decisions)
+- `documentation/ai/AI_WORKFLOW.md` (Assigned Implementation Engineer)
