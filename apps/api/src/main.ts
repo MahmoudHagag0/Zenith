@@ -12,7 +12,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('Zenith API')
     .setDescription(
-      'Zenith platform API — foundation layer (Sprint S1-001), user management (Sprint S1-002), trading catalog & watchlists (Sprint S1-003)',
+      'Zenith platform API — foundation layer (Sprint S1-001), user management (Sprint S1-002), trading catalog & watchlists (Sprint S1-003), portfolio & position management (Sprint S1-004)',
     )
     .setVersion('0.1.0')
     .addBearerAuth()

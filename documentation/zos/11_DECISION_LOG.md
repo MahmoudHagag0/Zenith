@@ -109,6 +109,18 @@ Sprint or milestone where the decision was applied.
 -   **Affected Components:** `apps/api` (new `RolesGuard`, `@Roles()` decorator, catalog and watchlist/favourite modules).
 -   **Implemented In:** S1-003.
 
+## DEC-2026-005
+
+-   **Date:** 2026-07-12
+-   **Title:** Decimal Precision and Row-Level Locking for S1-004 Portfolio/Position Accounting
+-   **Status:** Approved
+-   **Decision Summary:** All financial quantities in the `Position` and `Transaction` models (`quantity`, `price`, `averageCost`, `realizedPnl`) are stored using Prisma's `Decimal` type (Postgres `DECIMAL`), never `Float`. Every buy/sell operation that reads and recomputes a `Position`'s running totals executes inside a database transaction that takes an explicit row lock (`SELECT ... FOR UPDATE`) on the position row before recomputing, to prevent the lost-update race that would otherwise occur if two concurrent buy/sell requests for the same position both read stale totals before writing.
+-   **Business Rationale:** Floating-point arithmetic is unsuitable for cost-basis and P/L accounting — silent rounding drift would corrupt a trader's realized P/L over time, undermining the platform's credibility as a source of truth for financial decisions. Likewise, average cost and quantity are non-idempotent running totals (unlike S1-003's unique-constraint-protected entities), so concurrent buy/sell requests for the same position require explicit serialization, not just a uniqueness check, to avoid a lost update.
+-   **Technical Impact:** `packages/database`'s Prisma schema uses `Decimal` columns for all financial fields; `apps/api`'s position/transaction services use `Prisma.Decimal` arithmetic (never native JS numbers) for cost-basis and P/L calculations, and wrap every buy/sell in a Prisma interactive transaction with an explicit row lock. No new dependency is introduced — `Decimal` and interactive transactions are already part of the approved Prisma/PostgreSQL stack (`04_TECH_STACK.md`).
+-   **Related ADR:** None — this decision applies existing, already-approved Prisma/PostgreSQL capabilities (`Decimal` columns, interactive transactions) to a new data-integrity requirement; it introduces no new technology, mechanism, or dependency, consistent with the DEC-2026-002/DEC-2026-004 precedent.
+-   **Affected Components:** `packages/database` (`Position`, `Transaction` models), `apps/api` (positions/portfolios modules).
+-   **Implemented In:** S1-004.
+
 # Rules
 
 -   Every architectural decision must have a Decision Log entry.
