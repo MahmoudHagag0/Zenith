@@ -89,6 +89,31 @@ describe('MarketDataService', () => {
       expect(quote.price.toString()).toBe('210');
     });
 
+    it('refreshes fetchedAt on an update (not just on first insert), so the cache does not become permanently stale', async () => {
+      // Regression test: @default(now()) on `fetchedAt` only fires on INSERT.
+      // If the upsert's `update` branch omits `fetchedAt`, every quote past
+      // its first TTL window would compare against its original creation
+      // time forever, making the cache permanently appear expired.
+      prisma.marketQuote.findUnique.mockResolvedValue({
+        assetId: 'asset-1',
+        price: new Prisma.Decimal(100),
+        fetchedAt: new Date(Date.now() - 60_000),
+      });
+      provider.getQuote.mockResolvedValue({ symbol: 'AAPL', price: 210, currency: 'USD', asOf: new Date() });
+      prisma.marketQuote.upsert.mockImplementation(({ update }) => update);
+
+      const quote = await service.getQuote('asset-1');
+
+      expect(prisma.marketQuote.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          create: expect.objectContaining({ fetchedAt: expect.any(Date) }),
+          update: expect.objectContaining({ fetchedAt: expect.any(Date) }),
+        }),
+      );
+      const ageMs = Date.now() - (quote.fetchedAt as Date).getTime();
+      expect(ageMs).toBeLessThan(1000);
+    });
+
     it('propagates NotFoundException for a non-existent asset without calling the provider', async () => {
       assetsService.findOne.mockRejectedValue(new NotFoundException('Asset not found'));
 

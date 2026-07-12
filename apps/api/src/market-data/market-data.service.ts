@@ -49,6 +49,12 @@ export class MarketDataService {
 
     const providerQuote = await this.callProvider(() => this.provider.getQuote(asset.symbol));
 
+    // `fetchedAt` uses `@default(now())`, which Prisma applies only on
+    // INSERT, not UPDATE — it must be set explicitly here on every refetch,
+    // or the TTL check above would compare against the row's original
+    // creation time forever, making every quote appear permanently stale
+    // after the first TTL window and defeating the cache entirely.
+    const fetchedAt = new Date();
     return this.prisma.marketQuote.upsert({
       where: { assetId },
       create: {
@@ -57,12 +63,14 @@ export class MarketDataService {
         currency: providerQuote.currency,
         provider: this.provider.name,
         asOf: providerQuote.asOf,
+        fetchedAt,
       },
       update: {
         price: new Prisma.Decimal(providerQuote.price),
         currency: providerQuote.currency,
         provider: this.provider.name,
         asOf: providerQuote.asOf,
+        fetchedAt,
       },
     });
   }
