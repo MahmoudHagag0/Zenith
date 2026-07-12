@@ -214,12 +214,12 @@ Approved on the basis that every finding from the Independent Sprint Brief Audit
 
 # Sprint Closure
 
-- **Sprint Status:** NOT STARTED — Approved, awaiting implementation.
-- **Closed Date:** *(pending)*
-- **Completion Report:** *(pending)*
-- **Final Implementation Commits:** *(pending)*
+- **Sprint Status:** CLOSED
+- **Closed Date:** 2026-07-12
+- **Completion Report:** `documentation/ai/S1-007_COMPLETION_REPORT.md` (AI-020)
+- **Final Implementation Commits:** `2c7b446` (WP1 common utilities), `f6e4bef` (WP2 MarketSeries Anti-Corruption Layer), `c860e27` (WP3 Indicator Engine), `62a97e9` (WP4 Swing Detection Infrastructure), `f66be2c` (WP5 Regime/Context Service), `2952ece` (WP6 module wiring)
 - **Related ADR:** ADR-005 (see `12_ADR_INDEX.md`)
-- **Related Decisions:** *(pending — see Missing Decisions above)*
+- **Related Decisions:** DEC-2026-011 (computationVersion scheme, golden-dataset sourcing disclosure, swing/regime calibration non-defaulting)
 
 This Sprint Status is distinct from the Approval Status in the Approval Section above.
 

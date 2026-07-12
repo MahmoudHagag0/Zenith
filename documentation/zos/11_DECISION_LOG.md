@@ -182,6 +182,18 @@ Sprint or milestone where the decision was applied.
 -   **Affected Components:** `apps/api/src/market-data/market-data.service.ts`.
 -   **Implemented In:** S1-006 (fixing a defect introduced in S1-005).
 
+## DEC-2026-011
+
+-   **Date:** 2026-07-12
+-   **Title:** Analysis Engine Computation Versioning, Golden-Dataset Sourcing, and Calibration Non-Defaulting
+-   **Status:** Approved
+-   **Decision Summary:** Records the implementation-time calibration anticipated by the S1-007 Sprint Brief's Missing Decisions section. (1) `computationVersion` uses semantic versioning starting at `1.0.0`, assigned independently per computation unit (each of the nine Indicator Engine calculators, Swing Detection, and the Regime/Context Service carries its own version, incremented only if a future change could alter a previously-computed value for the same input). (2) Wilder's original 1978 worked examples (RSI, ATR, ADX) could not be independently obtained in this implementation environment (no network access to the out-of-print primary text); per the Sprint Brief's disclosed-fallback allowance, conformance is instead verified by a fully hand-traced manual calculation over a small constructed series, with the substitution and reasoning disclosed directly in each calculator's spec file. MACD and Bollinger Bands use a hand-traced known-reference example (not a mandatory-primary-source case per the Brief's Acceptance Criteria). (3) Swing-detection `sensitivity` and Regime/Context Service threshold calibration (`adxTrendingThreshold`, `volatilityMultiplier`) are **not** given any code-level default at all — every call site must supply them explicitly, satisfying the architecture's "disclosed, never-silently-defaulted" requirement by construction rather than by choosing and recording a single default value; selecting an actual default (if one is ever wanted) is left to the S1-008 Analysis Providers that will call these services with methodology-specific values.
+-   **Business Rationale:** These are calibration/documentation choices within an already-approved computation-infrastructure design (Sprint Brief Scope items 2-6), not new architecture — analogous to DEC-2026-009's scoring/staleness calibration. Recording them here provides traceability for why each conformance test uses the values it does, and confirms the deliberate absence of a swing/regime default is itself the calibration decision for this sprint, not an oversight.
+-   **Technical Impact:** `apps/api/src/analysis-engine/**` — every calculator/service file sets its own `COMPUTATION_VERSION = '1.0.0'` constant; `rsi.calculator.spec.ts`, `atr.calculator.spec.ts`, `adx.calculator.spec.ts`, `macd.calculator.spec.ts`, and `bollinger-bands.calculator.spec.ts` each carry an in-file "SOURCING DISCLOSURE" / reference-example comment naming the substitution and reasoning; `SwingDetectionParams`/`RegimeContextParams` have no default values in their type definitions or call sites.
+-   **Related ADR:** ADR-005 — this decision calibrates an already-approved computation-infrastructure design; it introduces no new technology or mechanism, consistent with the DEC-2026-002/DEC-2026-004/DEC-2026-005/DEC-2026-008/DEC-2026-009 precedent.
+-   **Affected Components:** `apps/api/src/analysis-engine` (all calculators and services).
+-   **Implemented In:** S1-007.
+
 # Rules
 
 -   Every architectural decision must have a Decision Log entry.
