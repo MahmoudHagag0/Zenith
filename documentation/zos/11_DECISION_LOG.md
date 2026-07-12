@@ -97,6 +97,18 @@ Sprint or milestone where the decision was applied.
 -   **Affected Components:** `apps/api`, `packages/database`.
 -   **Implemented In:** S1-002.
 
+## DEC-2026-004
+
+-   **Date:** 2026-07-12
+-   **Title:** Role-Gated Mutation Authorization for the S1-003 Trading Catalog
+-   **Status:** Approved
+-   **Decision Summary:** Trading Catalog reference data (`Exchange`, `Market`, `Asset`) is readable by any authenticated user, but creation, update, and deletion of catalog records is restricted to users with the `ADMIN` role. `Watchlist`, `WatchlistItem`, and `FavouriteAsset` records are strictly user-owned: every read and write is scoped to the requesting user's own records, and a request for another user's record returns `404 Not Found` (not `403 Forbidden`) to avoid confirming the existence of another user's resource IDs.
+-   **Business Rationale:** The trading catalog is shared reference data that every trader relies on; allowing any authenticated user to mutate it would let one trader corrupt the trading universe for everyone. Restricting catalog mutation to `ADMIN` protects data integrity without requiring any new authorization architecture, because the `Role` enum (`USER`, `ADMIN`) already exists on the `User` model as of S1-002. Watchlists and favourites are personal data; ownership scoping keeps one trader's data private from another, and the 404-on-mismatch pattern prevents ID-enumeration information leaks.
+-   **Technical Impact:** `apps/api` gains a `@Roles()` decorator and a `RolesGuard`, applied alongside the existing `JwtAuthGuard`, to gate catalog-mutation routes. No new authentication mechanism, no new role, and no new database field is introduced — this decision only applies the already-approved `Role` enum to new routes. Watchlist/favourite services filter every query by the authenticated user's ID and return `404` on ownership mismatch.
+-   **Related ADR:** None — this decision applies the `Role` enum already approved as part of the S1-002 `User` model; it introduces no new architectural mechanism and therefore does not require a superseding or new ADR, consistent with the precedent set by DEC-2026-002.
+-   **Affected Components:** `apps/api` (new `RolesGuard`, `@Roles()` decorator, catalog and watchlist/favourite modules).
+-   **Implemented In:** S1-003.
+
 # Rules
 
 -   Every architectural decision must have a Decision Log entry.
