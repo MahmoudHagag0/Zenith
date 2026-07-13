@@ -47,6 +47,8 @@ export interface Interpretation {
   readonly summary: string;
   /** kind: 'INTERPRETATION' — ranks entries within a multi-hypothesis array. */
   readonly confidence: LabeledConfidence;
+  /** kind: 'REGIME_ADJUSTED' — this entry's confidence scaled by the Regime/Context Service's current read (Confidence Model). Never compared to `confidence` above as if equivalent — a different kind entirely. */
+  readonly regimeAdjustedConfidence: LabeledConfidence;
 }
 
 /**
@@ -83,6 +85,10 @@ export interface AnalysisProviderResult {
   readonly interpretation: readonly Interpretation[];
   readonly limitations: Limitations;
   readonly traceability: TraceabilityRecord;
+  /** kind: 'DETECTION' — how well the Evidence matches this Provider's own pattern/event definition (Confidence Model). One value per result, not per `interpretation` entry. */
+  readonly detectionConfidence: LabeledConfidence;
+  /** kind: 'METHODOLOGY_CEILING' — a disclosed, Provider-level cap reflecting source quality (Confidence Model). Constant per Provider, not per result. */
+  readonly methodologyConfidenceCeiling: LabeledConfidence;
 }
 
 /**

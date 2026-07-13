@@ -17,7 +17,7 @@ const SECONDARY_TEST_PRICE_TOLERANCE = 0.03;
  * Detects the Accumulation half of Wyckoff Schematic #1 — PS, SC, AR,
  * ST, Spring, Test, SOS, LPS — as a deterministic, chronologically
  * sequential scan over the Swing Detector's already-verified swings
- * (S1-007), using `Candle.volume` (via `points`) **only** for the
+ * (S1-007), using per-bar volume (via `points`) **only** for the
  * Selling Climax's volume-spike criterion (S1-009 Sprint Brief, Scope
  * item 4's disclosed volume boundary — never for bar-by-bar effort/
  * result scoring, which is VSA's job).

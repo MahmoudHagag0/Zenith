@@ -64,6 +64,7 @@ export class FixtureProvider implements AnalysisProvider {
         {
           summary: `${this.id} fixture interpretation`,
           confidence: { kind: 'INTERPRETATION', value: new Prisma.Decimal(50), explanation: 'Fixture stub confidence.' },
+          regimeAdjustedConfidence: { kind: 'REGIME_ADJUSTED', value: new Prisma.Decimal(50), explanation: 'Fixture stub confidence.' },
         },
       ],
       limitations: { dataQuality: 'COMPLETE', assumptions: [], notes: [] },
@@ -73,6 +74,8 @@ export class FixtureProvider implements AnalysisProvider {
         conditionDerivations: [],
         confidenceDerivation: 'Fixture stub — not a real Provider.',
       },
+      detectionConfidence: { kind: 'DETECTION', value: new Prisma.Decimal(50), explanation: 'Fixture stub confidence.' },
+      methodologyConfidenceCeiling: { kind: 'METHODOLOGY_CEILING', value: new Prisma.Decimal(100), explanation: 'Fixture stub — no real ceiling.' },
     };
   }
 

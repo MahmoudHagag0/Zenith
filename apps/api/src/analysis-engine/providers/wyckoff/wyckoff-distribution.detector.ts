@@ -18,7 +18,7 @@ const SECONDARY_TEST_PRICE_TOLERANCE = 0.03;
  * Detects the Distribution half of Wyckoff Schematic #1 — PSY, BC, AR,
  * ST, UT/UTAD, Test, SOW, LPSY — the mirror image of
  * `detectAccumulationEvents` (swing highs/lows and support/resistance
- * swapped throughout). `Candle.volume` is used only for BC's climax
+ * swapped throughout). Per-bar volume is used only for BC's climax
  * criterion, the same disclosed boundary as Accumulation's SC.
  *
  * Returns whatever prefix of the schematic is actually found — a
