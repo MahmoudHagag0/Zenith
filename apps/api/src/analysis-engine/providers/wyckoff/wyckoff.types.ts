@@ -11,9 +11,14 @@ import type { Prisma } from '@zenith/database';
 
 export type WyckoffSchematicSide = 'ACCUMULATION' | 'DISTRIBUTION';
 
-/** A candidate trading range — the structural anchor every event below is detected relative to. */
+/**
+ * A candidate trading range — the structural anchor every event below is
+ * detected relative to. Deliberately side-agnostic: a range is just a
+ * bounded price zone. Whether it turns out to host an Accumulation or a
+ * Distribution schematic (or neither) is only knowable once event
+ * detection is attempted against it (see `WyckoffSideEvents`).
+ */
 export interface WyckoffRange {
-  readonly side: WyckoffSchematicSide;
   readonly support: Prisma.Decimal;
   readonly resistance: Prisma.Decimal;
   readonly startTimestamp: Date;
@@ -47,6 +52,12 @@ export interface WyckoffEvent {
   readonly price: Prisma.Decimal;
   /** Human-readable, e.g. "Selling Climax: swing low at 98.10 with a 3.1x volume spike." */
   readonly description: string;
+}
+
+/** The result of attempting one side's (Accumulation or Distribution) event detection against a `WyckoffRange`. */
+export interface WyckoffSideEvents {
+  readonly side: WyckoffSchematicSide;
+  readonly events: readonly WyckoffEvent[];
 }
 
 export type WyckoffPhase = 'A' | 'B' | 'C' | 'D' | 'E';
