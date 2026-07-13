@@ -7,6 +7,7 @@ const MAX_CONTRIBUTORS_PER_SIDE = 3;
 
 interface FamilyVote {
   readonly representativeProviderId: string;
+  readonly methodologyFamily: string | undefined;
   readonly reading: 'BULLISH' | 'BEARISH' | 'NEUTRAL';
   readonly strength: number;
   readonly weight: number;
@@ -20,7 +21,8 @@ function combineFamily(members: readonly DimensionContribution[]): FamilyVote {
   const relevant = reading === 'NEUTRAL' ? members : members.filter((m) => m.reading === reading);
   const strength = relevant.length > 0 ? relevant.reduce((sum, m) => sum + m.strength, 0) / relevant.length : 0;
   const representative = [...relevant].sort((a, b) => b.strength - a.strength)[0] ?? members[0];
-  return { representativeProviderId: representative.providerId, reading, strength, weight: 1 };
+  // groupByFamily guarantees every member of a group shares the same truthy methodologyFamily (or is a singleton with none) -- safe to read from any member.
+  return { representativeProviderId: representative.providerId, methodologyFamily: representative.methodologyFamily, reading, strength, weight: 1 };
 }
 
 /**
@@ -42,7 +44,7 @@ export function aggregateDimension(dimension: NormalizedDimension, contributions
   }
 
   const familyGroups = groupByFamily(applicable);
-  const votes = familyGroups.map(combineFamily).map((vote) => ({ ...vote, weight: weightStrategy.computeWeight(vote.representativeProviderId, undefined).weight }));
+  const votes = familyGroups.map(combineFamily).map((vote) => ({ ...vote, weight: weightStrategy.computeWeight(vote.representativeProviderId, vote.methodologyFamily).weight }));
 
   const bullishScore = votes.filter((v) => v.reading === 'BULLISH').reduce((sum, v) => sum + v.weight * v.strength, 0);
   const bearishScore = votes.filter((v) => v.reading === 'BEARISH').reduce((sum, v) => sum + v.weight * v.strength, 0);

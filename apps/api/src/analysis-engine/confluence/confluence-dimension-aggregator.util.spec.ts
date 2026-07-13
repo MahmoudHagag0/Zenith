@@ -1,6 +1,6 @@
 import { aggregateDimension } from './confluence-dimension-aggregator.util';
 import { EqualWeightStrategy } from './equal-weight.strategy';
-import type { DimensionContribution } from './confluence.types';
+import type { ConfluenceWeightStrategy, DimensionContribution } from './confluence.types';
 
 const weightStrategy = new EqualWeightStrategy();
 
@@ -71,5 +71,24 @@ describe('aggregateDimension (S1-012 WP9)', () => {
     // would have gotten wrong.
     expect(result.aggregateReading).toBe('BEARISH');
     expect(result.bullishContributors).toHaveLength(1);
+  });
+
+  it("passes each vote's own representative providerId and genuine methodologyFamily (never undefined-by-default) to the weight strategy", () => {
+    const seenCalls: Array<{ providerId: string; methodologyFamily: string | undefined }> = [];
+    const recordingStrategy: ConfluenceWeightStrategy = {
+      computeWeight: (providerId, methodologyFamily) => {
+        seenCalls.push({ providerId, methodologyFamily });
+        return { weight: 1, weightExplanation: 'recording fixture' };
+      },
+    };
+    const contributions = [
+      contribution('A', 'BULLISH', 90, 'FAMILY_X'),
+      contribution('B', 'BULLISH', 70, 'FAMILY_X'),
+      contribution('C', 'BEARISH', 50),
+    ];
+
+    aggregateDimension('TREND', contributions, recordingStrategy);
+
+    expect(seenCalls).toEqual(expect.arrayContaining([{ providerId: 'A', methodologyFamily: 'FAMILY_X' }, { providerId: 'C', methodologyFamily: undefined }]));
   });
 });
