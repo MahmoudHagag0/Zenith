@@ -2,7 +2,7 @@
 
 **Document ID:** ZOS-S1-010
 **Template Reference:** `SPRINT_BRIEF_TEMPLATE.md` (ZOS-SBT)
-**Status:** Proposed
+**Status:** Approved
 
 ------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@
 - **Milestone:** M1 — Core Platform (per `08_ROADMAP.md`, under the same Implementation-Engineer placement basis recorded in `S1-007_SPRINT_BRIEF.md`/`S1-008_SPRINT_BRIEF.md`/`S1-009_SPRINT_BRIEF.md`)
 - **Phase:** Phase 1 — Engineering Foundation (per `09_PROJECT_BRAIN.md`)
 - **Date Drafted:** 2026-07-13
-- **Approved By:** Pending Architecture Team review
+- **Approved By:** Architecture Team (2026-07-13 — see Approval Section)
 
 ---
 
@@ -161,14 +161,23 @@ Calibration choices within ADR-006's already-approved design, resolved via a Dec
 # Approval Section
 
 - **Approval Status:**
-  - [x] Proposed
+  - [ ] Proposed
   - [ ] Under Review
-  - [ ] Approved
+  - [x] Approved
   - [ ] Rejected / Returned for Revision
-- **Approved By:** Pending
-- **Date Approved:** Pending
+- **Approved By:** Architecture Team
+- **Date Approved:** 2026-07-13
 
-Self-audited by the Implementation Engineer prior to submission (Phase 2): no Critical findings identified; the independence, tier-categorization, and volume-boundary points above were resolved directly in this draft rather than deferred, applying lessons already learned during S1-009's own self-review. No open item below rises to a genuine architectural contradiction requiring a design decision from the Architecture Team beyond ratifying this Brief itself — submitted for Approval per Constitution Rule 2.
+Approved on the basis that the independent self-audit found no Critical findings and the bounded V1 scope, Swing Detector reuse, ATR-relative thresholds, Independence Boundary Test, and Killzone deferral were each accepted as proposed. This Sprint Brief is valid for implementation per Constitution Rule 2, pending the S1-010 Task Breakdown's own review and approval.
+
+**Architecture Team Implementation Guidance (binding direction for this Sprint, additive to — not a revision of — the Scope above):**
+
+1. **Design around the liquidity narrative, not isolated patterns.** Order Blocks, Fair Value Gaps, and Liquidity Sweeps are implementation primitives, not the Provider's final objective. Where a V1 design choice is otherwise neutral, prefer the shape that leaves room for a future `Liquidity Event → Displacement → Imbalance → Institutional Reaction` reasoning progression over one that locks the Provider into a flat, unrelated set of pattern detectors with no evolution path. V1 does not implement that progression — it must not foreclose it.
+2. **Any concept discovered during implementation that is genuinely reusable across future Providers belongs in the generic Analysis Engine, not duplicated inside `providers/ict-smc/`.** Anything exclusively ICT/SMC's stays confined there. Framework vocabulary remains methodology-independent — no ICT/SMC term is ever introduced into a generic component's name, type, or field, even informally.
+3. Every implementation decision continues to be evaluated against both the Senior Software Architect and Professional Institutional Trader lenses (determinism, explainability, twenty-Provider durability, trader trust, methodology independence) — carried forward from the Sprint Objective, restated here as standing Architecture Team direction for the remainder of this Sprint.
+4. Every Work Package's design choices are made in service of Zenith's long-term objective: understanding market behaviour, multiple analytical schools, and eventually trader behaviour — not building an isolated technical-analysis module.
+
+This guidance governs *how* the approved Scope is implemented; it does not add, remove, or reinterpret any Scope/Non-Scope item above.
 
 ---
 
