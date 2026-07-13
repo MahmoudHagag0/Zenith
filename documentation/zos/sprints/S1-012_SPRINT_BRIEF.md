@@ -162,12 +162,12 @@ Approved concurrently with the Architecture Team's explicit authorization to exe
 
 # Sprint Closure
 
-- **Sprint Status:** OPEN
-- **Closed Date:** Pending
-- **Completion Report:** Pending (`documentation/ai/S1-012_COMPLETION_REPORT.md`, AI-030)
-- **Final Implementation Commits:** Pending
+- **Sprint Status:** CLOSED
+- **Closed Date:** 2026-07-13
+- **Completion Report:** `documentation/ai/S1-012_COMPLETION_REPORT.md` (AI-030)
+- **Final Implementation Commits:** `2f94e91` (Sprint Brief), `7910ffb` (Task Breakdown), `fd179fe` (WP1-WP5: normalize() completion + per-Provider vocabulary mappings), `6648081` (WP6-WP11: Confluence Engine), `0a6883b` (WP12: golden-dataset conformance test), `1d16464` (Sprint Audit fix: `methodologyFamily` propagation to `ConfluenceWeightStrategy`)
 - **Related ADR:** ADR-007 (see `12_ADR_INDEX.md`); ADR-006 (`normalize()`'s signature completion)
-- **Related Decisions:** Pending (`DEC-2026-016`)
+- **Related Decisions:** `DEC-2026-016`
 
 ---
 
