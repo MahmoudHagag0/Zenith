@@ -5,6 +5,7 @@ import { IctSmcProvider } from './ict-smc/ict-smc.provider';
 import { ElliottWaveProvider } from './elliott-wave/elliott-wave.provider';
 import { HarmonicPatternsProvider } from './harmonic-patterns/harmonic-patterns.provider';
 import { ClassicalChartPatternsProvider } from './classical-chart-patterns/classical-chart-patterns.provider';
+import { PriceActionProvider } from './price-action/price-action.provider';
 import { INDICATOR_ENGINE } from '../indicator-engine/indicator-engine.tokens';
 import { SWING_DETECTOR } from '../swing-detection/swing-detection.tokens';
 import { REGIME_CONTEXT } from '../regime-context/regime-context.tokens';
@@ -166,12 +167,27 @@ async function buildClassicalChartPatternsProvider(): Promise<{ provider: Analys
   return { provider: module.get(ClassicalChartPatternsProvider), series: series(points) };
 }
 
+async function buildPriceActionProvider(): Promise<{ provider: AnalysisProvider; series: MarketSeries }> {
+  const points = [point(0, 100), { ...point(1, 108), high: new Prisma.Decimal(109), low: new Prisma.Decimal(99) }];
+  const swings = [swing('HIGH', 100, 0)];
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      PriceActionProvider,
+      { provide: INDICATOR_ENGINE, useValue: { atr: jest.fn().mockReturnValue({ series: points.map((p) => ({ timestamp: p.timestamp, value: new Prisma.Decimal(1) })), metadata: { computation: 'ATR', computationVersion: '1.0.0' } }) } },
+      { provide: SWING_DETECTOR, useValue: { detect: jest.fn().mockReturnValue(swingResultOf(swings)) } },
+      { provide: REGIME_CONTEXT, useValue: { getRegime: jest.fn().mockReturnValue(regimeResultOf('TRENDING')) } },
+    ],
+  }).compile();
+  return { provider: module.get(PriceActionProvider), series: series(points) };
+}
+
 const PROVIDER_FIXTURES: Array<{ name: string; build: () => Promise<{ provider: AnalysisProvider; series: MarketSeries }> }> = [
   { name: 'WyckoffProvider', build: buildWyckoffProvider },
   { name: 'IctSmcProvider', build: buildIctSmcProvider },
   { name: 'ElliottWaveProvider', build: buildElliottWaveProvider },
   { name: 'HarmonicPatternsProvider', build: buildHarmonicPatternsProvider },
   { name: 'ClassicalChartPatternsProvider', build: buildClassicalChartPatternsProvider },
+  { name: 'PriceActionProvider', build: buildPriceActionProvider },
 ];
 
 describe.each(PROVIDER_FIXTURES)('normalize() conformance — $name (S1-012 WP6)', ({ build }) => {
