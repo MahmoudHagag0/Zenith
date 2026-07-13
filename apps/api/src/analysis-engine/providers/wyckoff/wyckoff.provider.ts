@@ -81,11 +81,12 @@ export class WyckoffProvider implements AnalysisProvider {
 
     const accumulation = detectAccumulationEvents(series.points, swingResult, range, nearTolerance);
     const distribution = detectDistributionEvents(series.points, swingResult, range, nearTolerance);
+    // Both detectors are guaranteed at least their first event (PS/PSY) once
+    // `range` is non-null, since detectWyckoffRange already required >=2
+    // swing highs and >=2 swing lows -- the same precondition each
+    // detector checks before pushing PS/PSY. `winningSide.events` is never
+    // empty here.
     const winningSide: WyckoffSideEvents = accumulation.events.length >= distribution.events.length ? accumulation : distribution;
-
-    if (winningSide.events.length === 0) {
-      return this.buildLimitationsResult(series, 'A candidate range was identified but no Wyckoff schematic events were confirmed within it.');
-    }
 
     const hypotheses = classifyWyckoffPhase(winningSide);
     const interpretation: Interpretation[] = hypotheses.map((hypothesis) => ({

@@ -151,3 +151,62 @@ describe('WyckoffProvider.analyze() (WP6 integration)', () => {
     );
   });
 });
+
+describe('WyckoffProvider.analyze() Limitations / graceful degradation (WP7)', () => {
+  async function buildProviderWithSwings(swings: Swing[]) {
+    const swingDetector = {
+      detect: jest.fn().mockReturnValue({ sensitivity: 3, swings, structureEvents: [], currentTrend: 'UNKNOWN', metadata: { computation: 'SwingDetection', computationVersion: '1.0.0' } }),
+    };
+    const regimeContext = {
+      getRegime: jest.fn().mockReturnValue({
+        trendState: 'RANGING',
+        trendDirection: 'UNKNOWN',
+        volatilityState: 'LOW',
+        adx: new Prisma.Decimal(15),
+        atr: new Prisma.Decimal(1),
+        atrBaseline: new Prisma.Decimal(1),
+        metadata: { computation: 'RegimeContext', computationVersion: '1.0.0' },
+      }),
+    };
+    const indicatorEngine = {
+      atr: jest.fn().mockReturnValue({ series: [{ timestamp: new Date(), value: new Prisma.Decimal(1) }], metadata: { computation: 'ATR', computationVersion: '1.0.0' } }),
+    };
+
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        WyckoffProvider,
+        { provide: INDICATOR_ENGINE, useValue: indicatorEngine },
+        { provide: SWING_DETECTOR, useValue: swingDetector },
+        { provide: REGIME_CONTEXT, useValue: regimeContext },
+      ],
+    }).compile();
+    return module.get(WyckoffProvider);
+  }
+
+  it('never throws and returns a populated Limitations entry when there is insufficient swing structure for any range', async () => {
+    const provider = await buildProviderWithSwings([swing('LOW', 95, 1), swing('HIGH', 105, 2)]);
+    const result = await provider.analyze(fullAccumulationSeries());
+
+    expect(result.interpretation).toEqual([]);
+    expect(result.limitations.notes.length).toBeGreaterThan(0);
+    expect(result.limitations.dataQuality).not.toBeUndefined();
+  });
+
+  it('never throws for a completely empty swing set (a clean, uninterrupted trend)', async () => {
+    const provider = await buildProviderWithSwings([]);
+    await expect(provider.analyze(fullAccumulationSeries())).resolves.toBeDefined();
+  });
+
+  it('reports Limitations dataQuality MISSING when the series has no points at all', async () => {
+    const provider = await buildProviderWithSwings([]);
+    const emptySeries: MarketSeries = {
+      assetId: 'asset-empty',
+      requestedRange: { from: new Date(), to: new Date() },
+      points: [],
+      missingDates: [],
+      currentQuote: { price: null, currency: null, asOf: null, fetchedAt: null, ageSeconds: null, dataQuality: { kind: 'current', freshness: 'MISSING' } },
+    };
+    const result = await provider.analyze(emptySeries);
+    expect(result.limitations.dataQuality).toBe('MISSING');
+  });
+});
