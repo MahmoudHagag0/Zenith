@@ -51,7 +51,8 @@ This mapping was established by Architecture Team decision as part of the AI Doc
 | AI-018 | `S1-005_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-005, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-005's closure. |
 | AI-019 | `S1-006_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-006, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-006's closure. |
 | AI-020 | `S1-007_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-007, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-007's closure. |
-| AI-021 | `S1-008_TASK_BREAKDOWN.md` | Proposed | Execution-guidance Work Package breakdown for the approved S1-008 Sprint Brief, pending Architecture Team review. | Sequences `S1-008_SPRINT_BRIEF.md`'s Scope into dependency-ordered Work Packages; does not expand or reinterpret it. |
+| AI-021 | `S1-008_TASK_BREAKDOWN.md` | Approved | Execution-guidance Work Package breakdown for the approved S1-008 Sprint Brief, approved by the Architecture Team. | Sequences `S1-008_SPRINT_BRIEF.md`'s Scope into dependency-ordered Work Packages; does not expand or reinterpret it. |
+| AI-022 | `S1-008_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-008, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-008's closure. |
 
 # Known Open Items
 

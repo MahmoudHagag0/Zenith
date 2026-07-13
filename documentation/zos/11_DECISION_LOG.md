@@ -194,6 +194,18 @@ Sprint or milestone where the decision was applied.
 -   **Affected Components:** `apps/api/src/analysis-engine` (all calculators and services).
 -   **Implemented In:** S1-007.
 
+## DEC-2026-012
+
+-   **Date:** 2026-07-13
+-   **Title:** Analysis Provider Framework Calibration — Dependency Syntax, Tiering, Circuit Breaker, Confidence Labeling, Versioning
+-   **Status:** Approved
+-   **Decision Summary:** Records the implementation-time calibration anticipated by the S1-008 Sprint Brief's Missing Decisions section. (1) A Provider declares a dependency via a readonly `dependsOn?: readonly string[]` array of other Providers' stable `id`s on the `AnalysisProvider` interface itself — resolved by the Execution Engine via topological sort, never a concrete-class import. (2) Tier classification is a readonly `tier: 'FAST' | 'SLOW'` field, also self-declared on the Provider. (3) The circuit breaker uses a `failureThreshold` of 3 consecutive failures/timeouts and a `resetTimeoutMs` of 30,000ms before allowing a probe retry; the default per-invocation timeout (overridable per Provider via `timeoutMs`) is 5,000ms. (4) The four Confidence-taxonomy labels are the `ConfidenceKind` union (`'DETECTION' | 'INTERPRETATION' | 'REGIME_ADJUSTED' | 'METHODOLOGY_CEILING'`), each paired with a `Prisma.Decimal` value on a 0-100 scale (consistent with the project's existing 0-100 scored fields, e.g. S1-006's Concentration/Health Score) rather than a categorical HIGH/MEDIUM/LOW label, since `InterpretationConfidence` must support ranking multiple hypotheses within a single `interpretation[]` array — a categorical scale would not. (5) `computationVersion` follows the same semantic-versioning-from-`1.0.0` convention as S1-007 (DEC-2026-011), assigned per Provider. (6) `runNewAnalysis()` returns two independently-resolvable results (`fastTier`/`slowTier` promises, an implementation-level `TieredExecutionRun` shape) rather than one flat awaited value, so a SLOW-tier Provider's execution can never block a FAST-tier Provider's result, per ADR-006's Execution tiers requirement — each Provider's own invocation only awaits its actual declared dependencies (a per-node async task-graph), not an artificial tier-wide barrier.
+-   **Business Rationale:** These are calibration/type-shape choices within an already-approved framework design (ADR-006; Sprint Brief Scope items 1-6), not new architecture — analogous to DEC-2026-009's and DEC-2026-011's precedent. No real Provider exists yet to be affected by a future recalibration of the numeric thresholds; S1-009's first real Provider inherits these values unless a superseding Decision Log entry changes them.
+-   **Technical Impact:** `apps/api/src/analysis-engine/providers/**`. `provider-circuit-breaker.ts` and `provider-execution.service.ts` hold the threshold/timeout constants as named, commented constants (not magic numbers). `analysis-provider.types.ts` defines `ConfidenceKind`/`LabeledConfidence`/`ProviderTier`/`ProviderLifecycleState`. `provider-execution.types.ts` defines `TieredExecutionRun`. A sprint-audit fix (not a new decision) also scoped `ExecutionRunResult.totalRegistered` to the tier actually being reported, rather than the grand total across both tiers.
+-   **Related ADR:** ADR-006 — this decision calibrates an already-approved framework design; it introduces no new technology or mechanism, consistent with the DEC-2026-002/DEC-2026-004/DEC-2026-005/DEC-2026-008/DEC-2026-009/DEC-2026-011 precedent.
+-   **Affected Components:** `apps/api/src/analysis-engine/providers`.
+-   **Implemented In:** S1-008.
+
 # Rules
 
 -   Every architectural decision must have a Decision Log entry.

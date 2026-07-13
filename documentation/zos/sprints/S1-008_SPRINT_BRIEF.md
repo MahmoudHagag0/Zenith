@@ -160,12 +160,12 @@ Approved on the basis that the independent audit found no Critical findings and 
 
 # Sprint Closure
 
-- **Sprint Status:** NOT STARTED — Approved, awaiting Task Breakdown approval.
-- **Closed Date:** *(pending)*
-- **Completion Report:** *(pending)*
-- **Final Implementation Commits:** *(pending)*
+- **Sprint Status:** CLOSED
+- **Closed Date:** 2026-07-13
+- **Completion Report:** `documentation/ai/S1-008_COMPLETION_REPORT.md` (AI-022)
+- **Final Implementation Commits:** `855e44c` (WP1 contract types), `ace209e` (WP2 Provider registry), `54af290` (WP3 topological sort), `9fc2977` (WP6 circuit breaker), `16b98a1` (WP8 health tracker, part 1), `fe0c124` (WP4-WP7 Execution Engine), `732ca83` (WP8 observability surface), `7c87cba` (WP9 module wiring), `31bcec9` (WP11 audit fix — `totalRegistered` tier scoping)
 - **Related ADR:** ADR-006 (see `12_ADR_INDEX.md`)
-- **Related Decisions:** *(pending)*
+- **Related Decisions:** DEC-2026-012 (dependency-declaration syntax, tier classification, circuit-breaker/timeout defaults, confidence labeling, computationVersion scheme, tiered execution-result shape)
 
 ---
 
