@@ -65,6 +65,22 @@ describe('ProviderExecutionService', () => {
       const slowResult = await run.slowTier;
       expect(slowResult.participating.map((p) => p.providerId)).toEqual(['slow']);
     });
+
+    it('scopes totalRegistered to each tier, not the grand total across both tiers', async () => {
+      const fastA = new FixtureProvider({ id: 'fast-a', tier: 'FAST' });
+      const fastB = new FixtureProvider({ id: 'fast-b', tier: 'FAST', behavior: 'THROW' });
+      const slow = new FixtureProvider({ id: 'slow', tier: 'SLOW' });
+      const service = await buildService([fastA, fastB, slow]);
+
+      const run = service.runNewAnalysis(emptySeries());
+      const fastResult = await run.fastTier;
+      const slowResult = await run.slowTier;
+
+      expect(fastResult.totalRegistered).toBe(2);
+      expect(fastResult.participating.length + fastResult.nonParticipating.length).toBe(fastResult.totalRegistered);
+      expect(slowResult.totalRegistered).toBe(1);
+      expect(slowResult.participating.length + slowResult.nonParticipating.length).toBe(slowResult.totalRegistered);
+    });
   });
 
   describe('partial failure reporting (WP5)', () => {

@@ -26,7 +26,11 @@ export interface NonParticipatingEntry {
 /**
  * Distinguishes "N of M available Providers participated" from the full
  * registered count — the Execution Engine never collapses a partial
- * result into an implied full one.
+ * result into an implied full one. `totalRegistered` is scoped to
+ * whichever set this result reports on (e.g. only FAST-tier Providers
+ * for `TieredExecutionRun.fastTier`), not the grand total across both
+ * tiers, so a Consumer computing this tier's own participation ratio
+ * never divides by an unrelated denominator.
  */
 export interface ExecutionRunResult {
   readonly participating: readonly ParticipatingEntry[];

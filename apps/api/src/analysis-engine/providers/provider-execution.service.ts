@@ -169,6 +169,6 @@ export class ProviderExecutionService implements ProviderExecutionEngine {
         nonParticipating.push(outcome.entry);
       }
     }
-    return { participating, nonParticipating, totalRegistered: this.providers.length };
+    return { participating, nonParticipating, totalRegistered: tierProviders.length };
   }
 }
