@@ -183,12 +183,12 @@ This guidance governs *how* the approved Scope is implemented; it does not add, 
 
 # Sprint Closure
 
-- **Sprint Status:** OPEN
-- **Closed Date:** Pending
-- **Completion Report:** Pending (`documentation/ai/S1-010_COMPLETION_REPORT.md`, AI-026)
-- **Final Implementation Commits:** Pending
+- **Sprint Status:** CLOSED
+- **Closed Date:** 2026-07-13
+- **Completion Report:** `documentation/ai/S1-010_COMPLETION_REPORT.md` (AI-026)
+- **Final Implementation Commits:** `579c955` (Sprint Brief draft), `7eb4611` (Sprint Brief approval + Task Breakdown draft), `447a7aa` (WP1-WP12: full `IctSmcProvider` implementation, module registration, full monorepo verification)
 - **Related ADR:** ADR-006 (see `12_ADR_INDEX.md`)
-- **Related Decisions:** Pending (`DEC-2026-014`)
+- **Related Decisions:** DEC-2026-014 (event-detection thresholds, golden-dataset sourcing, Methodology Confidence Ceiling, and the `DisplacementLeg` internal design)
 
 ---
 
