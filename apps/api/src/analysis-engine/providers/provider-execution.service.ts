@@ -76,9 +76,19 @@ export class ProviderExecutionService implements ProviderExecutionEngine {
     return outcome.entry;
   }
 
-  /** Exposed for observability wiring/tests — not part of the ProviderExecutionEngine contract. */
+  /**
+   * Per-Provider aggregate health (participation rate, average confidence,
+   * failure rate, UP/DOWN status) — "Operational Resilience &
+   * Observability", Provider health. Not part of the
+   * `ProviderExecutionEngine` contract; exposed for observability wiring.
+   */
   getHealthSignal(providerId: string) {
     return this.healthTracker.getSignal(providerId, this.circuitBreaker.isOpen(providerId));
+  }
+
+  /** Raw per-Provider circuit-breaker state (consecutive failures, open/closed) — "Operational Resilience & Observability", Circuit breaker. */
+  getCircuitBreakerState(providerId: string) {
+    return this.circuitBreaker.getState(providerId);
   }
 
   private async scheduleNewRun(provider: AnalysisProvider, series: MarketSeries, outcomes: Map<string, Promise<Outcome>>): Promise<Outcome> {

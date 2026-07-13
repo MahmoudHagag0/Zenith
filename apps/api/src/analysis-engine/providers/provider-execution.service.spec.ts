@@ -137,6 +137,45 @@ describe('ProviderExecutionService', () => {
     });
   });
 
+  describe('observability (WP8)', () => {
+    it('exposes per-Provider latency via ObservabilityService after a successful invocation', async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [ProviderExecutionService, ObservabilityService, { provide: ANALYSIS_PROVIDERS, useValue: [new FixtureProvider({ id: 'observed' })] }],
+      }).compile();
+      const service = module.get(ProviderExecutionService);
+      const observability = module.get(ObservabilityService);
+
+      await service.runNewAnalysis(emptySeries()).fastTier;
+      const stats = observability.getStats('Provider:observed');
+      expect(stats.invocations).toBe(1);
+      expect(stats.averageLatencyMs).toBeGreaterThanOrEqual(0);
+    });
+
+    it('exposes a per-Provider health signal reflecting participation, average confidence, and failure rate', async () => {
+      const provider = new FixtureProvider({ id: 'health-check' });
+      const service = await buildService([provider]);
+
+      await service.runNewAnalysis(emptySeries()).fastTier;
+      const signal = service.getHealthSignal('health-check');
+      expect(signal.status).toBe('UP');
+      expect(signal.participationRate).toBe(1);
+      expect(signal.averageConfidence).toBe(50);
+      expect(signal.failureRate).toBe(0);
+    });
+
+    it('exposes raw circuit-breaker state, reflecting DOWN health once the circuit opens', async () => {
+      const flaky = new FixtureProvider({ id: 'flaky-health', behavior: 'THROW' });
+      const service = await buildService([flaky]);
+
+      await service.runNewAnalysis(emptySeries()).fastTier;
+      await service.runNewAnalysis(emptySeries()).fastTier;
+      await service.runNewAnalysis(emptySeries()).fastTier;
+
+      expect(service.getCircuitBreakerState('flaky-health')).toEqual({ consecutiveFailures: 3, isOpen: true });
+      expect(service.getHealthSignal('flaky-health').status).toBe('DOWN');
+    });
+  });
+
   describe('runProviderDirectly', () => {
     it('reports ERROR for an unregistered Provider id', async () => {
       const service = await buildService([]);
