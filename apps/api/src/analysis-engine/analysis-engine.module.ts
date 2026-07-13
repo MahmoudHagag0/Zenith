@@ -14,6 +14,7 @@ import { ProviderExecutionService } from './providers/provider-execution.service
 import { WyckoffProvider } from './providers/wyckoff/wyckoff.provider';
 import { IctSmcProvider } from './providers/ict-smc/ict-smc.provider';
 import { ElliottWaveProvider } from './providers/elliott-wave/elliott-wave.provider';
+import { HarmonicPatternsProvider } from './providers/harmonic-patterns/harmonic-patterns.provider';
 import type { AnalysisProvider } from './providers/analysis-provider.types';
 import { CONFLUENCE_ENGINE, CONFLUENCE_WEIGHT_STRATEGY } from './confluence/confluence.tokens';
 import { ConfluenceService } from './confluence/confluence.service';
@@ -22,9 +23,9 @@ import { EqualWeightStrategy } from './confluence/equal-weight.strategy';
 /**
  * S1-007 — Analysis Engine Foundation (Indicator Engine, Swing Detection
  * Infrastructure, Regime/Context Service), S1-008 — Analysis Provider
- * Framework (Provider registry, Execution Engine), S1-009/S1-010/S1-011 —
- * the three real Analysis Providers, and S1-012 — the Confluence Engine
- * (methodology-family-aware, dimension-level aggregation), per
+ * Framework (Provider registry, Execution Engine), S1-009/S1-010/S1-011/
+ * S1-013 — the four real Analysis Providers, and S1-012 — the Confluence
+ * Engine (methodology-family-aware, dimension-level aggregation), per
  * ADR-005/006/007 and 22_ANALYSIS_ENGINE_ARCHITECTURE.md. Every service
  * here is consumed exclusively via its injection token (never its
  * concrete class), following the `MARKET_DATA_PROVIDER` precedent of
@@ -32,13 +33,13 @@ import { EqualWeightStrategy } from './confluence/equal-weight.strategy';
  *
  * `ANALYSIS_PROVIDERS`'s factory is registered here, not in a separate
  * imported module, because it must construct `WyckoffProvider`/
- * `IctSmcProvider`/`ElliottWaveProvider` with the same shared
- * `INDICATOR_ENGINE`/`SWING_DETECTOR`/`REGIME_CONTEXT` instances this
- * module already owns (NestJS module encapsulation: a module cannot
- * inject a provider declared only in a module that imports it — only the
- * reverse). A future Provider is added the same way: a concrete class
- * plus an entry in this factory's `inject` array, never by editing any
- * existing Provider's own code.
+ * `IctSmcProvider`/`ElliottWaveProvider`/`HarmonicPatternsProvider` with
+ * the same shared `INDICATOR_ENGINE`/`SWING_DETECTOR`/`REGIME_CONTEXT`
+ * instances this module already owns (NestJS module encapsulation: a
+ * module cannot inject a provider declared only in a module that imports
+ * it — only the reverse). A future Provider is added the same way: a
+ * concrete class plus an entry in this factory's `inject` array, never by
+ * editing any existing Provider's own code.
  *
  * No controller, no HTTP surface — these are internal, composable
  * services only. No new Prisma models; depends one-way on
@@ -59,6 +60,7 @@ import { EqualWeightStrategy } from './confluence/equal-weight.strategy';
         new WyckoffProvider(indicatorEngine, swingDetector, regimeContext),
         new IctSmcProvider(indicatorEngine, swingDetector, regimeContext),
         new ElliottWaveProvider(indicatorEngine, swingDetector, regimeContext),
+        new HarmonicPatternsProvider(swingDetector, regimeContext),
       ],
       inject: [INDICATOR_ENGINE, SWING_DETECTOR, REGIME_CONTEXT],
     },

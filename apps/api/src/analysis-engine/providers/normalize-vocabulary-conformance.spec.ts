@@ -3,6 +3,7 @@ import { Prisma } from '@zenith/database';
 import { WyckoffProvider } from './wyckoff/wyckoff.provider';
 import { IctSmcProvider } from './ict-smc/ict-smc.provider';
 import { ElliottWaveProvider } from './elliott-wave/elliott-wave.provider';
+import { HarmonicPatternsProvider } from './harmonic-patterns/harmonic-patterns.provider';
 import { INDICATOR_ENGINE } from '../indicator-engine/indicator-engine.tokens';
 import { SWING_DETECTOR } from '../swing-detection/swing-detection.tokens';
 import { REGIME_CONTEXT } from '../regime-context/regime-context.tokens';
@@ -136,10 +137,25 @@ async function buildElliottWaveProvider(): Promise<{ provider: AnalysisProvider;
   return { provider: module.get(ElliottWaveProvider), series: series(points) };
 }
 
+async function buildHarmonicPatternsProvider(): Promise<{ provider: AnalysisProvider; series: MarketSeries }> {
+  const points = Array.from({ length: 5 }, (_, i) => point(i, 50 + i));
+  // A textbook-clean bullish Gartley: XA=100 (0->100), AB=0.618*XA (B=38.2), BC=0.618*AB (C=76.4), AD=0.786*XA (D=21.4).
+  const swings = [swing('LOW', 0, 0), swing('HIGH', 100, 1), swing('LOW', 38.2, 2), swing('HIGH', 76.4, 3), swing('LOW', 21.4, 4)];
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      HarmonicPatternsProvider,
+      { provide: SWING_DETECTOR, useValue: { detect: jest.fn().mockReturnValue(swingResultOf(swings)) } },
+      { provide: REGIME_CONTEXT, useValue: { getRegime: jest.fn().mockReturnValue(regimeResultOf('RANGING')) } },
+    ],
+  }).compile();
+  return { provider: module.get(HarmonicPatternsProvider), series: series(points) };
+}
+
 const PROVIDER_FIXTURES: Array<{ name: string; build: () => Promise<{ provider: AnalysisProvider; series: MarketSeries }> }> = [
   { name: 'WyckoffProvider', build: buildWyckoffProvider },
   { name: 'IctSmcProvider', build: buildIctSmcProvider },
   { name: 'ElliottWaveProvider', build: buildElliottWaveProvider },
+  { name: 'HarmonicPatternsProvider', build: buildHarmonicPatternsProvider },
 ];
 
 describe.each(PROVIDER_FIXTURES)('normalize() conformance — $name (S1-012 WP6)', ({ build }) => {

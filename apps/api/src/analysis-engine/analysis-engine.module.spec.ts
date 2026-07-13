@@ -12,6 +12,7 @@ import { ProviderExecutionService } from './providers/provider-execution.service
 import { WyckoffProvider } from './providers/wyckoff/wyckoff.provider';
 import { IctSmcProvider } from './providers/ict-smc/ict-smc.provider';
 import { ElliottWaveProvider } from './providers/elliott-wave/elliott-wave.provider';
+import { HarmonicPatternsProvider } from './providers/harmonic-patterns/harmonic-patterns.provider';
 import { CONFLUENCE_ENGINE, CONFLUENCE_WEIGHT_STRATEGY } from './confluence/confluence.tokens';
 import { ConfluenceService } from './confluence/confluence.service';
 import { EqualWeightStrategy } from './confluence/equal-weight.strategy';
@@ -25,18 +26,18 @@ import type { ConfluenceEngine } from './confluence/confluence.tokens';
  * Verifies `AnalysisEngineModule`'s actual `ANALYSIS_PROVIDERS` wiring —
  * the real `INDICATOR_ENGINE`/`SWING_DETECTOR`/`REGIME_CONTEXT` service
  * classes (not mocks), exactly as registered there — per the S1-009/
- * S1-010/S1-011 Task Breakdowns' own module-registration verification
- * checkpoints: the array must resolve to exactly three entries,
- * `WyckoffProvider` (S1-009), `IctSmcProvider` (S1-010), then
- * `ElliottWaveProvider` (S1-011), in registration order. Deliberately
- * does not import the real `AnalysisEngineModule` (which pulls in
- * `MarketDataModule` -> `DatabaseModule`, a live Prisma connection this
- * unit test has no need of) — this replicates only the providers this
- * specific factory depends on, matching `AnalysisEngineModule`'s own
- * registration exactly.
+ * S1-010/S1-011/S1-013 Task Breakdowns' own module-registration
+ * verification checkpoints: the array must resolve to exactly four
+ * entries, `WyckoffProvider` (S1-009), `IctSmcProvider` (S1-010),
+ * `ElliottWaveProvider` (S1-011), then `HarmonicPatternsProvider`
+ * (S1-013), in registration order. Deliberately does not import the real
+ * `AnalysisEngineModule` (which pulls in `MarketDataModule` ->
+ * `DatabaseModule`, a live Prisma connection this unit test has no need
+ * of) — this replicates only the providers this specific factory depends
+ * on, matching `AnalysisEngineModule`'s own registration exactly.
  */
-describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP10, S1-011 WP10)', () => {
-  it('resolves to exactly three entries, in order: WyckoffProvider, IctSmcProvider, then ElliottWaveProvider, built from the real shared services', async () => {
+describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP10, S1-011 WP10, S1-013 WP11)', () => {
+  it('resolves to exactly four entries, in order: WyckoffProvider, IctSmcProvider, ElliottWaveProvider, then HarmonicPatternsProvider, built from the real shared services', async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ComputationCacheService,
@@ -50,6 +51,7 @@ describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP1
             new WyckoffProvider(indicatorEngine, swingDetector, regimeContext),
             new IctSmcProvider(indicatorEngine, swingDetector, regimeContext),
             new ElliottWaveProvider(indicatorEngine, swingDetector, regimeContext),
+            new HarmonicPatternsProvider(swingDetector, regimeContext),
           ],
           inject: [INDICATOR_ENGINE, SWING_DETECTOR, REGIME_CONTEXT],
         },
@@ -57,7 +59,7 @@ describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP1
     }).compile();
 
     const providers = module.get<AnalysisProvider[]>(ANALYSIS_PROVIDERS);
-    expect(providers).toHaveLength(3);
+    expect(providers).toHaveLength(4);
     expect(providers[0]).toBeInstanceOf(WyckoffProvider);
     expect(providers[0].id).toBe('WYCKOFF');
     expect(providers[0].methodologyFamily).toBe('WYCKOFF');
@@ -73,6 +75,12 @@ describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP1
     expect(providers[2].lifecycleState).toBe('ACTIVE');
     expect(providers[2].tier).toBe('SLOW');
     expect(providers[2].dependsOn).toBeUndefined();
+    expect(providers[3]).toBeInstanceOf(HarmonicPatternsProvider);
+    expect(providers[3].id).toBe('HARMONIC_PATTERNS');
+    expect(providers[3].methodologyFamily).toBe('HARMONIC_PATTERNS');
+    expect(providers[3].lifecycleState).toBe('ACTIVE');
+    expect(providers[3].tier).toBe('SLOW');
+    expect(providers[3].dependsOn).toBeUndefined();
   });
 });
 
@@ -83,8 +91,8 @@ describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP1
  * `CONFLUENCE_WEIGHT_STRATEGY`, exactly as `AnalysisEngineModule`
  * registers them.
  */
-describe('AnalysisEngineModule CONFLUENCE_ENGINE wiring (S1-012 WP11)', () => {
-  it('resolves CONFLUENCE_ENGINE, built from the real shared services and all three registered Providers', async () => {
+describe('AnalysisEngineModule CONFLUENCE_ENGINE wiring (S1-012 WP11, S1-013 WP11)', () => {
+  it('resolves CONFLUENCE_ENGINE, built from the real shared services and all four registered Providers', async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ComputationCacheService,
@@ -98,6 +106,7 @@ describe('AnalysisEngineModule CONFLUENCE_ENGINE wiring (S1-012 WP11)', () => {
             new WyckoffProvider(indicatorEngine, swingDetector, regimeContext),
             new IctSmcProvider(indicatorEngine, swingDetector, regimeContext),
             new ElliottWaveProvider(indicatorEngine, swingDetector, regimeContext),
+            new HarmonicPatternsProvider(swingDetector, regimeContext),
           ],
           inject: [INDICATOR_ENGINE, SWING_DETECTOR, REGIME_CONTEXT],
         },
