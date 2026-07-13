@@ -150,6 +150,23 @@ describe('WyckoffProvider.analyze() (WP6 integration)', () => {
       rangingResult.interpretation[0].regimeAdjustedConfidence.value.toNumber(),
     );
   });
+
+  it('populates Traceability with the actual computation/computationVersion of every underlying call made (WP8)', async () => {
+    const provider = await buildProvider('RANGING');
+    const result = await provider.analyze(fullAccumulationSeries());
+
+    expect(result.traceability.rawDataReferences.length).toBeGreaterThan(0);
+    expect(result.traceability.intermediateCalculations).toEqual(
+      expect.arrayContaining([
+        { computation: 'SwingDetection', computationVersion: '1.0.0' },
+        { computation: 'RegimeContext', computationVersion: '1.0.0' },
+        { computation: 'ATR', computationVersion: '1.0.0' },
+      ]),
+    );
+    expect(result.traceability.intermediateCalculations).toHaveLength(3);
+    expect(result.traceability.conditionDerivations.length).toBeGreaterThan(0);
+    expect(result.traceability.confidenceDerivation).toContain('RANGING');
+  });
 });
 
 describe('WyckoffProvider.analyze() Limitations / graceful degradation (WP7)', () => {
