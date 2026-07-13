@@ -4,6 +4,7 @@ import { WyckoffProvider } from './wyckoff/wyckoff.provider';
 import { IctSmcProvider } from './ict-smc/ict-smc.provider';
 import { ElliottWaveProvider } from './elliott-wave/elliott-wave.provider';
 import { HarmonicPatternsProvider } from './harmonic-patterns/harmonic-patterns.provider';
+import { ClassicalChartPatternsProvider } from './classical-chart-patterns/classical-chart-patterns.provider';
 import { INDICATOR_ENGINE } from '../indicator-engine/indicator-engine.tokens';
 import { SWING_DETECTOR } from '../swing-detection/swing-detection.tokens';
 import { REGIME_CONTEXT } from '../regime-context/regime-context.tokens';
@@ -151,11 +152,26 @@ async function buildHarmonicPatternsProvider(): Promise<{ provider: AnalysisProv
   return { provider: module.get(HarmonicPatternsProvider), series: series(points) };
 }
 
+async function buildClassicalChartPatternsProvider(): Promise<{ provider: AnalysisProvider; series: MarketSeries }> {
+  const points = Array.from({ length: 5 }, (_, i) => point(i, 100 + i));
+  // A textbook-clean bearish Head and Shoulders: LeftShoulder(100) < Head(110) > RightShoulder(101), neckline troughs at 90/91.
+  const swings = [swing('HIGH', 100, 0), swing('LOW', 90, 1), swing('HIGH', 110, 2), swing('LOW', 91, 3), swing('HIGH', 101, 4)];
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      ClassicalChartPatternsProvider,
+      { provide: SWING_DETECTOR, useValue: { detect: jest.fn().mockReturnValue(swingResultOf(swings)) } },
+      { provide: REGIME_CONTEXT, useValue: { getRegime: jest.fn().mockReturnValue(regimeResultOf('RANGING')) } },
+    ],
+  }).compile();
+  return { provider: module.get(ClassicalChartPatternsProvider), series: series(points) };
+}
+
 const PROVIDER_FIXTURES: Array<{ name: string; build: () => Promise<{ provider: AnalysisProvider; series: MarketSeries }> }> = [
   { name: 'WyckoffProvider', build: buildWyckoffProvider },
   { name: 'IctSmcProvider', build: buildIctSmcProvider },
   { name: 'ElliottWaveProvider', build: buildElliottWaveProvider },
   { name: 'HarmonicPatternsProvider', build: buildHarmonicPatternsProvider },
+  { name: 'ClassicalChartPatternsProvider', build: buildClassicalChartPatternsProvider },
 ];
 
 describe.each(PROVIDER_FIXTURES)('normalize() conformance — $name (S1-012 WP6)', ({ build }) => {
