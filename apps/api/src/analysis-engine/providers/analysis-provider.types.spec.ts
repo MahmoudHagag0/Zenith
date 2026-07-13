@@ -29,7 +29,10 @@ describe('AnalysisProvider contract (WP1)', () => {
     expect(result.limitations.dataQuality).toBe('COMPLETE');
     expect(result.traceability.confidenceDerivation).toBeTruthy();
 
-    expect(provider.normalize()).toBeUndefined();
+    const normalized = provider.normalize(result);
+    expect(normalized.providerId).toBe('fixture-a');
+    expect(normalized.signals).toHaveLength(7);
+    expect(normalized.signals.every((signal) => signal.reading === 'NOT_APPLICABLE')).toBe(true);
   });
 
   it('a THROW-configured fixture rejects rather than returning a malformed result', async () => {

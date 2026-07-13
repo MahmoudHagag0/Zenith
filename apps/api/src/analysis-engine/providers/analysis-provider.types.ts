@@ -1,5 +1,6 @@
 import { Prisma } from '@zenith/database';
 import type { MarketSeries } from '../market-series/market-series.types';
+import type { NormalizedProviderOutput } from './normalized-vocabulary.types';
 
 /**
  * The Analysis Provider Framework's base contract (ADR-006,
@@ -116,12 +117,15 @@ export interface AnalysisProvider {
 
   analyze(series: MarketSeries): Promise<AnalysisProviderResult>;
   /**
-   * ADR-006 establishes only that this method exists on the interface;
-   * ADR-007 (S1-012) defines its target vocabulary, versioning, and
-   * conformance requirements exclusively. Approved Architecture Team
-   * decision (S1-008): a documented no-op placeholder until then. Nothing
-   * calls this method in S1-008 — Confluence, its only consumer, does not
-   * exist until S1-012.
+   * Translates this Provider's own `analyze()` result into the shared
+   * Normalized Vocabulary Schema (ADR-007, S1-012) — always all seven
+   * dimensions, `NOT_APPLICABLE` for any this Provider's methodology has
+   * no native concept for, never a fabricated reading. ADR-006
+   * established only that this method exists on the interface; ADR-007
+   * (S1-012) defines its target vocabulary and this exact signature,
+   * completing the `(): void` placeholder S1-008 deliberately left
+   * (nothing called it before S1-012 — the Confluence Engine, its only
+   * Consumer, did not exist yet).
    */
-  normalize(): void;
+  normalize(result: AnalysisProviderResult): NormalizedProviderOutput;
 }

@@ -29,7 +29,16 @@ describe('ElliottWaveProvider skeleton (WP1)', () => {
     expect(provider.tier).toBe('SLOW');
     expect(provider.computationVersion).toBe('1.0.0');
     expect(provider.dependsOn).toBeUndefined();
-    expect(provider.normalize()).toBeUndefined();
+    const normalized = provider.normalize({
+      contractVersion: '1.0.0',
+      evidence: { detectedConditions: [], missingConditions: [], supporting: [], conflicting: [] },
+      interpretation: [],
+      limitations: { dataQuality: 'MISSING', assumptions: [], notes: [] },
+      traceability: { rawDataReferences: [], intermediateCalculations: [], conditionDerivations: [], confidenceDerivation: '' },
+      detectionConfidence: { kind: 'DETECTION', value: new Prisma.Decimal(0), explanation: '' },
+      methodologyConfidenceCeiling: { kind: 'METHODOLOGY_CEILING', value: new Prisma.Decimal(75), explanation: '' },
+    });
+    expect(normalized.signals).toHaveLength(7);
   });
 
   it('is the only Provider currently declaring methodologyFamily ELLIOTT_WAVE', () => {

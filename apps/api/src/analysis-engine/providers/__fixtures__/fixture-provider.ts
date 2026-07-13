@@ -6,6 +6,9 @@ import type {
   ProviderLifecycleState,
   ProviderTier,
 } from '../analysis-provider.types';
+import type { NormalizedDimension, NormalizedProviderOutput } from '../normalized-vocabulary.types';
+
+const ALL_DIMENSIONS: readonly NormalizedDimension[] = ['TREND', 'MOMENTUM', 'LIQUIDITY', 'STRUCTURE', 'VOLATILITY', 'VOLUME', 'CONFIRMATION'];
 
 export type FixtureBehavior = 'SUCCEED' | 'THROW' | 'HANG';
 
@@ -79,7 +82,12 @@ export class FixtureProvider implements AnalysisProvider {
     };
   }
 
-  normalize(): void {
-    // No-op placeholder — see AnalysisProvider.normalize()'s doc comment.
+  normalize(_result: AnalysisProviderResult): NormalizedProviderOutput {
+    // Carries no methodology content (see class doc comment) -- every dimension is honestly NOT_APPLICABLE, never a fabricated reading.
+    return {
+      providerId: this.id,
+      vocabularySchemaVersion: '1.0.0',
+      signals: ALL_DIMENSIONS.map((dimension) => ({ dimension, reading: 'NOT_APPLICABLE', strength: 0, explanation: '' })),
+    };
   }
 }

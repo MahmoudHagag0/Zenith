@@ -10,7 +10,9 @@ import { detectAccumulationEvents } from './wyckoff-accumulation.detector';
 import { detectDistributionEvents } from './wyckoff-distribution.detector';
 import { classifyWyckoffPhase } from './wyckoff-phase.classifier';
 import { buildDetectionConfidence, buildInterpretationConfidence, buildMethodologyConfidenceCeiling, buildRegimeAdjustedConfidence } from './wyckoff-confidence.util';
+import { normalizeWyckoffResult } from './wyckoff-normalize.util';
 import type { WyckoffSideEvents } from './wyckoff.types';
+import type { NormalizedProviderOutput } from '../normalized-vocabulary.types';
 
 const COMPUTATION_VERSION = '1.0.0';
 const CONTRACT_VERSION = '1.0.0';
@@ -119,11 +121,8 @@ export class WyckoffProvider implements AnalysisProvider {
     };
   }
 
-  normalize(): void {
-    // No-op placeholder — see AnalysisProvider.normalize()'s doc comment
-    // (ADR-006 establishes only that the method exists; ADR-007/S1-012
-    // defines its real vocabulary; approved Architecture Team decision,
-    // S1-008).
+  normalize(result: AnalysisProviderResult): NormalizedProviderOutput {
+    return normalizeWyckoffResult(this.id, this.methodologyFamily, result);
   }
 
   private buildLimitationsResult(series: MarketSeries, note: string): AnalysisProviderResult {

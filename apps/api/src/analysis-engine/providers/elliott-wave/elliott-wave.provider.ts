@@ -12,7 +12,9 @@ import { applyElliottRules } from './elliott-wave-rules.util';
 import { scoreFibonacciGuidelines } from './elliott-wave-fibonacci-guideline.util';
 import { finalizeWaveCountHypotheses } from './elliott-wave-hypothesis.util';
 import { buildDetectionConfidence, buildInterpretationConfidence, buildMethodologyConfidenceCeiling, buildRegimeAdjustedConfidence } from './elliott-wave-confidence.util';
+import { normalizeElliottWaveResult } from './elliott-wave-normalize.util';
 import type { WaveCountCandidate } from './elliott-wave.types';
+import type { NormalizedProviderOutput } from '../normalized-vocabulary.types';
 
 const COMPUTATION_VERSION = '1.0.0';
 const CONTRACT_VERSION = '1.0.0';
@@ -121,11 +123,8 @@ export class ElliottWaveProvider implements AnalysisProvider {
     };
   }
 
-  normalize(): void {
-    // No-op placeholder — see AnalysisProvider.normalize()'s doc comment
-    // (ADR-006 establishes only that the method exists; ADR-007/S1-012
-    // defines its real vocabulary; approved Architecture Team decision,
-    // S1-008).
+  normalize(result: AnalysisProviderResult): NormalizedProviderOutput {
+    return normalizeElliottWaveResult(this.id, this.methodologyFamily, result);
   }
 
   /**

@@ -14,7 +14,9 @@ import { detectFairValueGaps } from './ict-smc-fvg.detector';
 import { detectLiquiditySweeps } from './ict-smc-liquidity-sweep.detector';
 import { classifyIctSmcBias } from './ict-smc-bias.classifier';
 import { buildDetectionConfidence, buildInterpretationConfidence, buildMethodologyConfidenceCeiling, buildRegimeAdjustedConfidence } from './ict-smc-confidence.util';
+import { normalizeIctSmcResult } from './ict-smc-normalize.util';
 import type { FairValueGap, LiquiditySweep, OrderBlock } from './ict-smc.types';
+import type { NormalizedProviderOutput } from '../normalized-vocabulary.types';
 
 const COMPUTATION_VERSION = '1.0.0';
 const CONTRACT_VERSION = '1.0.0';
@@ -122,11 +124,8 @@ export class IctSmcProvider implements AnalysisProvider {
     };
   }
 
-  normalize(): void {
-    // No-op placeholder — see AnalysisProvider.normalize()'s doc comment
-    // (ADR-006 establishes only that the method exists; ADR-007/S1-012
-    // defines its real vocabulary; approved Architecture Team decision,
-    // S1-008).
+  normalize(result: AnalysisProviderResult): NormalizedProviderOutput {
+    return normalizeIctSmcResult(this.id, this.methodologyFamily, result);
   }
 
   private buildEvidence(orderBlocks: readonly OrderBlock[], fairValueGaps: readonly FairValueGap[], liquiditySweeps: readonly LiquiditySweep[], conflicting: boolean) {
