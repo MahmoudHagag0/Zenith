@@ -60,4 +60,18 @@ describe('detectWyckoffRange (WP2)', () => {
     const result = detectWyckoffRange(points, swingResult(swings), regimeResult('RANGING'));
     expect(result).toBeNull();
   });
+
+  it('derives support/resistance from only the earliest swings, not the series-wide extremes (Spring/SOS must remain able to exceed the range)', () => {
+    const swings = [
+      swing('LOW', 95, 1), // establishing low
+      swing('HIGH', 105, 2), // establishing high
+      swing('LOW', 96, 4),
+      swing('HIGH', 104, 6),
+      swing('LOW', 90, 8), // a later, lower low (e.g. a Spring) -- must NOT redefine support
+      swing('HIGH', 110, 9), // a later, higher high (e.g. SOS) -- must NOT redefine resistance
+    ];
+    const result = detectWyckoffRange(points, swingResult(swings), regimeResult('RANGING'));
+    expect(result!.support.toNumber()).toBe(95);
+    expect(result!.resistance.toNumber()).toBe(105);
+  });
 });

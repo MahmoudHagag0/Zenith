@@ -11,12 +11,28 @@ import type { WyckoffRange } from './wyckoff.types';
 const MIN_SWINGS_PER_TYPE = 2;
 
 /**
+ * How many of the *earliest* swing highs/lows establish the initial
+ * range boundary — a disclosed, named constant (Missing Decision). This
+ * is deliberately **not** a min/max over the entire series: Wyckoff's
+ * schematic establishes its range early (Phase A/B), and later price
+ * action (Spring undercutting support, SOS breaking above resistance)
+ * is expected — and must be able — to exceed those initial bounds. A
+ * global min/max over all swings would make "exceeding the range"
+ * tautologically impossible, since the Spring/SOS swing would already
+ * be baked into the range itself.
+ */
+const ESTABLISHING_SWING_COUNT = MIN_SWINGS_PER_TYPE;
+
+/**
  * Identifies a candidate trading range: a bounded price zone (support/
  * resistance) that every Wyckoff event is subsequently detected relative
  * to. Composed from the Swing Detector's already-verified swing highs/
  * lows and the Regime/Context Service's `trendState` (S1-007) — never a
  * re-derivation of swing logic (S1-009 Sprint Brief, Acceptance
- * Criteria).
+ * Criteria). Support/resistance are derived from only the earliest
+ * `ESTABLISHING_SWING_COUNT` swings of each type (see above) — not the
+ * series' global extremes — so later Spring/Test/SOS/LPS-style swings
+ * remain free to test or break that initial boundary.
  *
  * Deliberately conservative: returns `null` (never a low-confidence
  * guess) when the Regime/Context Service reads `TRENDING` — a clean,
@@ -40,10 +56,13 @@ export function detectWyckoffRange(
     return null;
   }
 
-  const resistance = swingHighs.reduce((max, swing) => (swing.price.greaterThan(max) ? swing.price : max), swingHighs[0].price);
-  const support = swingLows.reduce((min, swing) => (swing.price.lessThan(min) ? swing.price : min), swingLows[0].price);
+  const establishingHighs = swingHighs.slice(0, ESTABLISHING_SWING_COUNT);
+  const establishingLows = swingLows.slice(0, ESTABLISHING_SWING_COUNT);
 
-  const earliestUsedTimestamp = [...swingHighs, ...swingLows].reduce(
+  const resistance = establishingHighs.reduce((max, swing) => (swing.price.greaterThan(max) ? swing.price : max), establishingHighs[0].price);
+  const support = establishingLows.reduce((min, swing) => (swing.price.lessThan(min) ? swing.price : min), establishingLows[0].price);
+
+  const earliestUsedTimestamp = [...establishingHighs, ...establishingLows].reduce(
     (earliest, swing) => (swing.timestamp < earliest ? swing.timestamp : earliest),
     swingResult.swings[0].timestamp,
   );
