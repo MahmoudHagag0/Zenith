@@ -79,6 +79,26 @@ export class ObservabilityService {
     }
   }
 
+  /**
+   * Async counterpart to `measure()`, for Provider invocation (S1-008),
+   * which is inherently asynchronous — a Provider's `analyze()` composes
+   * `MarketSeriesService`, itself backed by the database. Records latency
+   * and rejection identically to the synchronous form.
+   */
+  async measureAsync<T>(computation: string, fn: () => Promise<T>): Promise<T> {
+    const start = performance.now();
+    try {
+      return await fn();
+    } catch (error) {
+      if (error instanceof Error && error.name === 'ComputationRejectedError') {
+        this.recordRejection(computation, error.message);
+      }
+      throw error;
+    } finally {
+      this.recordLatency(computation, performance.now() - start);
+    }
+  }
+
   /** Test-only helper; not part of the production surface. */
   reset(): void {
     this.stats.clear();

@@ -1,6 +1,6 @@
 import type { MarketSeries } from '../market-series/market-series.types';
 import type { AnalysisProvider } from './analysis-provider.types';
-import type { ExecutionRunResult, ParticipatingEntry, NonParticipatingEntry } from './provider-execution.types';
+import type { ParticipatingEntry, NonParticipatingEntry, TieredExecutionRun } from './provider-execution.types';
 
 /**
  * The full registered Provider set, exposed as an array via a NestJS
@@ -18,9 +18,10 @@ export interface ProviderExecutionEngine {
   /**
    * Invokes every `ACTIVE`, non-open-circuit Provider in dependency/tier
    * order. `DEPRECATED` and `RETIRED` Providers never participate in a
-   * new run (Provider Lifecycle).
+   * new run (Provider Lifecycle). Returns immediately with two pending
+   * results — see `TieredExecutionRun`.
    */
-  runNewAnalysis(series: MarketSeries): Promise<ExecutionRunResult>;
+  runNewAnalysis(series: MarketSeries): TieredExecutionRun;
   /**
    * Directly invokes one Provider by `id`, for historical/backtested
    * reproduction. `ACTIVE` or `DEPRECATED` only — a `RETIRED` Provider is

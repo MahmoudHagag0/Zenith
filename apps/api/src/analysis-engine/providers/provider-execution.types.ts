@@ -33,3 +33,16 @@ export interface ExecutionRunResult {
   readonly nonParticipating: readonly NonParticipatingEntry[];
   readonly totalRegistered: number;
 }
+
+/**
+ * `runNewAnalysis`'s return shape: two independently-resolvable results,
+ * so a SLOW-tier Provider's execution can never block a FAST-tier
+ * Provider's result (ADR-006, "Analysis Provider Framework" — Execution
+ * tiers). The caller awaits `fastTier` without waiting on `slowTier`;
+ * `slowTier` may still be pending, delivered incrementally by whichever
+ * future Consumer (Dashboard, Alerts) needs it.
+ */
+export interface TieredExecutionRun {
+  readonly fastTier: Promise<ExecutionRunResult>;
+  readonly slowTier: Promise<ExecutionRunResult>;
+}
