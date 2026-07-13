@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { Prisma } from '@zenith/database';
 import { classifyWyckoffPhase, MAX_PHASE_HYPOTHESES } from './wyckoff-phase.classifier';
 import type { WyckoffEvent, WyckoffEventType, WyckoffSideEvents } from './wyckoff.types';
@@ -60,5 +62,14 @@ describe('classifyWyckoffPhase (WP5)', () => {
     const result = classifyWyckoffPhase(distributionEvents);
     expect(result.map((h) => h.phase).sort()).toEqual(['B', 'C']);
     expect(result.every((h) => h.side === 'DISTRIBUTION')).toBe(true);
+  });
+
+  it('records the Phase-schematic attribution distinctly from Three Laws attribution in its own documentation (Sprint Brief Acceptance Criteria)', () => {
+    const source = readFileSync(join(__dirname, 'wyckoff-phase.classifier.ts'), 'utf8');
+    expect(source).toMatch(/Wyckoff Method curriculum|Stock Market Institute/);
+    expect(source).toMatch(/Three Laws/);
+    // Never presented as one undifferentiated "Wyckoff says": the source
+    // must explicitly say the two are different, not merely mention both.
+    expect(source).toMatch(/distinct from Wyckoff's own (original )?Three Laws/);
   });
 });
