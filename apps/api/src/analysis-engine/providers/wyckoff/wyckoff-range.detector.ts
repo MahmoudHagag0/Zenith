@@ -1,6 +1,5 @@
 import type { MarketSeriesPoint } from '../../market-series/market-series.types';
 import type { SwingDetectionResult } from '../../swing-detection/swing-detection.types';
-import type { RegimeContextResult } from '../../regime-context/regime-context.types';
 import type { WyckoffRange } from './wyckoff.types';
 
 /**
@@ -27,28 +26,26 @@ const ESTABLISHING_SWING_COUNT = MIN_SWINGS_PER_TYPE;
  * Identifies a candidate trading range: a bounded price zone (support/
  * resistance) that every Wyckoff event is subsequently detected relative
  * to. Composed from the Swing Detector's already-verified swing highs/
- * lows and the Regime/Context Service's `trendState` (S1-007) — never a
- * re-derivation of swing logic (S1-009 Sprint Brief, Acceptance
- * Criteria). Support/resistance are derived from only the earliest
- * `ESTABLISHING_SWING_COUNT` swings of each type (see above) — not the
- * series' global extremes — so later Spring/Test/SOS/LPS-style swings
- * remain free to test or break that initial boundary.
+ * lows (S1-007) — never a re-derivation of swing logic (S1-009 Sprint
+ * Brief, Acceptance Criteria). Support/resistance are derived from only
+ * the earliest `ESTABLISHING_SWING_COUNT` swings of each type (see
+ * above) — not the series' global extremes — so later Spring/Test/SOS/
+ * LPS-style swings remain free to test or break that initial boundary.
  *
- * Deliberately conservative: returns `null` (never a low-confidence
- * guess) when the Regime/Context Service reads `TRENDING` — a clean,
- * uninterrupted trend has no range to read — or when there is not yet
- * enough swing structure to bound one. A `null` result feeds the
- * Provider's `Limitations` path (WP7), never a thrown exception.
+ * Deliberately **not** gated on the Regime/Context Service's
+ * `trendState`: a genuine Wyckoff range commonly forms near the tail of
+ * a longer trend, before a lagging ADX-based regime read recognizes the
+ * shift — gating range detection on `RANGING` would make such a range
+ * undetectable exactly when it matters most. Instead, `trendState`
+ * modulates Regime-Adjusted Confidence once a range/schematic is found
+ * (see the Provider's Confidence taxonomy wiring), not whether a range
+ * can be found at all.
+ *
+ * Returns `null` (never a low-confidence guess) only when there is not
+ * yet enough swing structure to bound a range — feeding the Provider's
+ * `Limitations` path, never a thrown exception.
  */
-export function detectWyckoffRange(
-  points: readonly MarketSeriesPoint[],
-  swingResult: SwingDetectionResult,
-  regimeResult: RegimeContextResult,
-): WyckoffRange | null {
-  if (regimeResult.trendState !== 'RANGING') {
-    return null;
-  }
-
+export function detectWyckoffRange(points: readonly MarketSeriesPoint[], swingResult: SwingDetectionResult): WyckoffRange | null {
   const swingHighs = swingResult.swings.filter((swing) => swing.type === 'HIGH');
   const swingLows = swingResult.swings.filter((swing) => swing.type === 'LOW');
 
