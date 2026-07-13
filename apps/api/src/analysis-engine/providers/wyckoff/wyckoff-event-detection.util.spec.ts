@@ -31,8 +31,8 @@ describe('wyckoff-event-detection.util (WP3 shared helpers)', () => {
     expect(averageVolumeBefore(points, points[0].timestamp, 3).toNumber()).toBe(0);
   });
 
-  it('isNear correctly bounds a tolerance band around a reference value', () => {
-    expect(isNear(new Prisma.Decimal(101), new Prisma.Decimal(100), 0.03)).toBe(true);
-    expect(isNear(new Prisma.Decimal(110), new Prisma.Decimal(100), 0.03)).toBe(false);
+  it('isNear correctly bounds an absolute tolerance band around a reference value', () => {
+    expect(isNear(new Prisma.Decimal(101), new Prisma.Decimal(100), new Prisma.Decimal(3))).toBe(true);
+    expect(isNear(new Prisma.Decimal(110), new Prisma.Decimal(100), new Prisma.Decimal(3))).toBe(false);
   });
 });

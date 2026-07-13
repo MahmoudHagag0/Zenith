@@ -31,6 +31,8 @@ const RANGE: WyckoffRange = {
   endTimestamp: new Date(Date.UTC(2026, 0, 16)),
 };
 
+const NEAR_TOLERANCE = new Prisma.Decimal(3);
+
 const basePoints = Array.from({ length: 16 }, (_, i) => point(1000, i));
 function withVolumes(overrides: Record<number, number>): MarketSeriesPoint[] {
   return basePoints.map((p, i) => (i in overrides ? { ...p, volume: new Prisma.Decimal(overrides[i]) } : p));
@@ -39,32 +41,32 @@ function withVolumes(overrides: Record<number, number>): MarketSeriesPoint[] {
 describe('detectDistributionEvents (WP4)', () => {
   it('detects PSY but not BC when the second swing high lacks a genuine volume spike', () => {
     const swings = [swing('HIGH', 105, 1), swing('HIGH', 110, 3)];
-    const result = detectDistributionEvents(withVolumes({ 3: 1000 }), swingResult(swings), RANGE);
+    const result = detectDistributionEvents(withVolumes({ 3: 1000 }), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PSY']);
   });
 
   it('detects BC once the second swing high shows a >=2x trailing-volume climax', () => {
     const swings = [swing('HIGH', 105, 1), swing('HIGH', 110, 3)];
-    const result = detectDistributionEvents(withVolumes({ 3: 3000 }), swingResult(swings), RANGE);
+    const result = detectDistributionEvents(withVolumes({ 3: 3000 }), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PSY', 'BC']);
     expect(result.events[1].price.toNumber()).toBe(110);
   });
 
   it('detects AR as the first swing low after BC', () => {
     const swings = [swing('HIGH', 105, 1), swing('HIGH', 110, 3), swing('LOW', 100, 5)];
-    const result = detectDistributionEvents(withVolumes({ 3: 3000 }), swingResult(swings), RANGE);
+    const result = detectDistributionEvents(withVolumes({ 3: 3000 }), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PSY', 'BC', 'AR']);
   });
 
   it('detects ST as a swing high near the Buying Climax price, after AR, on lower volume', () => {
     const swings = [swing('HIGH', 105, 1), swing('HIGH', 110, 3), swing('LOW', 100, 5), swing('HIGH', 109, 7)];
-    const result = detectDistributionEvents(withVolumes({ 3: 3000, 7: 800 }), swingResult(swings), RANGE);
+    const result = detectDistributionEvents(withVolumes({ 3: 3000, 7: 800 }), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PSY', 'BC', 'AR', 'ST']);
   });
 
   it('detects UT/UTAD as a swing high after ST overshooting range resistance', () => {
     const swings = [swing('HIGH', 105, 1), swing('HIGH', 110, 3), swing('LOW', 100, 5), swing('HIGH', 109, 7), swing('HIGH', 106, 9)];
-    const result = detectDistributionEvents(withVolumes({ 3: 3000, 7: 800, 9: 700 }), swingResult(swings), RANGE);
+    const result = detectDistributionEvents(withVolumes({ 3: 3000, 7: 800, 9: 700 }), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PSY', 'BC', 'AR', 'ST', 'UT_UTAD']);
     expect(result.events[4].price.toNumber()).toBe(106);
   });
@@ -78,7 +80,7 @@ describe('detectDistributionEvents (WP4)', () => {
       swing('HIGH', 106, 9),
       swing('HIGH', 103, 11),
     ];
-    const result = detectDistributionEvents(withVolumes({ 3: 3000, 7: 800, 9: 700, 11: 500 }), swingResult(swings), RANGE);
+    const result = detectDistributionEvents(withVolumes({ 3: 3000, 7: 800, 9: 700, 11: 500 }), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PSY', 'BC', 'AR', 'ST', 'UT_UTAD', 'TEST']);
   });
 
@@ -92,7 +94,7 @@ describe('detectDistributionEvents (WP4)', () => {
       swing('HIGH', 103, 11),
       swing('LOW', 85, 13),
     ];
-    const result = detectDistributionEvents(withVolumes({ 3: 3000, 7: 800, 9: 700, 11: 500 }), swingResult(swings), RANGE);
+    const result = detectDistributionEvents(withVolumes({ 3: 3000, 7: 800, 9: 700, 11: 500 }), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PSY', 'BC', 'AR', 'ST', 'UT_UTAD', 'TEST', 'SOW']);
   });
 
@@ -107,13 +109,13 @@ describe('detectDistributionEvents (WP4)', () => {
       swing('LOW', 85, 13),
       swing('HIGH', 95, 15),
     ];
-    const result = detectDistributionEvents(withVolumes({ 3: 3000, 7: 800, 9: 700, 11: 500 }), swingResult(swings), RANGE);
+    const result = detectDistributionEvents(withVolumes({ 3: 3000, 7: 800, 9: 700, 11: 500 }), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PSY', 'BC', 'AR', 'ST', 'UT_UTAD', 'TEST', 'SOW', 'LPSY']);
     expect(result.side).toBe('DISTRIBUTION');
   });
 
   it('returns only PSY when fewer than two swing highs exist', () => {
-    const result = detectDistributionEvents(withVolumes({}), swingResult([swing('HIGH', 105, 1)]), RANGE);
+    const result = detectDistributionEvents(withVolumes({}), swingResult([swing('HIGH', 105, 1)]), RANGE, NEAR_TOLERANCE);
     expect(result.events).toEqual([]);
   });
 });

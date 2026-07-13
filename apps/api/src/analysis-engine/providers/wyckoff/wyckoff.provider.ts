@@ -1,11 +1,31 @@
 import { Inject, Injectable } from '@nestjs/common';
-import type { AnalysisProvider, AnalysisProviderResult, ProviderLifecycleState, ProviderTier } from '../analysis-provider.types';
+import { Prisma } from '@zenith/database';
+import type { AnalysisProvider, AnalysisProviderResult, Interpretation, ProviderLifecycleState, ProviderTier } from '../analysis-provider.types';
 import { INDICATOR_ENGINE, type IndicatorEngine } from '../../indicator-engine/indicator-engine.tokens';
 import { SWING_DETECTOR, type SwingDetector } from '../../swing-detection/swing-detection.tokens';
 import { REGIME_CONTEXT, type RegimeContext } from '../../regime-context/regime-context.tokens';
 import type { MarketSeries } from '../../market-series/market-series.types';
+import { detectWyckoffRange } from './wyckoff-range.detector';
+import { detectAccumulationEvents } from './wyckoff-accumulation.detector';
+import { detectDistributionEvents } from './wyckoff-distribution.detector';
+import { classifyWyckoffPhase } from './wyckoff-phase.classifier';
+import { buildDetectionConfidence, buildInterpretationConfidence, buildMethodologyConfidenceCeiling, buildRegimeAdjustedConfidence } from './wyckoff-confidence.util';
+import type { WyckoffSideEvents } from './wyckoff.types';
 
 const COMPUTATION_VERSION = '1.0.0';
+const CONTRACT_VERSION = '1.0.0';
+
+/**
+ * Disclosed, named calibration constants (S1-009 Sprint Brief, Missing
+ * Decisions) for the shared computation calls this Provider makes.
+ */
+const SWING_SENSITIVITY = 3;
+const ADX_PERIOD = 14;
+const ATR_PERIOD = 14;
+const ADX_TRENDING_THRESHOLD = 25;
+const VOLATILITY_MULTIPLIER = 1.5;
+/** How many ATRs a Secondary Test/Test may be from the price it retests — an ATR-relative tolerance, not a fixed percentage. */
+const NEAR_TOLERANCE_ATR_MULTIPLIER = 1.5;
 
 /**
  * The Wyckoff Method Analysis Provider (S1-009) — the first real
@@ -40,9 +60,62 @@ export class WyckoffProvider implements AnalysisProvider {
     @Inject(REGIME_CONTEXT) private readonly regimeContext: RegimeContext,
   ) {}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async analyze(series: MarketSeries): Promise<AnalysisProviderResult> {
-    throw new Error('WyckoffProvider.analyze() is not yet implemented — wired in WP2-WP8.');
+    const swingResult = this.swingDetector.detect(series, { sensitivity: SWING_SENSITIVITY });
+    const regimeResult = this.regimeContext.getRegime(series, {
+      adxPeriod: ADX_PERIOD,
+      atrPeriod: ATR_PERIOD,
+      swingSensitivity: SWING_SENSITIVITY,
+      adxTrendingThreshold: ADX_TRENDING_THRESHOLD,
+      volatilityMultiplier: VOLATILITY_MULTIPLIER,
+    });
+
+    const range = detectWyckoffRange(series.points, swingResult);
+    if (!range) {
+      return this.buildLimitationsResult(series, 'No identifiable trading range: insufficient swing structure in the supplied series.');
+    }
+
+    const atrResult = this.indicatorEngine.atr(series, { period: ATR_PERIOD });
+    const latestAtr = atrResult.series[atrResult.series.length - 1]?.value ?? range.resistance.minus(range.support);
+    const nearTolerance = latestAtr.times(NEAR_TOLERANCE_ATR_MULTIPLIER);
+
+    const accumulation = detectAccumulationEvents(series.points, swingResult, range, nearTolerance);
+    const distribution = detectDistributionEvents(series.points, swingResult, range, nearTolerance);
+    const winningSide: WyckoffSideEvents = accumulation.events.length >= distribution.events.length ? accumulation : distribution;
+
+    if (winningSide.events.length === 0) {
+      return this.buildLimitationsResult(series, 'A candidate range was identified but no Wyckoff schematic events were confirmed within it.');
+    }
+
+    const hypotheses = classifyWyckoffPhase(winningSide);
+    const interpretation: Interpretation[] = hypotheses.map((hypothesis) => ({
+      summary: hypothesis.summary,
+      confidence: buildInterpretationConfidence(hypothesis),
+      regimeAdjustedConfidence: buildRegimeAdjustedConfidence(hypothesis, regimeResult),
+    }));
+
+    const allEventTypesForSide = winningSide.side === 'ACCUMULATION' ? ['PS', 'SC', 'AR', 'ST', 'SPRING', 'TEST', 'SOS', 'LPS'] : ['PSY', 'BC', 'AR', 'ST', 'UT_UTAD', 'TEST', 'SOW', 'LPSY'];
+    const detectedTypes = new Set(winningSide.events.map((event) => event.type));
+    const missingConditions = allEventTypesForSide.filter((type) => !detectedTypes.has(type as never)).map((type) => `${type} not yet detected.`);
+
+    return {
+      contractVersion: CONTRACT_VERSION,
+      evidence: {
+        detectedConditions: winningSide.events.map((event) => event.description),
+        missingConditions,
+        supporting: winningSide.events.map((event) => event.description),
+        conflicting: [],
+      },
+      interpretation,
+      limitations: {
+        dataQuality: series.missingDates.length > 0 ? 'GAPS_PRESENT' : 'COMPLETE',
+        assumptions: [`Schematic side selected by whichever of Accumulation/Distribution detected more events (${winningSide.side}, ${winningSide.events.length} events).`],
+        notes: [],
+      },
+      traceability: this.buildTraceability(swingResult, regimeResult, atrResult),
+      detectionConfidence: buildDetectionConfidence(winningSide),
+      methodologyConfidenceCeiling: buildMethodologyConfidenceCeiling(),
+    };
   }
 
   normalize(): void {
@@ -50,5 +123,43 @@ export class WyckoffProvider implements AnalysisProvider {
     // (ADR-006 establishes only that the method exists; ADR-007/S1-012
     // defines its real vocabulary; approved Architecture Team decision,
     // S1-008).
+  }
+
+  private buildLimitationsResult(series: MarketSeries, note: string): AnalysisProviderResult {
+    return {
+      contractVersion: CONTRACT_VERSION,
+      evidence: { detectedConditions: [], missingConditions: [], supporting: [], conflicting: [] },
+      interpretation: [],
+      limitations: {
+        dataQuality: series.points.length === 0 ? 'MISSING' : series.missingDates.length > 0 ? 'GAPS_PRESENT' : 'COMPLETE',
+        assumptions: [],
+        notes: [note],
+      },
+      traceability: {
+        rawDataReferences: [`MarketSeries for ${series.assetId}, ${series.points.length} points.`],
+        intermediateCalculations: [],
+        conditionDerivations: [note],
+        confidenceDerivation: 'No confidence computed — no schematic identified.',
+      },
+      detectionConfidence: { kind: 'DETECTION', value: new Prisma.Decimal(0), explanation: note },
+      methodologyConfidenceCeiling: buildMethodologyConfidenceCeiling(),
+    };
+  }
+
+  private buildTraceability(
+    swingResult: ReturnType<SwingDetector['detect']>,
+    regimeResult: ReturnType<RegimeContext['getRegime']>,
+    atrResult: ReturnType<IndicatorEngine['atr']>,
+  ) {
+    return {
+      rawDataReferences: [`SwingDetection input range: ${swingResult.swings.length} swings.`],
+      intermediateCalculations: [
+        { computation: swingResult.metadata.computation, computationVersion: swingResult.metadata.computationVersion },
+        { computation: regimeResult.metadata.computation, computationVersion: regimeResult.metadata.computationVersion },
+        { computation: atrResult.metadata.computation, computationVersion: atrResult.metadata.computationVersion },
+      ],
+      conditionDerivations: [`Regime read: ${regimeResult.trendState}/${regimeResult.volatilityState}.`],
+      confidenceDerivation: `Interpretation Confidence from phase-hypothesis score; Regime-Adjusted Confidence scaled by trendState=${regimeResult.trendState}; Methodology Confidence Ceiling constant for WYCKOFF.`,
+    };
   }
 }

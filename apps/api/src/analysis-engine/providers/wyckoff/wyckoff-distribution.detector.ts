@@ -1,3 +1,4 @@
+import type { Prisma } from '@zenith/database';
 import type { MarketSeriesPoint } from '../../market-series/market-series.types';
 import type { SwingDetectionResult } from '../../swing-detection/swing-detection.types';
 import { averageVolumeBefore, findVolumeAt, isNear } from './wyckoff-event-detection.util';
@@ -11,8 +12,6 @@ import type { WyckoffEvent, WyckoffRange, WyckoffSideEvents } from './wyckoff.ty
 const TRAILING_VOLUME_WINDOW = 5;
 /** A Buying Climax's volume must be at least this multiple of the trailing average. */
 const CLIMAX_VOLUME_MULTIPLIER = 2;
-/** How close a Secondary Test must land to the Buying Climax's price. */
-const SECONDARY_TEST_PRICE_TOLERANCE = 0.03;
 
 /**
  * Detects the Distribution half of Wyckoff Schematic #1 — PSY, BC, AR,
@@ -21,10 +20,19 @@ const SECONDARY_TEST_PRICE_TOLERANCE = 0.03;
  * swapped throughout). Per-bar volume is used only for BC's climax
  * criterion, the same disclosed boundary as Accumulation's SC.
  *
+ * `nearTolerance` is an absolute, ATR-derived tolerance (see
+ * `detectAccumulationEvents`'s doc comment) — how close a Secondary Test
+ * must land to the Buying Climax's price.
+ *
  * Returns whatever prefix of the schematic is actually found — a
  * partial result is an honest, still-forming reading, not an error.
  */
-export function detectDistributionEvents(points: readonly MarketSeriesPoint[], swingResult: SwingDetectionResult, range: WyckoffRange): WyckoffSideEvents {
+export function detectDistributionEvents(
+  points: readonly MarketSeriesPoint[],
+  swingResult: SwingDetectionResult,
+  range: WyckoffRange,
+  nearTolerance: Prisma.Decimal,
+): WyckoffSideEvents {
   const events: WyckoffEvent[] = [];
   const lows = swingResult.swings.filter((swing) => swing.type === 'LOW');
   const highs = swingResult.swings.filter((swing) => swing.type === 'HIGH');
@@ -68,7 +76,7 @@ export function detectDistributionEvents(points: readonly MarketSeriesPoint[], s
   const stSwing = highs.find(
     (high) =>
       high.timestamp.getTime() > arSwing.timestamp.getTime() &&
-      isNear(high.price, bcSwing.price, SECONDARY_TEST_PRICE_TOLERANCE) &&
+      isNear(high.price, bcSwing.price, nearTolerance) &&
       findVolumeAt(points, high.timestamp).lessThan(bcVolume),
   );
   if (stSwing) {

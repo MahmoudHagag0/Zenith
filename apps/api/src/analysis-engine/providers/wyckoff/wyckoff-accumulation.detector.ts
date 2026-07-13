@@ -1,3 +1,4 @@
+import type { Prisma } from '@zenith/database';
 import type { MarketSeriesPoint } from '../../market-series/market-series.types';
 import type { SwingDetectionResult } from '../../swing-detection/swing-detection.types';
 import { averageVolumeBefore, findVolumeAt, isNear } from './wyckoff-event-detection.util';
@@ -10,8 +11,6 @@ import type { WyckoffEvent, WyckoffRange, WyckoffSideEvents } from './wyckoff.ty
 const TRAILING_VOLUME_WINDOW = 5;
 /** A Selling Climax's volume must be at least this multiple of the trailing average. */
 const CLIMAX_VOLUME_MULTIPLIER = 2;
-/** How close a Secondary Test must land to the Selling Climax's price. */
-const SECONDARY_TEST_PRICE_TOLERANCE = 0.03;
 
 /**
  * Detects the Accumulation half of Wyckoff Schematic #1 — PS, SC, AR,
@@ -22,13 +21,24 @@ const SECONDARY_TEST_PRICE_TOLERANCE = 0.03;
  * item 4's disclosed volume boundary — never for bar-by-bar effort/
  * result scoring, which is VSA's job).
  *
+ * `nearTolerance` is an absolute, ATR-derived tolerance (via
+ * `INDICATOR_ENGINE`, S1-007) the Provider computes and supplies — how
+ * close a Secondary Test must land to the Selling Climax's price scales
+ * with the instrument's own actual volatility, rather than a fixed,
+ * arbitrary percentage.
+ *
  * Returns whatever prefix of the schematic is actually found — a
  * partial result (e.g. only PS/SC/AR) is not an error, it is an honest,
  * still-forming reading; the Provider's Confidence layer (WP6), not
  * this function, is responsible for expressing how far the schematic
  * has progressed.
  */
-export function detectAccumulationEvents(points: readonly MarketSeriesPoint[], swingResult: SwingDetectionResult, range: WyckoffRange): WyckoffSideEvents {
+export function detectAccumulationEvents(
+  points: readonly MarketSeriesPoint[],
+  swingResult: SwingDetectionResult,
+  range: WyckoffRange,
+  nearTolerance: Prisma.Decimal,
+): WyckoffSideEvents {
   const events: WyckoffEvent[] = [];
   const lows = swingResult.swings.filter((swing) => swing.type === 'LOW');
   const highs = swingResult.swings.filter((swing) => swing.type === 'HIGH');
@@ -72,7 +82,7 @@ export function detectAccumulationEvents(points: readonly MarketSeriesPoint[], s
   const stSwing = lows.find(
     (low) =>
       low.timestamp.getTime() > arSwing.timestamp.getTime() &&
-      isNear(low.price, scSwing.price, SECONDARY_TEST_PRICE_TOLERANCE) &&
+      isNear(low.price, scSwing.price, nearTolerance) &&
       findVolumeAt(points, low.timestamp).lessThan(scVolume),
   );
   if (stSwing) {

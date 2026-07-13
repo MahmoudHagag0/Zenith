@@ -31,6 +31,8 @@ const RANGE: WyckoffRange = {
   endTimestamp: new Date(Date.UTC(2026, 0, 16)),
 };
 
+const NEAR_TOLERANCE = new Prisma.Decimal(3);
+
 // Uniform, non-climactic volume for every day the tests don't override.
 const basePoints = Array.from({ length: 16 }, (_, i) => point(1000, i));
 function withVolume(dayOffset: number, volume: number): MarketSeriesPoint[] {
@@ -40,20 +42,20 @@ function withVolume(dayOffset: number, volume: number): MarketSeriesPoint[] {
 describe('detectAccumulationEvents (WP3)', () => {
   it('detects PS but not SC when the second swing low lacks a genuine volume spike', () => {
     const swings = [swing('LOW', 95, 1), swing('LOW', 90, 3)];
-    const result = detectAccumulationEvents(withVolume(3, 1000), swingResult(swings), RANGE);
+    const result = detectAccumulationEvents(withVolume(3, 1000), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PS']);
   });
 
   it('detects SC once the second swing low shows a >=2x trailing-volume climax', () => {
     const swings = [swing('LOW', 95, 1), swing('LOW', 90, 3)];
-    const result = detectAccumulationEvents(withVolume(3, 3000), swingResult(swings), RANGE);
+    const result = detectAccumulationEvents(withVolume(3, 3000), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PS', 'SC']);
     expect(result.events[1].price.toNumber()).toBe(90);
   });
 
   it('detects AR as the first swing high after SC', () => {
     const swings = [swing('LOW', 95, 1), swing('LOW', 90, 3), swing('HIGH', 100, 5)];
-    const result = detectAccumulationEvents(withVolume(3, 3000), swingResult(swings), RANGE);
+    const result = detectAccumulationEvents(withVolume(3, 3000), swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PS', 'SC', 'AR']);
   });
 
@@ -61,13 +63,13 @@ describe('detectAccumulationEvents (WP3)', () => {
     const swings = [swing('LOW', 95, 1), swing('LOW', 90, 3), swing('HIGH', 100, 5), swing('LOW', 91, 7)];
     let points = withVolume(3, 3000);
     points = points.map((p, i) => (i === 7 ? { ...p, volume: new Prisma.Decimal(800) } : p));
-    const result = detectAccumulationEvents(points, swingResult(swings), RANGE);
+    const result = detectAccumulationEvents(points, swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PS', 'SC', 'AR', 'ST']);
   });
 
   it('does not detect ST when no later swing low is near the Selling Climax price', () => {
     const swings = [swing('LOW', 95, 1), swing('LOW', 90, 3), swing('HIGH', 100, 5), swing('LOW', 82, 7)];
-    const result = detectAccumulationEvents(withVolume(3, 3000), swingResult(swings), RANGE);
+    const result = detectAccumulationEvents(withVolume(3, 3000), swingResult(swings), RANGE, NEAR_TOLERANCE);
     // 82 is not near 90 (>3% away) and is itself below support -- treated as the Spring, not ST.
     expect(result.events.map((e) => e.type)).toEqual(['PS', 'SC', 'AR', 'SPRING']);
   });
@@ -76,7 +78,7 @@ describe('detectAccumulationEvents (WP3)', () => {
     const swings = [swing('LOW', 95, 1), swing('LOW', 90, 3), swing('HIGH', 100, 5), swing('LOW', 91, 7), swing('LOW', 88, 9)];
     let points = withVolume(3, 3000);
     points = points.map((p, i) => (i === 7 ? { ...p, volume: new Prisma.Decimal(800) } : i === 9 ? { ...p, volume: new Prisma.Decimal(700) } : p));
-    const result = detectAccumulationEvents(points, swingResult(swings), RANGE);
+    const result = detectAccumulationEvents(points, swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PS', 'SC', 'AR', 'ST', 'SPRING']);
     expect(result.events[4].price.toNumber()).toBe(88);
   });
@@ -94,7 +96,7 @@ describe('detectAccumulationEvents (WP3)', () => {
     points = points.map((p, i) =>
       i === 7 ? { ...p, volume: new Prisma.Decimal(800) } : i === 9 ? { ...p, volume: new Prisma.Decimal(700) } : i === 11 ? { ...p, volume: new Prisma.Decimal(500) } : p,
     );
-    const result = detectAccumulationEvents(points, swingResult(swings), RANGE);
+    const result = detectAccumulationEvents(points, swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PS', 'SC', 'AR', 'ST', 'SPRING', 'TEST']);
   });
 
@@ -112,7 +114,7 @@ describe('detectAccumulationEvents (WP3)', () => {
     points = points.map((p, i) =>
       i === 7 ? { ...p, volume: new Prisma.Decimal(800) } : i === 9 ? { ...p, volume: new Prisma.Decimal(700) } : i === 11 ? { ...p, volume: new Prisma.Decimal(500) } : p,
     );
-    const result = detectAccumulationEvents(points, swingResult(swings), RANGE);
+    const result = detectAccumulationEvents(points, swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PS', 'SC', 'AR', 'ST', 'SPRING', 'TEST', 'SOS']);
   });
 
@@ -131,13 +133,13 @@ describe('detectAccumulationEvents (WP3)', () => {
     points = points.map((p, i) =>
       i === 7 ? { ...p, volume: new Prisma.Decimal(800) } : i === 9 ? { ...p, volume: new Prisma.Decimal(700) } : i === 11 ? { ...p, volume: new Prisma.Decimal(500) } : p,
     );
-    const result = detectAccumulationEvents(points, swingResult(swings), RANGE);
+    const result = detectAccumulationEvents(points, swingResult(swings), RANGE, NEAR_TOLERANCE);
     expect(result.events.map((e) => e.type)).toEqual(['PS', 'SC', 'AR', 'ST', 'SPRING', 'TEST', 'SOS', 'LPS']);
     expect(result.side).toBe('ACCUMULATION');
   });
 
   it('returns only PS when fewer than two swing lows exist', () => {
-    const result = detectAccumulationEvents(withVolume(1, 1000), swingResult([swing('LOW', 95, 1)]), RANGE);
+    const result = detectAccumulationEvents(withVolume(1, 1000), swingResult([swing('LOW', 95, 1)]), RANGE, NEAR_TOLERANCE);
     expect(result.events).toEqual([]);
   });
 });

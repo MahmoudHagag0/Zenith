@@ -23,10 +23,12 @@ export function averageVolumeBefore(points: readonly MarketSeriesPoint[], timest
   return sum.dividedBy(priorPoints.length);
 }
 
-/** Whether `value` is within `tolerance` (a fraction, e.g. 0.03 for 3%) of `reference`. */
-export function isNear(value: Prisma.Decimal, reference: Prisma.Decimal, tolerance: number): boolean {
-  if (reference.isZero()) {
-    return value.isZero();
-  }
-  return value.minus(reference).abs().dividedBy(reference.abs()).lessThanOrEqualTo(tolerance);
+/**
+ * Whether `value` is within an absolute `tolerance` of `reference`. The
+ * Provider supplies an ATR-derived tolerance (via `INDICATOR_ENGINE`,
+ * S1-007) rather than a fixed percentage, so "near" scales with each
+ * instrument's own actual volatility instead of an arbitrary constant.
+ */
+export function isNear(value: Prisma.Decimal, reference: Prisma.Decimal, tolerance: Prisma.Decimal): boolean {
+  return value.minus(reference).abs().lessThanOrEqualTo(tolerance);
 }
