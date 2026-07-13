@@ -2,7 +2,7 @@
 
 **Document ID:** ZOS-S1-009
 **Template Reference:** `SPRINT_BRIEF_TEMPLATE.md` (ZOS-SBT)
-**Status:** Proposed
+**Status:** Approved
 
 ------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@
 - **Milestone:** M1 — Core Platform (per `08_ROADMAP.md`, under the same Implementation-Engineer placement basis recorded in `S1-007_SPRINT_BRIEF.md`/`S1-008_SPRINT_BRIEF.md`)
 - **Phase:** Phase 1 — Engineering Foundation (per `09_PROJECT_BRAIN.md`)
 - **Date Drafted:** 2026-07-13
-- **Approved By:** *(pending)*
+- **Approved By:** Architecture Team (2026-07-13 — see Approval Section)
 
 ---
 
@@ -150,18 +150,20 @@ Calibration choices within ADR-006's already-approved design, resolved via a Dec
 # Approval Section
 
 - **Approval Status:**
-  - [x] Proposed
+  - [ ] Proposed
   - [ ] Under Review
-  - [ ] Approved
+  - [x] Approved
   - [ ] Rejected / Returned for Revision
-- **Approved By:** *(pending)*
-- **Date Approved:** *(pending)*
+- **Approved By:** Architecture Team
+- **Date Approved:** 2026-07-13
+
+Approved on the basis that the independent audit found no Critical findings and all four Recommended fixes were applied. This Sprint Brief is valid for implementation per Constitution Rule 2, pending the S1-009 Task Breakdown's own review and approval.
 
 ---
 
 # Sprint Closure
 
-- **Sprint Status:** NOT STARTED — Proposed, pending Architecture Team review.
+- **Sprint Status:** NOT STARTED — Approved, awaiting Task Breakdown approval.
 - **Closed Date:** *(pending)*
 - **Completion Report:** *(pending)*
 - **Final Implementation Commits:** *(pending)*
