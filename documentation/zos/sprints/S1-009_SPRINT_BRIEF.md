@@ -163,12 +163,12 @@ Approved on the basis that the independent audit found no Critical findings and 
 
 # Sprint Closure
 
-- **Sprint Status:** NOT STARTED — Approved, awaiting Task Breakdown approval.
-- **Closed Date:** *(pending)*
-- **Completion Report:** *(pending)*
-- **Final Implementation Commits:** *(pending)*
+- **Sprint Status:** CLOSED
+- **Closed Date:** 2026-07-13
+- **Completion Report:** `documentation/ai/S1-009_COMPLETION_REPORT.md` (AI-024)
+- **Final Implementation Commits:** `bd2932c` (WP1 skeleton), `c1f505d` (WP2 range), `19b39ed` (WP2 self-review fix), `6b4dff1` (WP3 Accumulation), `5c60580` (WP4 Distribution + volume boundary), `77364b5` (WP5 Phase classification), `5af8d4a` (WP6 self-review fix — regime gating), `7c4d92e` (WP6 self-review fix — generic Confidence contract), `e7bc6c9` (WP6 Confidence + analyze() assembly), `ca28e53` (WP7 Limitations), `fce4e21` (WP8 Traceability), `5c45eb2` (WP9 module registration), `1943bfc` (WP10 golden-dataset), `de9c12a` (WP12 audit fix)
 - **Related ADR:** ADR-006 (see `12_ADR_INDEX.md`)
-- **Related Decisions:** *(pending — see Missing Decisions above)*
+- **Related Decisions:** DEC-2026-013 (event-detection thresholds, golden-dataset sourcing, Methodology Confidence Ceiling, and the generic four-part Confidence contract completion)
 
 ---
 
