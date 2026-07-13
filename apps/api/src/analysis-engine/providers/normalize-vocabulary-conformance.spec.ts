@@ -6,6 +6,7 @@ import { ElliottWaveProvider } from './elliott-wave/elliott-wave.provider';
 import { HarmonicPatternsProvider } from './harmonic-patterns/harmonic-patterns.provider';
 import { ClassicalChartPatternsProvider } from './classical-chart-patterns/classical-chart-patterns.provider';
 import { PriceActionProvider } from './price-action/price-action.provider';
+import { SupplyDemandProvider } from './supply-demand/supply-demand.provider';
 import { INDICATOR_ENGINE } from '../indicator-engine/indicator-engine.tokens';
 import { SWING_DETECTOR } from '../swing-detection/swing-detection.tokens';
 import { REGIME_CONTEXT } from '../regime-context/regime-context.tokens';
@@ -181,6 +182,23 @@ async function buildPriceActionProvider(): Promise<{ provider: AnalysisProvider;
   return { provider: module.get(PriceActionProvider), series: series(points) };
 }
 
+async function buildSupplyDemandProvider(): Promise<{ provider: AnalysisProvider; series: MarketSeries }> {
+  const points = [
+    { ...point(0, 110), high: new Prisma.Decimal(111), low: new Prisma.Decimal(104), close: new Prisma.Decimal(105) },
+    { ...point(1, 105), high: new Prisma.Decimal(106), low: new Prisma.Decimal(104), close: new Prisma.Decimal(104.5) },
+    { ...point(2, 104.5), high: new Prisma.Decimal(112.5), low: new Prisma.Decimal(104), close: new Prisma.Decimal(112) },
+    { ...point(3, 112), high: new Prisma.Decimal(113), low: new Prisma.Decimal(111.5), close: new Prisma.Decimal(112.5) },
+  ];
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      SupplyDemandProvider,
+      { provide: INDICATOR_ENGINE, useValue: { atr: jest.fn().mockReturnValue({ series: points.map((p) => ({ timestamp: p.timestamp, value: new Prisma.Decimal(2) })), metadata: { computation: 'ATR', computationVersion: '1.0.0' } }) } },
+      { provide: REGIME_CONTEXT, useValue: { getRegime: jest.fn().mockReturnValue(regimeResultOf('TRENDING')) } },
+    ],
+  }).compile();
+  return { provider: module.get(SupplyDemandProvider), series: series(points) };
+}
+
 const PROVIDER_FIXTURES: Array<{ name: string; build: () => Promise<{ provider: AnalysisProvider; series: MarketSeries }> }> = [
   { name: 'WyckoffProvider', build: buildWyckoffProvider },
   { name: 'IctSmcProvider', build: buildIctSmcProvider },
@@ -188,6 +206,7 @@ const PROVIDER_FIXTURES: Array<{ name: string; build: () => Promise<{ provider: 
   { name: 'HarmonicPatternsProvider', build: buildHarmonicPatternsProvider },
   { name: 'ClassicalChartPatternsProvider', build: buildClassicalChartPatternsProvider },
   { name: 'PriceActionProvider', build: buildPriceActionProvider },
+  { name: 'SupplyDemandProvider', build: buildSupplyDemandProvider },
 ];
 
 describe.each(PROVIDER_FIXTURES)('normalize() conformance — $name (S1-012 WP6)', ({ build }) => {
