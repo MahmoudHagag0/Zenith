@@ -2,7 +2,7 @@
 
 **Document ID:** ZOS-S1-011
 **Template Reference:** `SPRINT_BRIEF_TEMPLATE.md` (ZOS-SBT)
-**Status:** Proposed
+**Status:** Approved
 
 ------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@
 - **Milestone:** M1 — Core Platform (per `08_ROADMAP.md`, under the same Implementation-Engineer placement basis recorded in `S1-007`/`S1-008`/`S1-009`/`S1-010_SPRINT_BRIEF.md`)
 - **Phase:** Phase 1 — Engineering Foundation (per `09_PROJECT_BRAIN.md`)
 - **Date Drafted:** 2026-07-13
-- **Approved By:** Pending Architecture Team review
+- **Approved By:** Architecture Team (2026-07-13 — see Approval Section)
 
 ---
 
@@ -168,14 +168,18 @@ Calibration choices within ADR-006's already-approved design, resolved via a Dec
 # Approval Section
 
 - **Approval Status:**
-  - [x] Proposed
+  - [ ] Proposed
   - [ ] Under Review
-  - [ ] Approved
+  - [x] Approved
   - [ ] Rejected / Returned for Revision
-- **Approved By:** Pending
-- **Date Approved:** Pending
+- **Approved By:** Architecture Team
+- **Date Approved:** 2026-07-13
 
-Self-audited by the Implementation Engineer prior to submission (Phase 2): no Critical findings identified. No open item below rises to a genuine architectural contradiction requiring a design decision from the Architecture Team beyond ratifying this Brief itself — submitted for Approval per Constitution Rule 2.
+Approved on the basis that the independent self-audit found no Critical findings and the SLOW tier classification, Rule-based invalidation, Fibonacci-as-guideline-only scoring, bounded multi-hypothesis design, and explicit invalidation disclosure were each accepted as proposed. This Sprint Brief is valid for implementation per Constitution Rule 2, pending the S1-011 Task Breakdown's own review and approval.
+
+**Architecture Team Implementation Guidance #5 (binding direction for this Sprint, additive to — not a revision of — the Scope above):**
+
+Elliott Wave is inherently probabilistic. The Provider must never present its primary hypothesis as absolute certainty. Every surviving hypothesis must clearly expose: why it currently survives (its Rule-conformance and Fibonacci-guideline basis), what weakens it (any guideline it fails to meet cleanly, or any Rule it survives only narrowly), and what future market behaviour would invalidate it (Scope item 6's disclosed invalidation level). This guidance introduces no new probability model — its purpose is transparency: Zenith explains uncertainty rather than concealing it. Implemented as an explicit, three-part structure within each hypothesis's disclosed text content (Scope items 6–7), not a new contract field.
 
 ---
 
