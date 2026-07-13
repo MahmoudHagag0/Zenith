@@ -184,12 +184,12 @@ Approved concurrently with the Architecture Team's standing authorization to exe
 
 # Sprint Closure
 
-- **Sprint Status:** OPEN
-- **Closed Date:** Pending
-- **Completion Report:** Pending (`documentation/ai/S1-015_COMPLETION_REPORT.md`, AI-036)
-- **Final Implementation Commits:** Pending
+- **Sprint Status:** CLOSED
+- **Closed Date:** 2026-07-13
+- **Completion Report:** `documentation/ai/S1-015_COMPLETION_REPORT.md` (AI-036)
+- **Final Implementation Commits:** `f02bb67` (Sprint Brief), `6ed54f8` (Task Breakdown), `3d08d78` (WP1-WP14: full `PriceActionProvider` implementation, golden-dataset conformance, `normalize()` mapping, module registration)
 - **Related ADR:** ADR-006 (see `12_ADR_INDEX.md`); ADR-007 (Normalized Vocabulary, consumed via a new `normalize()` mapping)
-- **Related Decisions:** Pending (`DEC-2026-019`)
+- **Related Decisions:** `DEC-2026-019`
 
 ---
 
