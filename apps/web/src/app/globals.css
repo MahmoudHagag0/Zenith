@@ -1,0 +1,93 @@
+/*
+ * S1-021 Developer Preview -- intentionally minimal. No theme, no color
+ * system, no animation, no responsive breakpoints (Sprint Brief: "Keep
+ * implementation intentionally simple"). Just enough structure and
+ * whitespace for the information hierarchy under test to be legible.
+ */
+
+body {
+  font-family: system-ui, sans-serif;
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+  line-height: 1.5;
+}
+
+.preview-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.section {
+  border-top: 1px solid #ccc;
+  padding-top: 1rem;
+}
+
+.entry {
+  border: 1px solid #ccc;
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid #ddd;
+}
+
+.readiness {
+  font-weight: bold;
+}
+
+.no-trade {
+  font-style: italic;
+}
+
+.notice {
+  color: #555;
+}
+
+.muted {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.error {
+  color: #a00;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 320px;
+}
+
+.stack label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #444;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
