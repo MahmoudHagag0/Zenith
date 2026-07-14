@@ -22,6 +22,7 @@ This index serves as the central directory for the Zenith Operating System (ZOS)
 | 20 | 20_AI_BOOT_SEQUENCE.md | Initialization protocols for AI cognitive layers. |
 | 22 | 22_ANALYSIS_ENGINE_ARCHITECTURE.md | Analysis Engine architecture: Indicator Engine, Swing Detection, Regime/Context Service, Analysis Provider Framework, Confluence Engine. |
 | 23 | 23_ANALYSIS_PROVIDER_PHASE_COMPLETION.md | Formal closure of the Analysis Provider Architecture Phase (S1-007--S1-018): Architecture Review, extensibility validation, known limitations, next-phase recommendation. |
+| 24 | 24_ZENITH_PRODUCT_CONSTITUTION.md | Zenith Product Constitution v1.0 — the highest project authority on product philosophy, trader psychology, design, and AI persona. Peer to 06_PROJECT_CONSTITUTION.md (engineering-process authority), not subordinate to it. |
 | -- | ZENITH_AI_SYSTEM_PROMPT.md | Core behavioral and operational constraints. |
 | -- | ZENITH_MASTER_CONTEXT.md | Global project background and architectural vision. |
 | -- | SPRINT_BRIEF_TEMPLATE.md | Standardized format for sprint planning. |

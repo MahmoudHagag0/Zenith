@@ -9,9 +9,15 @@
 
 # Purpose
 
-This Constitution defines the mandatory engineering rules governing the
-Zenith project. These rules are binding for every contributor, whether
-human or AI.
+This Constitution defines the mandatory engineering *process* rules
+governing the Zenith project. These rules are binding for every
+contributor, whether human or AI.
+
+This document governs engineering process authority only (architecture
+approval, sprint authority, scope control, reporting). It is a peer to,
+not superseded by or superseding, `24_ZENITH_PRODUCT_CONSTITUTION.md`,
+which governs product philosophy, trader psychology, design, and AI
+persona. See that document's own §0.1 for the full disambiguation.
 
 # Constitutional Rules
 
@@ -69,3 +75,4 @@ may continue.
 -   07_ENGINEERING_WORKFLOW.md
 -   10_AI_ENGINEER_GUIDE.md
 -   20_AI_BOOT_SEQUENCE.md
+-   24_ZENITH_PRODUCT_CONSTITUTION.md
