@@ -78,10 +78,19 @@ if [ "$SUDO_OK" -eq 1 ]; then
 fi
 
 echo "==> [4/7] PostgreSQL: ensuring the zenith database + postgres role password exist"
+# `sudo -n -u postgres <cmd>` asks sudo itself to run AS the postgres user.
+# Some Codespaces/devcontainer sudoers grants only cover running as root
+# (e.g. "user ALL=(root) NOPASSWD:ALL"), not arbitrary "-u" targets, so
+# that specific invocation can require a password even though plain
+# `sudo -n <cmd>` (implicit root target, used in every other step above)
+# does not. `sudo -n su postgres -c '...'` sidesteps this entirely: sudo
+# only ever runs `su` as root (the unrestricted, always-permitted
+# target), and `su` invoked BY root never prompts for a password to
+# switch to any other user.
 if [ "$SUDO_OK" -eq 1 ]; then
-  sudo -n -u postgres psql -v ON_ERROR_STOP=1 -c "ALTER USER postgres PASSWORD 'postgres';" >/dev/null
-  sudo -n -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'zenith'" | grep -q 1 \
-    || sudo -n -u postgres createdb zenith
+  sudo -n su postgres -c "psql -v ON_ERROR_STOP=1 -c \"ALTER USER postgres PASSWORD 'postgres';\"" >/dev/null
+  sudo -n su postgres -c "psql -tAc \"SELECT 1 FROM pg_database WHERE datname = 'zenith'\"" | grep -q 1 \
+    || sudo -n su postgres -c "createdb zenith"
 else
   echo "    Skipped (no passwordless sudo)."
 fi
