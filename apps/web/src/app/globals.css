@@ -36,6 +36,34 @@ h1 {
   color: #6b6b6f;
 }
 
+/* ---- Shared page header / navigation (S1-024) ---- */
+
+.app-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 1.5rem;
+}
+
+.app-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link {
+  font-size: 0.85rem;
+  color: #6b6b6f;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  color: #3a3a3d;
+}
+
+.nav-link-active {
+  color: #1c1c1e;
+  font-weight: 600;
+}
+
 /* ---- 1. Decision Readiness (hero) -- the strongest visual weight on the page. ---- */
 
 .hero {
@@ -97,6 +125,55 @@ h1 {
   margin: 0.4rem 0 0;
   color: #3a3a3d;
   max-width: 34rem;
+}
+
+/* ---- Watchlist / Portfolio list items (S1-024) ---- */
+
+.watchlist-items,
+.portfolio-positions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.watchlist-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.watchlist-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.inline-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.inline-form input[type='text'] {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+}
+
+.inline-form button {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.35rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background: #fafafa;
+  cursor: pointer;
 }
 
 /* ---- 2 & 3. Secondary sections -- support the hero, never compete with it. ---- */

@@ -1,10 +1,8 @@
-import { cookies } from 'next/headers';
-import { redirect } from 'next/navigation';
-import { ApiError, getDecisionCenter, getMorningBrief } from '@/lib/api';
+import Link from 'next/link';
+import { getDecisionCenter, getMorningBrief } from '@/lib/api';
+import { withAuth } from '@/lib/auth';
 import { ConfidenceDisclosure, DirectionBadge } from '@/components/dashboard-parts';
-import { LogoutButton } from './logout-button';
-
-const TOKEN_COOKIE = 'zenith_token';
+import { AppHeader } from '@/components/app-nav';
 
 const READINESS_LABEL: Record<string, string> = {
   OPPORTUNITIES_AVAILABLE: 'Opportunities available',
@@ -23,32 +21,17 @@ const READINESS_LABEL: Record<string, string> = {
  * from the Narrative Composer's own output, never recomputed here.
  */
 export default async function DashboardPage() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(TOKEN_COOKIE)?.value;
-  if (!token) {
-    redirect('/login');
-  }
-
-  let decisionCenter;
-  let morningBrief;
-  try {
-    [decisionCenter, morningBrief] = await Promise.all([getDecisionCenter(token), getMorningBrief(token)]);
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 401) {
-      redirect('/login');
-    }
-    throw error;
-  }
+  const { decisionCenter, morningBrief } = await withAuth(async (token) => {
+    const [decisionCenter, morningBrief] = await Promise.all([getDecisionCenter(token), getMorningBrief(token)]);
+    return { decisionCenter, morningBrief };
+  });
 
   const topOpportunity = decisionCenter.opportunities[0];
   const topEntry = topOpportunity ? morningBrief.entries.find((e) => e.assetId === topOpportunity.assetId) : undefined;
 
   return (
     <main className="page">
-      <header className="row">
-        <h1>Zenith</h1>
-        <LogoutButton />
-      </header>
+      <AppHeader active="/" />
 
       {/* 1. Decision Readiness -- the hero. Strongest visual weight; nothing below competes with it. */}
       <section className="hero">
@@ -67,6 +50,9 @@ export default async function DashboardPage() {
       <section className="section-quiet">
         <h2>Morning Brief</h2>
         <p>{morningBrief.headline}</p>
+        <Link href="/morning-brief" className="nav-link">
+          Read full Morning Brief
+        </Link>
       </section>
 
       {/* 3. Top Instruments -- comparison only; direction/confidence detail already lives in the hero above. */}
