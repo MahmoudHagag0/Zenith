@@ -18,7 +18,7 @@ cd "$ROOT_DIR"
 
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/zenith?schema=public"
 
-echo "==> [1/6] PostgreSQL: checking installation"
+echo "==> [1/7] PostgreSQL: checking installation"
 if ! command -v pg_lsclusters >/dev/null 2>&1; then
   echo "    Installing postgresql (apt)"
   sudo apt-get update -y
@@ -27,7 +27,7 @@ else
   echo "    Already installed."
 fi
 
-echo "==> [2/6] PostgreSQL: ensuring the service is running"
+echo "==> [2/7] PostgreSQL: ensuring the service is running"
 if ! pg_isready -q 2>/dev/null; then
   PG_VERSION="$(pg_lsclusters | awk 'NR==2{print $1}')"
   sudo pg_ctlcluster "$PG_VERSION" main start
@@ -38,19 +38,22 @@ if ! pg_isready -q 2>/dev/null; then
 fi
 pg_isready
 
-echo "==> [3/6] PostgreSQL: ensuring the zenith database + postgres role password exist"
+echo "==> [3/7] PostgreSQL: ensuring the zenith database + postgres role password exist"
 sudo -u postgres psql -v ON_ERROR_STOP=1 -c "ALTER USER postgres PASSWORD 'postgres';" >/dev/null
 sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'zenith'" | grep -q 1 \
   || sudo -u postgres createdb zenith
 
-echo "==> [4/6] Generating .env files from .env.example (existing files are never overwritten)"
+echo "==> [4/7] Generating .env files from .env.example (existing files are never overwritten)"
 [ -f apps/api/.env ] || { cp apps/api/.env.example apps/api/.env; echo "    Created apps/api/.env"; }
 [ -f apps/web/.env ] || { cp apps/web/.env.example apps/web/.env; echo "    Created apps/web/.env"; }
 
-echo "==> [5/6] Installing dependencies"
+echo "==> [5/7] Installing dependencies"
 pnpm install
 
-echo "==> [6/6] Running Prisma migrations and seeding development data"
+echo "==> [6/7] Building @zenith/database (Prisma Client generation + the package's own dist/ apps/api imports)"
+pnpm --filter @zenith/database build
+
+echo "==> [7/7] Running Prisma migrations and seeding development data"
 (cd packages/database && DATABASE_URL="$DATABASE_URL" npx prisma migrate deploy)
 (cd packages/database && DATABASE_URL="$DATABASE_URL" npx prisma db seed)
 
