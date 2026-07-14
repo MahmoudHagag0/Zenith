@@ -5,8 +5,8 @@
   "description": "Zenith frontend application (Next.js) — foundation layer.",
   "scripts": {
     "build": "next build",
-    "start": "next start",
-    "dev": "next dev",
+    "start": "next start -p 3200",
+    "dev": "next dev -p 3200",
     "lint": "eslint ."
   },
   "dependencies": {

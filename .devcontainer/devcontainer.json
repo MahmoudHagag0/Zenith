@@ -1,0 +1,24 @@
+{
+  "name": "Zenith",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  },
+  "postCreateCommand": "corepack enable && pnpm install",
+  "forwardPorts": [3000, 3200],
+  "portsAttributes": {
+    "3000": {
+      "label": "Zenith API (NestJS)",
+      "onAutoForward": "silent"
+    },
+    "3200": {
+      "label": "Zenith Web App (Next.js)",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["dbaeumer.vscode-eslint", "esbenp.prettier-vscode", "prisma.prisma"]
+    }
+  }
+}
