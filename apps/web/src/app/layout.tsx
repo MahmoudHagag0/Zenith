@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Zenith',
-  description: 'Zenith platform — Developer Preview (Sprint S1-021).',
+  description: 'Zenith — Dashboard, Morning Brief, Watchlist, and Portfolio.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
