@@ -8,6 +8,7 @@ import { ClassicalChartPatternsProvider } from './classical-chart-patterns/class
 import { PriceActionProvider } from './price-action/price-action.provider';
 import { SupplyDemandProvider } from './supply-demand/supply-demand.provider';
 import { FibonacciAnalysisProvider } from './fibonacci-analysis/fibonacci-analysis.provider';
+import { VsaProvider } from './vsa/vsa.provider';
 import { INDICATOR_ENGINE } from '../indicator-engine/indicator-engine.tokens';
 import { SWING_DETECTOR } from '../swing-detection/swing-detection.tokens';
 import { REGIME_CONTEXT } from '../regime-context/regime-context.tokens';
@@ -229,6 +230,21 @@ async function buildFibonacciAnalysisProvider(): Promise<{ provider: AnalysisPro
   return { provider: module.get(FibonacciAnalysisProvider), series: series(points) };
 }
 
+async function buildVsaProvider(): Promise<{ provider: AnalysisProvider; series: MarketSeries }> {
+  const baseline = Array.from({ length: 10 }, (_, i) => point(i, 100));
+  const target = { ...point(10, 100), high: new Prisma.Decimal(100.5), low: new Prisma.Decimal(99.8), close: new Prisma.Decimal(100.3), volume: new Prisma.Decimal(400) };
+  const points = [...baseline, target];
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      VsaProvider,
+      { provide: INDICATOR_ENGINE, useValue: { atr: jest.fn().mockReturnValue({ series: points.map((p) => ({ timestamp: p.timestamp, value: new Prisma.Decimal(10) })), metadata: { computation: 'ATR', computationVersion: '1.0.0' } }) } },
+      { provide: SWING_DETECTOR, useValue: { detect: jest.fn().mockReturnValue(swingResultOf([])) } },
+      { provide: REGIME_CONTEXT, useValue: { getRegime: jest.fn().mockReturnValue(regimeResultOf('TRENDING')) } },
+    ],
+  }).compile();
+  return { provider: module.get(VsaProvider), series: series(points) };
+}
+
 const PROVIDER_FIXTURES: Array<{ name: string; build: () => Promise<{ provider: AnalysisProvider; series: MarketSeries }> }> = [
   { name: 'WyckoffProvider', build: buildWyckoffProvider },
   { name: 'IctSmcProvider', build: buildIctSmcProvider },
@@ -238,6 +254,7 @@ const PROVIDER_FIXTURES: Array<{ name: string; build: () => Promise<{ provider: 
   { name: 'PriceActionProvider', build: buildPriceActionProvider },
   { name: 'SupplyDemandProvider', build: buildSupplyDemandProvider },
   { name: 'FibonacciAnalysisProvider', build: buildFibonacciAnalysisProvider },
+  { name: 'VsaProvider', build: buildVsaProvider },
 ];
 
 describe.each(PROVIDER_FIXTURES)('normalize() conformance — $name (S1-012 WP6)', ({ build }) => {
