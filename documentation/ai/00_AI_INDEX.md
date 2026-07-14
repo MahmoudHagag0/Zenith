@@ -71,6 +71,7 @@ This mapping was established by Architecture Team decision as part of the AI Doc
 | AI-038 | `S1-016_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-016, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-016's closure. |
 | AI-039 | `S1-017_TASK_BREAKDOWN.md` | Approved | Execution-guidance Work Package breakdown for the approved S1-017 Sprint Brief (Fibonacci Analysis Provider), approved by the Architecture Team. | Sequences `S1-017_SPRINT_BRIEF.md`'s Scope into 16 dependency-ordered Work Packages, each with Deliverables/Acceptance Criteria/Verification Steps/Risks/Completion Criteria; does not expand or reinterpret it. |
 | AI-040 | `S1-017_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-017, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-017's closure. |
+| AI-041 | `S1-018_TASK_BREAKDOWN.md` | Approved | Execution-guidance Work Package breakdown for the approved S1-018 Sprint Brief (VSA Provider), approved by the Architecture Team. | Sequences `S1-018_SPRINT_BRIEF.md`'s Scope into 14 dependency-ordered Work Packages, each with Deliverables/Acceptance Criteria/Verification Steps/Risks/Completion Criteria; does not expand or reinterpret it. |
 
 # Known Open Items
 
