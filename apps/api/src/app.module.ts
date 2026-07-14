@@ -14,6 +14,7 @@ import { PositionsModule } from './positions/positions.module';
 import { MarketDataModule } from './market-data/market-data.module';
 import { AnalyticsModule } from './analytics/analytics.module';
 import { AnalysisEngineModule } from './analysis-engine/analysis-engine.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { AnalysisEngineModule } from './analysis-engine/analysis-engine.module';
     MarketDataModule,
     AnalyticsModule,
     AnalysisEngineModule,
+    DashboardModule,
   ],
 })
 export class AppModule {}

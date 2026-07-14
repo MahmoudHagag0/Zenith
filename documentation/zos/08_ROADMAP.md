@@ -1,7 +1,7 @@
 # 08_ROADMAP
 
 **Document ID:** ZOS-008\
-**Version:** 1.1.0\
+**Version:** 1.2.0\
 **Status:** Approved\
 **Owner:** Architecture Team
 
@@ -49,6 +49,20 @@ Questions).
 
 Planned focus: - Advanced features - Integrations - Performance -
 Monitoring - Operational tooling
+
+Status: In Progress. Phase 2 (leadership-driven, non-Sprint product
+definition — `24_ZENITH_PRODUCT_CONSTITUTION.md`,
+`25_PRODUCT_BLUEPRINT.md`, `26_DASHBOARD_HOME_SPECIFICATION.md`,
+`27_ZENITH_EXPERIENCE_LANGUAGE.md`, all frozen) resolved the Open
+Question left by M1's own closure: the Analysis Engine's first Consumer
+is the Dashboard. Sprint S1-019 (Dashboard Backend Foundation) — a
+Confluence Engine Consumer and the Decision Center backend powering
+Dashboard's own `DASH-002` — is complete, per
+`documentation/zos/sprints/S1-019_SPRINT_BRIEF.md`. Per
+`25_PRODUCT_BLUEPRINT.md` §10's own Implementation Order, the Narrative
+Composer (powering Morning Brief) and the Watchlist/Portfolio/Morning
+Brief screen specifications are the next candidate work; no further
+Sprint has been authorized by this update.
 
 # Planning Rules
 

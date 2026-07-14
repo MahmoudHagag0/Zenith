@@ -1,7 +1,7 @@
 # 22_ANALYSIS_ENGINE_ARCHITECTURE
 
 **Document ID:** ZOS-022\
-**Version:** 1.3.1\
+**Version:** 1.3.2\
 **Status:** Approved — Architecture Team final approval, 2026-07-12 (research, independent validation, governance synchronization, and Sprint Brief approval all complete; see ADR-005/006/007)\
 **Owner:** Architecture Team (via Implementation Engineer)
 
@@ -627,6 +627,21 @@ Aggregates normalized signals across all participating Providers.
     per-dimension drill-down attribution.)
 -   **Provider participation** is reported explicitly — which
     Providers contributed, which were unavailable — never inferred.
+-   **`computeConfluenceWithEvidence()`** (S1-019, DEC-2026-024) — an
+    additive method alongside `computeConfluence()`, added once the
+    first real Consumer (the Dashboard's own Confluence Engine
+    Consumer) needed each participating Provider's own complete,
+    unmodified `AnalysisProviderResult` (Confidence taxonomy,
+    Limitations, Traceability) without re-invoking the Execution Engine
+    a second time for the same series. Returns the same
+    `ConfluenceResult` `computeConfluence()` would, plus a
+    `ParticipatingProviderResult[]` — both methods share one internal
+    execution/normalization pass; the Execution Engine still runs
+    exactly once per call regardless of which method is used. This is
+    the "reachable by a Consumer (e.g. displayed on a Dashboard)" case
+    the Trace Store discussion above already anticipated — traceability
+    is still delivered in-memory, per-request (no Trace Store exists
+    yet), not by a persisted trace ID.
 
 # Plugin Architecture
 

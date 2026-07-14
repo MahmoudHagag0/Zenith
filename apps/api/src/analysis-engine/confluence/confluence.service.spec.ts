@@ -115,4 +115,36 @@ describe('ConfluenceService (S1-012 WP10-WP11)', () => {
     expect(trend.bullishContributors.map((c) => c.providerId)).toEqual(['A']);
     expect(trend.bearishContributors.map((c) => c.providerId)).toEqual(['B']);
   });
+
+  describe('computeConfluenceWithEvidence (S1-019 WP1)', () => {
+    it('returns a confluence field identical to computeConfluence() for the same series and providerResults for every participating Provider', async () => {
+      const resultA = stubResult();
+      const providerA = fixtureProvider('A', 'WYCKOFF', { TREND: { reading: 'BULLISH', strength: 80 } });
+      const runNewAnalysis = jest.fn().mockReturnValue({
+        fastTier: Promise.resolve({ participating: [{ providerId: 'A', result: resultA }], nonParticipating: [], totalRegistered: 1 }),
+        slowTier: Promise.resolve({ participating: [], nonParticipating: [{ providerId: 'B', reason: 'TIMEOUT', detail: 'slow' }], totalRegistered: 1 }),
+      });
+      const service = await buildService([providerA], runNewAnalysis);
+
+      const withEvidence = await service.computeConfluenceWithEvidence(series());
+      const plain = await service.computeConfluence(series());
+
+      expect(withEvidence.confluence).toEqual(plain);
+      expect(withEvidence.providerResults).toEqual([{ providerId: 'A', methodologyFamily: 'WYCKOFF', result: resultA }]);
+      // Full evidence IS present here, unlike computeConfluence()'s own bounded reference -- this method exists precisely to carry it.
+      expect(JSON.stringify(withEvidence.providerResults)).toContain('secret internal trace detail');
+    });
+
+    it('invokes the Execution Engine exactly once per call -- never duplicates Provider invocation between the two public methods', async () => {
+      const providerA = fixtureProvider('A', undefined, {});
+      const runNewAnalysis = jest.fn().mockReturnValue({
+        fastTier: Promise.resolve({ participating: [{ providerId: 'A', result: stubResult() }], nonParticipating: [], totalRegistered: 1 }),
+        slowTier: Promise.resolve({ participating: [], nonParticipating: [], totalRegistered: 0 }),
+      });
+      const service = await buildService([providerA], runNewAnalysis);
+
+      await service.computeConfluenceWithEvidence(series());
+      expect(runNewAnalysis).toHaveBeenCalledTimes(1);
+    });
+  });
 });

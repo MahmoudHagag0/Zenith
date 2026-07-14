@@ -1,5 +1,6 @@
 import type { NonParticipationReason } from '../providers/provider-execution.types';
 import type { NormalizedDimension, NormalizedReading } from '../providers/normalized-vocabulary.types';
+import type { AnalysisProviderResult } from '../providers/analysis-provider.types';
 
 /**
  * Confluence-specific types (S1-012 Sprint Brief; ADR-007). This module
@@ -63,4 +64,33 @@ export interface ConfluenceResult {
   /** Always length 7 — one entry per ratified dimension, in the same order as `NormalizedDimension`. */
   readonly dimensions: readonly DimensionConfluence[];
   readonly participation: ProviderParticipationSummary;
+}
+
+/**
+ * One participating Provider's own complete, unmodified result (S1-019
+ * Sprint Brief, Scope item 1) — carried alongside `ConfluenceResult` only
+ * by `computeConfluenceWithEvidence()`, never by `computeConfluence()`
+ * (ADR-007's own payload-size bound still governs the latter). Exists
+ * because a real Consumer (the Dashboard's Confluence Engine Consumer,
+ * S1-019) needs each contributing Provider's own `LabeledConfidence`
+ * values, `Limitations`, and `TraceabilityRecord` — none of which
+ * `ConfluenceResult` itself carries — without re-invoking the Execution
+ * Engine a second time for the same series.
+ */
+export interface ParticipatingProviderResult {
+  readonly providerId: string;
+  readonly methodologyFamily?: string;
+  readonly result: AnalysisProviderResult;
+}
+
+/**
+ * `computeConfluenceWithEvidence()`'s own return shape (S1-019). `confluence`
+ * is exactly what `computeConfluence()` would return for the same series —
+ * the two methods share one internal execution run and normalization pass,
+ * never duplicated (S1-019 Sprint Brief, Scope item 1's own Performance
+ * rationale).
+ */
+export interface ConfluenceResultWithEvidence {
+  readonly confluence: ConfluenceResult;
+  readonly providerResults: readonly ParticipatingProviderResult[];
 }

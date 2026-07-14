@@ -7,7 +7,13 @@ import type { NormalizedDimension, NormalizedProviderOutput } from '../providers
 import { aggregateDimension } from './confluence-dimension-aggregator.util';
 import { CONFLUENCE_WEIGHT_STRATEGY } from './confluence.tokens';
 import type { ConfluenceEngine } from './confluence.tokens';
-import type { ConfluenceResult, ConfluenceWeightStrategy, DimensionContribution } from './confluence.types';
+import type {
+  ConfluenceResult,
+  ConfluenceResultWithEvidence,
+  ConfluenceWeightStrategy,
+  DimensionContribution,
+  ParticipatingProviderResult,
+} from './confluence.types';
 
 const ALL_DIMENSIONS: readonly NormalizedDimension[] = ['TREND', 'MOMENTUM', 'LIQUIDITY', 'STRUCTURE', 'VOLATILITY', 'VOLUME', 'CONFIRMATION'];
 
@@ -37,6 +43,22 @@ export class ConfluenceService implements ConfluenceEngine {
   ) {}
 
   async computeConfluence(series: MarketSeries): Promise<ConfluenceResult> {
+    const { confluence } = await this.runAndAggregate(series);
+    return confluence;
+  }
+
+  async computeConfluenceWithEvidence(series: MarketSeries): Promise<ConfluenceResultWithEvidence> {
+    return this.runAndAggregate(series);
+  }
+
+  /**
+   * The single internal execution/normalization/aggregation path shared by
+   * both public methods (S1-019 Sprint Brief, Scope item 1) — the Execution
+   * Engine is invoked exactly once per call to this method, regardless of
+   * which public method the caller used, so no Provider is ever executed
+   * twice for the same series in the same request.
+   */
+  private async runAndAggregate(series: MarketSeries): Promise<ConfluenceResultWithEvidence> {
     const run = this.executionEngine.runNewAnalysis(series);
     const [fastTier, slowTier] = await Promise.all([run.fastTier, run.slowTier]);
 
@@ -69,12 +91,19 @@ export class ConfluenceService implements ConfluenceEngine {
       return aggregateDimension(dimension, contributions, this.weightStrategy);
     });
 
-    return {
+    const confluence: ConfluenceResult = {
       dimensions,
       participation: {
         participating: normalizedOutputs.map((output) => ({ providerId: output.providerId, methodologyFamily: output.methodologyFamily })),
         nonParticipating: nonParticipatingEntries.map((entry) => ({ providerId: entry.providerId, reason: entry.reason, detail: entry.detail })),
       },
     };
+
+    const providerResults: ParticipatingProviderResult[] = participatingEntries.map((entry) => {
+      const provider = providerById.get(entry.providerId);
+      return { providerId: entry.providerId, methodologyFamily: provider?.methodologyFamily, result: entry.result };
+    });
+
+    return { confluence, providerResults };
   }
 }
