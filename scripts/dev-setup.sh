@@ -56,6 +56,11 @@ sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'zenith'" 
   || sudo -u postgres createdb zenith
 
 echo "==> [5/7] Installing dependencies"
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "    pnpm not on PATH -- enabling corepack (devcontainer.json's postCreateCommand should"
+  echo "    already do this, but dev-setup.sh is also documented for manual/local use)"
+  sudo corepack enable 2>/dev/null || corepack enable
+fi
 pnpm install
 
 echo "==> [6/7] Building @zenith/database (Prisma Client generation + the package's own dist/ apps/api imports)"

@@ -1,7 +1,7 @@
 {
   "name": "Zenith",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bullseye",
-  "postCreateCommand": "corepack enable && bash scripts/dev-setup.sh",
+  "postCreateCommand": "sudo corepack enable || corepack enable || true; bash scripts/dev-setup.sh",
   "postStartCommand": "sudo pg_ctlcluster $(pg_lsclusters | awk 'NR==2{print $1}') main start || true",
   "forwardPorts": [3000, 3200],
   "portsAttributes": {
