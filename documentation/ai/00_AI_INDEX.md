@@ -77,6 +77,8 @@ This mapping was established by Architecture Team decision as part of the AI Doc
 | AI-044 | `PHASE2_PRODUCT_BLUEPRINT_COMPLETION_REPORT.md` | Approved | Completion report for Phase 2's second deliverable — Zenith Product Blueprint v1.0 (ZOS-025), reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording the Blueprint's approval; documents that no implementation was authorized. |
 | AI-045 | `S1-019_TASK_BREAKDOWN.md` | Approved | Execution-guidance Work Package breakdown for the approved S1-019 Sprint Brief (Dashboard Backend Foundation), approved by the Architecture Team. | Sequences `S1-019_SPRINT_BRIEF.md`'s Scope into 10 dependency-ordered Work Packages; does not expand or reinterpret it. |
 | AI-046 | `S1-019_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-019 (Dashboard Backend Foundation), the first Phase 2 implementation sprint, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-019's closure. |
+| AI-047 | `S1-020_TASK_BREAKDOWN.md` | Approved | Execution-guidance Work Package breakdown for the approved S1-020 Sprint Brief (Morning Brief Backend / Narrative Composer), approved by the Architecture Team. | Sequences `S1-020_SPRINT_BRIEF.md`'s Scope into 5 dependency-ordered Work Packages; does not expand or reinterpret it. |
+| AI-048 | `S1-020_COMPLETION_REPORT.md` | Approved | Structured completion report for Sprint S1-020 (Morning Brief Backend / Narrative Composer), the second Phase 2 implementation sprint, reviewed and approved by the Architecture Team. | Basis for the `09_PROJECT_BRAIN.md` update recording S1-020's closure. |
 
 # Known Open Items
 

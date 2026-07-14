@@ -1,7 +1,7 @@
 # 08_ROADMAP
 
 **Document ID:** ZOS-008\
-**Version:** 1.2.0\
+**Version:** 1.3.0\
 **Status:** Approved\
 **Owner:** Architecture Team
 
@@ -58,11 +58,14 @@ Question left by M1's own closure: the Analysis Engine's first Consumer
 is the Dashboard. Sprint S1-019 (Dashboard Backend Foundation) — a
 Confluence Engine Consumer and the Decision Center backend powering
 Dashboard's own `DASH-002` — is complete, per
-`documentation/zos/sprints/S1-019_SPRINT_BRIEF.md`. Per
-`25_PRODUCT_BLUEPRINT.md` §10's own Implementation Order, the Narrative
-Composer (powering Morning Brief) and the Watchlist/Portfolio/Morning
-Brief screen specifications are the next candidate work; no further
-Sprint has been authorized by this update.
+`documentation/zos/sprints/S1-019_SPRINT_BRIEF.md`. Sprint S1-020
+(Morning Brief Backend / Narrative Composer) — Implementation Order
+step 2, a deterministic template layer over S1-019's own output — is
+also complete, per `documentation/zos/sprints/S1-020_SPRINT_BRIEF.md`.
+Per `25_PRODUCT_BLUEPRINT.md` §10, Watchlist/Portfolio annotation
+enrichment (steps 4-5) and Morning Brief's own full screen assembly
+(step 6) are the next candidate work; no further Sprint has been
+authorized by this update.
 
 # Planning Rules
 

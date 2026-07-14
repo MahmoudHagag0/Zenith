@@ -13,12 +13,15 @@ import { InstrumentReadingService } from './instrument-reading.service';
  * duplicating any of that module's own composition. `InstrumentReadingService`
  * is exported so a later Watchlist/Portfolio annotation endpoint can reuse
  * it without rebuilding it (no such endpoint exists yet -- Sprint Brief,
- * Out of Scope).
+ * Out of Scope). `DashboardService` is additionally exported (S1-020
+ * Sprint Brief, Scope item 6) so the Narrative Composer can reuse its
+ * own instrument-gathering/ranking orchestration verbatim rather than
+ * duplicating it.
  */
 @Module({
   imports: [DatabaseModule, AuthModule, AnalysisEngineModule],
   controllers: [DashboardController],
   providers: [DashboardService, InstrumentReadingService],
-  exports: [InstrumentReadingService],
+  exports: [InstrumentReadingService, DashboardService],
 })
 export class DashboardModule {}
