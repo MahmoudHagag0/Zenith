@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { ApiError, getDecisionCenter, getMorningBrief } from '@/lib/api';
+import { ConfidenceDisclosure, DirectionBadge } from '@/components/dashboard-parts';
 import { LogoutButton } from './logout-button';
 
 const TOKEN_COOKIE = 'zenith_token';
@@ -12,12 +13,14 @@ const READINESS_LABEL: Record<string, string> = {
 };
 
 /**
- * S1-021 Developer Preview -- the Dashboard screen. A Server Component
- * that fetches the real, unmodified `GET /dashboard/decision-center`
- * (S1-019) and `GET /morning-brief` (S1-020) directly from `apps/api`
- * (server-to-server, no CORS involved) and renders their output as-is.
- * No mocked data, no duplicated orchestration, no new business logic --
- * every value below is exactly what the backend returned.
+ * S1-022 Dashboard Production UI V1. Fixed reading order (Sprint Brief):
+ * Decision Readiness (hero) -> Morning Brief preview -> Top Instruments ->
+ * Supporting Information. A Server Component -- fetches the real,
+ * unmodified `GET /dashboard/decision-center` (S1-019) and
+ * `GET /morning-brief` (S1-020) server-to-server; every word rendered is
+ * exactly what those endpoints returned. No mocked data, no duplicated
+ * business logic: the hero's own confidence/uncertainty text is quoted
+ * from the Narrative Composer's own output, never recomputed here.
  */
 export default async function DashboardPage() {
   const cookieStore = await cookies();
@@ -37,26 +40,37 @@ export default async function DashboardPage() {
     throw error;
   }
 
+  const topOpportunity = decisionCenter.opportunities[0];
+  const topEntry = topOpportunity ? morningBrief.entries.find((e) => e.assetId === topOpportunity.assetId) : undefined;
+
   return (
-    <main className="preview-page">
+    <main className="page">
       <header className="row">
-        <h1>Zenith -- Developer Preview</h1>
+        <h1>Zenith</h1>
         <LogoutButton />
       </header>
 
-      <section className="section">
-        <h2>Decision Readiness</h2>
-        <p className="readiness">{READINESS_LABEL[decisionCenter.readiness]}</p>
-        <p>{morningBrief.headline}</p>
-        {decisionCenter.instrumentsFailed.length > 0 && (
-          <p className="notice">
-            {decisionCenter.instrumentsFailed.length} instrument(s) could not be evaluated this session:{' '}
-            {decisionCenter.instrumentsFailed.map((f) => f.reason).join('; ')}
-          </p>
+      {/* 1. Decision Readiness -- the hero. Strongest visual weight; nothing below competes with it. */}
+      <section className="hero">
+        <p className="hero-caption">{READINESS_LABEL[decisionCenter.readiness]}</p>
+        {decisionCenter.readiness === 'OPPORTUNITIES_AVAILABLE' && topOpportunity && topEntry ? (
+          <>
+            <p className="hero-statement">{topEntry.story}</p>
+            <ConfidenceDisclosure confidenceExplanation={topEntry.confidenceExplanation} uncertaintyExplanation={topEntry.uncertaintyExplanation} />
+          </>
+        ) : (
+          <p className="hero-statement muted-statement">{morningBrief.noTradeNarrative}</p>
         )}
       </section>
 
-      <section className="section">
+      {/* 2. Morning Brief preview -- answers "should I keep reading?", never the full narrative. */}
+      <section className="section-quiet">
+        <h2>Morning Brief</h2>
+        <p>{morningBrief.headline}</p>
+      </section>
+
+      {/* 3. Top Instruments -- comparison only; direction/confidence detail already lives in the hero above. */}
+      <section className="section-quiet">
         <h2>Top Instruments</h2>
         {decisionCenter.opportunities.length === 0 ? (
           <p className="muted">No instrument currently shows a directional bias.</p>
@@ -76,10 +90,10 @@ export default async function DashboardPage() {
                   <td>{o.symbol}</td>
                   <td>{o.marketName}</td>
                   <td>
-                    {o.netDirection}
-                    {o.disagreementPresent ? ' (disagreement present)' : ''}
+                    <DirectionBadge direction={o.netDirection} />
+                    {o.disagreementPresent ? <span className="muted"> (disagreement)</span> : null}
                   </td>
-                  <td>{o.agreeingDimensions} of 7</td>
+                  <td>{o.agreeingDimensions} / 7</td>
                 </tr>
               ))}
             </tbody>
@@ -87,30 +101,16 @@ export default async function DashboardPage() {
         )}
       </section>
 
-      <section className="section">
-        <h2>Morning Brief</h2>
-        {morningBrief.noTradeNarrative && <p className="no-trade">{morningBrief.noTradeNarrative}</p>}
-        {morningBrief.entries.map((entry) => (
-          <article key={entry.assetId} className="entry">
-            <h3>
-              {entry.symbol} -- {entry.marketName}
-            </h3>
-            <p>{entry.story}</p>
-            <p>
-              <strong>Evidence:</strong> {entry.why}
-            </p>
-            <p>
-              <strong>Confidence:</strong> {entry.confidenceExplanation}
-            </p>
-            <p>
-              <strong>Uncertainty:</strong> {entry.uncertaintyExplanation}
-            </p>
-          </article>
-        ))}
-      </section>
-
-      <footer className="muted">
-        Generated {morningBrief.generatedAt} -- {decisionCenter.instrumentsConsidered} instrument(s) considered.
+      {/* 4. Supporting information -- present, never competing for attention. */}
+      <footer className="supporting">
+        {decisionCenter.instrumentsFailed.length > 0 && (
+          <p>
+            {decisionCenter.instrumentsFailed.length} instrument(s) could not be evaluated this session: {decisionCenter.instrumentsFailed.map((f) => f.reason).join('; ')}
+          </p>
+        )}
+        <p>
+          Generated {morningBrief.generatedAt} -- {decisionCenter.instrumentsConsidered} instrument(s) considered.
+        </p>
       </footer>
     </main>
   );

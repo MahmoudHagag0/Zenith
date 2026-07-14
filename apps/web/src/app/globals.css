@@ -1,22 +1,27 @@
 /*
- * S1-021 Developer Preview -- intentionally minimal. No theme, no color
- * system, no animation, no responsive breakpoints (Sprint Brief: "Keep
- * implementation intentionally simple"). Just enough structure and
- * whitespace for the information hierarchy under test to be legible.
+ * S1-022 Dashboard Production UI V1 -- restrained, professional, calm.
+ * No design system, no theme tokens, no CSS framework: plain rules
+ * expressing one fixed hierarchy (hero > secondary > supporting) through
+ * type scale and whitespace, per this Sprint's own "typography creates
+ * hierarchy, not decoration" instruction. Colors communicate state only
+ * (direction), never decoration -- desaturated, and never the sole
+ * carrier of meaning (every color-coded value is also a text label).
  */
 
 body {
   font-family: system-ui, sans-serif;
+  color: #1c1c1e;
+  background: #ffffff;
   max-width: 720px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  margin: 3rem auto;
+  padding: 0 1.5rem;
   line-height: 1.5;
 }
 
-.preview-page {
+.page {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2.5rem;
 }
 
 .row {
@@ -25,48 +30,132 @@ body {
   align-items: baseline;
 }
 
-.section {
-  border-top: 1px solid #ccc;
-  padding-top: 1rem;
+h1 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #6b6b6f;
 }
 
-.entry {
-  border: 1px solid #ccc;
-  padding: 0.75rem 1rem;
-  margin-top: 0.75rem;
+/* ---- 1. Decision Readiness (hero) -- the strongest visual weight on the page. ---- */
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.hero-caption {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: #6b6b6f;
+}
+
+.hero-statement {
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.35;
+  max-width: 34rem;
+}
+
+.muted-statement {
+  font-weight: 400;
+  font-style: italic;
+  color: #4a4a4d;
+}
+
+.confidence-disclosure {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.25rem;
+}
+
+.disclosure {
+  font-size: 0.95rem;
+}
+
+.disclosure summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #3a3a3d;
+}
+
+.disclosure p {
+  margin: 0.4rem 0 0;
+  color: #3a3a3d;
+  max-width: 34rem;
+}
+
+/* ---- 2 & 3. Secondary sections -- support the hero, never compete with it. ---- */
+
+.section-quiet {
+  border-top: 1px solid #e4e4e6;
+  padding-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.section-quiet h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #3a3a3d;
 }
 
 table {
   border-collapse: collapse;
   width: 100%;
+  font-size: 0.95rem;
 }
 
 th,
 td {
   text-align: left;
-  padding: 0.25rem 0.5rem;
-  border-bottom: 1px solid #ddd;
+  padding: 0.4rem 0.6rem 0.4rem 0;
+  border-bottom: 1px solid #eee;
 }
 
-.readiness {
-  font-weight: bold;
+th {
+  font-weight: 600;
+  color: #6b6b6f;
+  font-size: 0.85rem;
 }
 
-.no-trade {
-  font-style: italic;
+.direction-badge {
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
-.notice {
-  color: #555;
+.direction-bullish {
+  color: #3d7a68;
+}
+
+.direction-bearish {
+  color: #a24a3f;
+}
+
+/* ---- 4. Supporting information -- present, visually quiet. ---- */
+
+.supporting {
+  font-size: 0.8rem;
+  color: #8a8a8e;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
 
 .muted {
-  color: #666;
-  font-size: 0.9rem;
+  color: #8a8a8e;
 }
 
-.error {
-  color: #a00;
+/* ---- Login / register (S1-021, unchanged in spirit -- intentionally plain) ---- */
+
+.preview-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .stack {
@@ -90,4 +179,8 @@ td {
   text-decoration: underline;
   cursor: pointer;
   font: inherit;
+}
+
+.error {
+  color: #a24a3f;
 }
