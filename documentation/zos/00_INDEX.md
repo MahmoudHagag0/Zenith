@@ -20,6 +20,8 @@ This index serves as the central directory for the Zenith Operating System (ZOS)
 | 18 | 18_PROJECT_GLOSSARY.md | Standardized terminology and definitions. |
 | 19 | 19_ONBOARDING_GUIDE.md | Procedures for integrating new engineers and AIs. |
 | 20 | 20_AI_BOOT_SEQUENCE.md | Initialization protocols for AI cognitive layers. |
+| 22 | 22_ANALYSIS_ENGINE_ARCHITECTURE.md | Analysis Engine architecture: Indicator Engine, Swing Detection, Regime/Context Service, Analysis Provider Framework, Confluence Engine. |
+| 23 | 23_ANALYSIS_PROVIDER_PHASE_COMPLETION.md | Formal closure of the Analysis Provider Architecture Phase (S1-007--S1-018): Architecture Review, extensibility validation, known limitations, next-phase recommendation. |
 | -- | ZENITH_AI_SYSTEM_PROMPT.md | Core behavioral and operational constraints. |
 | -- | ZENITH_MASTER_CONTEXT.md | Global project background and architectural vision. |
 | -- | SPRINT_BRIEF_TEMPLATE.md | Standardized format for sprint planning. |

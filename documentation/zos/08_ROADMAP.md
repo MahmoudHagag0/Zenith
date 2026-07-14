@@ -1,7 +1,7 @@
 # 08_ROADMAP
 
 **Document ID:** ZOS-008\
-**Version:** 1.0.0\
+**Version:** 1.1.0\
 **Status:** Approved\
 **Owner:** Architecture Team
 
@@ -32,6 +32,18 @@ closed 2026-07-12; see `documentation/zos/09_PROJECT_BRAIN.md`)
 
 Planned focus: - User management - Trading domain - Business services -
 Authorization refinement - Core APIs
+
+Status: In Progress. User management, trading catalog, portfolio/position
+management, market data, and trading analytics (Sprints S1-002--S1-006)
+are complete. Within this Milestone, an internal Analysis Engine and a
+nine-Provider Analysis Provider Architecture Phase (Sprints S1-007--S1-018)
+were additionally completed and formally closed 2026-07-14 -- see
+`documentation/zos/23_ANALYSIS_PROVIDER_PHASE_COMPLETION.md`. The
+originally-planned Business Services scope, full authorization
+refinement, and Core APIs remain not yet started; which of these, or a
+Consumer of the now-closed Analysis Engine, is prioritized next is a
+pending Architecture Team decision (see `09_PROJECT_BRAIN.md`, Open
+Questions).
 
 # Milestone M2 --- Product Expansion
 
