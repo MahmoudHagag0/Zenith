@@ -16,6 +16,7 @@ import { HarmonicPatternsProvider } from './providers/harmonic-patterns/harmonic
 import { ClassicalChartPatternsProvider } from './providers/classical-chart-patterns/classical-chart-patterns.provider';
 import { PriceActionProvider } from './providers/price-action/price-action.provider';
 import { SupplyDemandProvider } from './providers/supply-demand/supply-demand.provider';
+import { FibonacciAnalysisProvider } from './providers/fibonacci-analysis/fibonacci-analysis.provider';
 import { CONFLUENCE_ENGINE, CONFLUENCE_WEIGHT_STRATEGY } from './confluence/confluence.tokens';
 import { ConfluenceService } from './confluence/confluence.service';
 import { EqualWeightStrategy } from './confluence/equal-weight.strategy';
@@ -29,20 +30,20 @@ import type { ConfluenceEngine } from './confluence/confluence.tokens';
  * Verifies `AnalysisEngineModule`'s actual `ANALYSIS_PROVIDERS` wiring —
  * the real `INDICATOR_ENGINE`/`SWING_DETECTOR`/`REGIME_CONTEXT` service
  * classes (not mocks), exactly as registered there — per the S1-009/
- * S1-010/S1-011/S1-013/S1-014/S1-015/S1-016 Task Breakdowns' own
+ * S1-010/S1-011/S1-013/S1-014/S1-015/S1-016/S1-017 Task Breakdowns' own
  * module-registration verification checkpoints: the array must resolve
- * to exactly seven entries, `WyckoffProvider` (S1-009), `IctSmcProvider`
+ * to exactly eight entries, `WyckoffProvider` (S1-009), `IctSmcProvider`
  * (S1-010), `ElliottWaveProvider` (S1-011), `HarmonicPatternsProvider`
  * (S1-013), `ClassicalChartPatternsProvider` (S1-014), `PriceActionProvider`
- * (S1-015), then `SupplyDemandProvider` (S1-016), in registration order.
- * Deliberately does not import the real `AnalysisEngineModule` (which
- * pulls in `MarketDataModule` -> `DatabaseModule`, a live Prisma
- * connection this unit test has no need of) — this replicates only the
- * providers this specific factory depends on, matching
- * `AnalysisEngineModule`'s own registration exactly.
+ * (S1-015), `SupplyDemandProvider` (S1-016), then `FibonacciAnalysisProvider`
+ * (S1-017), in registration order. Deliberately does not import the real
+ * `AnalysisEngineModule` (which pulls in `MarketDataModule` ->
+ * `DatabaseModule`, a live Prisma connection this unit test has no need
+ * of) — this replicates only the providers this specific factory depends
+ * on, matching `AnalysisEngineModule`'s own registration exactly.
  */
-describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP10, S1-011 WP10, S1-013 WP11, S1-014 WP11, S1-015 WP12, S1-016 WP11)', () => {
-  it('resolves to exactly seven entries, in order: WyckoffProvider, IctSmcProvider, ElliottWaveProvider, HarmonicPatternsProvider, ClassicalChartPatternsProvider, PriceActionProvider, then SupplyDemandProvider, built from the real shared services', async () => {
+describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP10, S1-011 WP10, S1-013 WP11, S1-014 WP11, S1-015 WP12, S1-016 WP11, S1-017 WP12)', () => {
+  it('resolves to exactly eight entries, in order: WyckoffProvider, IctSmcProvider, ElliottWaveProvider, HarmonicPatternsProvider, ClassicalChartPatternsProvider, PriceActionProvider, SupplyDemandProvider, then FibonacciAnalysisProvider, built from the real shared services', async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ComputationCacheService,
@@ -60,6 +61,7 @@ describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP1
             new ClassicalChartPatternsProvider(swingDetector, regimeContext),
             new PriceActionProvider(indicatorEngine, swingDetector, regimeContext),
             new SupplyDemandProvider(indicatorEngine, regimeContext),
+            new FibonacciAnalysisProvider(indicatorEngine, swingDetector, regimeContext),
           ],
           inject: [INDICATOR_ENGINE, SWING_DETECTOR, REGIME_CONTEXT],
         },
@@ -67,7 +69,7 @@ describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP1
     }).compile();
 
     const providers = module.get<AnalysisProvider[]>(ANALYSIS_PROVIDERS);
-    expect(providers).toHaveLength(7);
+    expect(providers).toHaveLength(8);
     expect(providers[0]).toBeInstanceOf(WyckoffProvider);
     expect(providers[0].id).toBe('WYCKOFF');
     expect(providers[0].methodologyFamily).toBe('WYCKOFF');
@@ -107,6 +109,12 @@ describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP1
     expect(providers[6].lifecycleState).toBe('ACTIVE');
     expect(providers[6].tier).toBe('SLOW');
     expect(providers[6].dependsOn).toBeUndefined();
+    expect(providers[7]).toBeInstanceOf(FibonacciAnalysisProvider);
+    expect(providers[7].id).toBe('FIBONACCI_ANALYSIS');
+    expect(providers[7].methodologyFamily).toBe('FIBONACCI_ANALYSIS');
+    expect(providers[7].lifecycleState).toBe('ACTIVE');
+    expect(providers[7].tier).toBe('SLOW');
+    expect(providers[7].dependsOn).toBeUndefined();
   });
 });
 
@@ -117,8 +125,8 @@ describe('AnalysisEngineModule ANALYSIS_PROVIDERS wiring (S1-009 WP9, S1-010 WP1
  * `CONFLUENCE_WEIGHT_STRATEGY`, exactly as `AnalysisEngineModule`
  * registers them.
  */
-describe('AnalysisEngineModule CONFLUENCE_ENGINE wiring (S1-012 WP11, S1-013 WP11, S1-014 WP11, S1-015 WP12, S1-016 WP11)', () => {
-  it('resolves CONFLUENCE_ENGINE, built from the real shared services and all seven registered Providers', async () => {
+describe('AnalysisEngineModule CONFLUENCE_ENGINE wiring (S1-012 WP11, S1-013 WP11, S1-014 WP11, S1-015 WP12, S1-016 WP11, S1-017 WP12)', () => {
+  it('resolves CONFLUENCE_ENGINE, built from the real shared services and all eight registered Providers', async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ComputationCacheService,
@@ -136,6 +144,7 @@ describe('AnalysisEngineModule CONFLUENCE_ENGINE wiring (S1-012 WP11, S1-013 WP1
             new ClassicalChartPatternsProvider(swingDetector, regimeContext),
             new PriceActionProvider(indicatorEngine, swingDetector, regimeContext),
             new SupplyDemandProvider(indicatorEngine, regimeContext),
+            new FibonacciAnalysisProvider(indicatorEngine, swingDetector, regimeContext),
           ],
           inject: [INDICATOR_ENGINE, SWING_DETECTOR, REGIME_CONTEXT],
         },

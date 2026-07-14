@@ -7,6 +7,7 @@ import { HarmonicPatternsProvider } from './harmonic-patterns/harmonic-patterns.
 import { ClassicalChartPatternsProvider } from './classical-chart-patterns/classical-chart-patterns.provider';
 import { PriceActionProvider } from './price-action/price-action.provider';
 import { SupplyDemandProvider } from './supply-demand/supply-demand.provider';
+import { FibonacciAnalysisProvider } from './fibonacci-analysis/fibonacci-analysis.provider';
 import { INDICATOR_ENGINE } from '../indicator-engine/indicator-engine.tokens';
 import { SWING_DETECTOR } from '../swing-detection/swing-detection.tokens';
 import { REGIME_CONTEXT } from '../regime-context/regime-context.tokens';
@@ -199,6 +200,35 @@ async function buildSupplyDemandProvider(): Promise<{ provider: AnalysisProvider
   return { provider: module.get(SupplyDemandProvider), series: series(points) };
 }
 
+async function buildFibonacciAnalysisProvider(): Promise<{ provider: AnalysisProvider; series: MarketSeries }> {
+  const points = [
+    { ...point(0, 1000), high: new Prisma.Decimal(1005), low: new Prisma.Decimal(995), close: new Prisma.Decimal(1000) },
+    { ...point(1, 1000), high: new Prisma.Decimal(2005), low: new Prisma.Decimal(995), close: new Prisma.Decimal(2000) },
+    { ...point(2, 2000), high: new Prisma.Decimal(2005), low: new Prisma.Decimal(1495), close: new Prisma.Decimal(1500) },
+    { ...point(3, 1625), high: new Prisma.Decimal(1630), low: new Prisma.Decimal(1610), close: new Prisma.Decimal(1620) },
+  ];
+  const swings = [swing('LOW', 1000, 0), swing('HIGH', 2000, 1), swing('LOW', 1500, 2)];
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      FibonacciAnalysisProvider,
+      {
+        provide: INDICATOR_ENGINE,
+        useValue: {
+          atr: jest.fn().mockReturnValue({ series: points.map((p) => ({ timestamp: p.timestamp, value: new Prisma.Decimal(10) })), metadata: { computation: 'ATR', computationVersion: '1.0.0' } }),
+          fibonacciLevels: jest.fn(({ anchorStart, anchorEnd }: { anchorStart: Prisma.Decimal; anchorEnd: Prisma.Decimal }) => {
+            const ratios = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1, 1.272, 1.618];
+            const range = anchorEnd.minus(anchorStart);
+            return { levels: ratios.map((ratio) => ({ ratio, price: anchorEnd.minus(range.times(ratio)), isTrueFibonacciRatio: ratio !== 0.5 })), metadata: { computation: 'Fibonacci', computationVersion: '1.0.0' } };
+          }),
+        },
+      },
+      { provide: SWING_DETECTOR, useValue: { detect: jest.fn().mockReturnValue(swingResultOf(swings)) } },
+      { provide: REGIME_CONTEXT, useValue: { getRegime: jest.fn().mockReturnValue(regimeResultOf('RANGING')) } },
+    ],
+  }).compile();
+  return { provider: module.get(FibonacciAnalysisProvider), series: series(points) };
+}
+
 const PROVIDER_FIXTURES: Array<{ name: string; build: () => Promise<{ provider: AnalysisProvider; series: MarketSeries }> }> = [
   { name: 'WyckoffProvider', build: buildWyckoffProvider },
   { name: 'IctSmcProvider', build: buildIctSmcProvider },
@@ -207,6 +237,7 @@ const PROVIDER_FIXTURES: Array<{ name: string; build: () => Promise<{ provider: 
   { name: 'ClassicalChartPatternsProvider', build: buildClassicalChartPatternsProvider },
   { name: 'PriceActionProvider', build: buildPriceActionProvider },
   { name: 'SupplyDemandProvider', build: buildSupplyDemandProvider },
+  { name: 'FibonacciAnalysisProvider', build: buildFibonacciAnalysisProvider },
 ];
 
 describe.each(PROVIDER_FIXTURES)('normalize() conformance — $name (S1-012 WP6)', ({ build }) => {
