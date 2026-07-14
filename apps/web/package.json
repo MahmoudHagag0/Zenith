@@ -6,7 +6,7 @@
   "scripts": {
     "build": "next build",
     "start": "next start -p 3200",
-    "dev": "next dev -p 3200",
+    "dev": "bash ../../scripts/wait-for-api.sh && next dev -p 3200",
     "lint": "eslint ."
   },
   "dependencies": {
