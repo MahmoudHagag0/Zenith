@@ -1,10 +1,8 @@
 {
   "name": "Zenith",
   "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bullseye",
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
-  },
-  "postCreateCommand": "corepack enable && pnpm install",
+  "postCreateCommand": "corepack enable && bash scripts/dev-setup.sh",
+  "postStartCommand": "sudo pg_ctlcluster $(pg_lsclusters | awk 'NR==2{print $1}') main start || true",
   "forwardPorts": [3000, 3200],
   "portsAttributes": {
     "3000": {
