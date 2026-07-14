@@ -81,7 +81,7 @@ export default async function DashboardPage() {
                 <th>Symbol</th>
                 <th>Market</th>
                 <th>Direction</th>
-                <th>Agreeing dimensions</th>
+                <th className="num-col">Agreeing dimensions</th>
               </tr>
             </thead>
             <tbody>
@@ -93,7 +93,7 @@ export default async function DashboardPage() {
                     <DirectionBadge direction={o.netDirection} />
                     {o.disagreementPresent ? <span className="muted"> (disagreement)</span> : null}
                   </td>
-                  <td>{o.agreeingDimensions} / 7</td>
+                  <td className="num-col">{o.agreeingDimensions} / 7</td>
                 </tr>
               ))}
             </tbody>

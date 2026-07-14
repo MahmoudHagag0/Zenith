@@ -41,10 +41,17 @@ h1 {
 .hero {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
 
+/*
+ * S1-023: caption and statement are one perceptual unit (a label and the
+ * value it describes) and sit close together (Gestalt law of proximity);
+ * the disclosure below is a separate, optional affordance and gets a
+ * visibly larger gap so the eye reads "headline, then -- if wanted --
+ * more detail" rather than three evenly-spaced, undifferentiated lines.
+ */
 .hero-caption {
+  margin: 0 0 0.35rem;
   font-size: 0.85rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -53,6 +60,7 @@ h1 {
 }
 
 .hero-statement {
+  margin: 0;
   font-size: 1.6rem;
   font-weight: 600;
   line-height: 1.35;
@@ -69,7 +77,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  margin-top: 0.25rem;
+  margin-top: 0.9rem;
 }
 
 .disclosure {
@@ -80,6 +88,9 @@ h1 {
   cursor: pointer;
   font-weight: 600;
   color: #3a3a3d;
+  /* S1-023: a few px of vertical padding grows the click/tap target
+     (Fitts' Law) without visibly enlarging the text itself. */
+  padding: 0.2rem 0;
 }
 
 .disclosure p {
@@ -123,6 +134,19 @@ th {
   font-size: 0.85rem;
 }
 
+/* S1-023: a subtle hover keeps the eye anchored to one row while scanning
+   across several columns -- a standard tabular-data reading aid. */
+tbody tr:hover {
+  background: #fafafa;
+}
+
+/* S1-023: counts are conventionally aligned so they can be compared by
+   magnitude scanning straight down the column, not read line by line. */
+.num-col {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 .direction-badge {
   font-weight: 600;
   font-size: 0.85rem;
@@ -136,18 +160,51 @@ th {
   color: #a24a3f;
 }
 
+/*
+ * S1-023: the header's sign-out control measured higher contrast (9.74:1,
+ * underlined) than the brand heading it sits beside (5.31:1) -- an
+ * infrequent, non-primary action was visually outweighing the page title
+ * on first fixation (Von Restorff effect). Its top-right position already
+ * makes it findable by convention, so it doesn't need visual weight too;
+ * underline is deferred to hover/focus so the affordance still surfaces
+ * on interaction. Kept local (not merged into the shared `.link` class,
+ * which the login page's register/sign-in toggle still uses unchanged).
+ */
+.signout {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  color: #6b6b6f;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.signout:hover,
+.signout:focus-visible {
+  color: #3a3a3d;
+  text-decoration: underline;
+}
+
 /* ---- 4. Supporting information -- present, visually quiet. ---- */
 
+/*
+ * S1-023: the previous #8a8a8e measured 3.44:1 against white -- below the
+ * WCAG AA 4.5:1 minimum for normal-size text. #6b6b6f (already used for
+ * captions/labels elsewhere, 5.31:1) keeps this tier visibly quieter than
+ * body text while staying legible.
+ */
 .supporting {
   font-size: 0.8rem;
-  color: #8a8a8e;
+  color: #6b6b6f;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
 
 .muted {
-  color: #8a8a8e;
+  color: #6b6b6f;
 }
 
 /* ---- Login / register (S1-021, unchanged in spirit -- intentionally plain) ---- */
