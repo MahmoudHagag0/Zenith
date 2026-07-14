@@ -192,12 +192,12 @@ Approved concurrently with DEC-2026-022's own architecture prerequisite check (f
 
 # Sprint Closure
 
-- **Sprint Status:** OPEN
-- **Closed Date:** Pending
-- **Completion Report:** Pending (`documentation/ai/S1-018_COMPLETION_REPORT.md`, AI-042)
-- **Final Implementation Commits:** Pending
+- **Sprint Status:** CLOSED
+- **Closed Date:** 2026-07-14
+- **Completion Report:** `documentation/ai/S1-018_COMPLETION_REPORT.md` (AI-042)
+- **Final Implementation Commits:** `14c5b0b` (Sprint Brief), `a714d40` (Task Breakdown), `4215f7f` (WP1-WP12: full `VsaProvider` implementation, golden-dataset conformance, `normalize()` mapping, module registration)
 - **Related ADR:** ADR-006 (see `12_ADR_INDEX.md`); ADR-007 (Normalized Vocabulary, consumed via a new `normalize()` mapping)
-- **Related Decisions:** DEC-2026-022 (prerequisite check); Pending (`DEC-2026-023`)
+- **Related Decisions:** `DEC-2026-022` (prerequisite check), `DEC-2026-023`
 
 ---
 
