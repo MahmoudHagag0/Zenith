@@ -8,10 +8,15 @@
   "scripts": {
     "build": "prisma generate && tsc -p tsconfig.json",
     "lint": "eslint .",
-    "db:generate": "prisma generate"
+    "db:generate": "prisma generate",
+    "db:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
-    "@prisma/client": "^6.1.0"
+    "@prisma/client": "^6.1.0",
+    "argon2": "^0.41.1"
   },
   "devDependencies": {
     "@zenith/tooling": "workspace:*",
