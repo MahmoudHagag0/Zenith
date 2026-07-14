@@ -18,7 +18,19 @@ cd "$ROOT_DIR"
 
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/zenith?schema=public"
 
-echo "==> [1/7] PostgreSQL: checking installation"
+# .env generation is deliberately the very first step and has no
+# dependency on PostgreSQL. `set -euo pipefail` means any later step
+# (apt-get, pg_ctlcluster, sudo -u postgres psql -- all far more
+# failure-prone in a fresh devcontainer than the rest of this script)
+# aborts everything after it; if .env generation were sequenced after
+# those steps, a single Postgres hiccup would silently skip it, leaving
+# apps/api without a JWT_SECRET/DATABASE_URL and crashing at boot with
+# no obvious link back to this script.
+echo "==> [1/7] Generating .env files from .env.example (existing files are never overwritten)"
+[ -f apps/api/.env ] || { cp apps/api/.env.example apps/api/.env; echo "    Created apps/api/.env"; }
+[ -f apps/web/.env ] || { cp apps/web/.env.example apps/web/.env; echo "    Created apps/web/.env"; }
+
+echo "==> [2/7] PostgreSQL: checking installation"
 if ! command -v pg_lsclusters >/dev/null 2>&1; then
   echo "    Installing postgresql (apt)"
   sudo apt-get update -y
@@ -27,7 +39,7 @@ else
   echo "    Already installed."
 fi
 
-echo "==> [2/7] PostgreSQL: ensuring the service is running"
+echo "==> [3/7] PostgreSQL: ensuring the service is running"
 if ! pg_isready -q 2>/dev/null; then
   PG_VERSION="$(pg_lsclusters | awk 'NR==2{print $1}')"
   sudo pg_ctlcluster "$PG_VERSION" main start
@@ -38,14 +50,10 @@ if ! pg_isready -q 2>/dev/null; then
 fi
 pg_isready
 
-echo "==> [3/7] PostgreSQL: ensuring the zenith database + postgres role password exist"
+echo "==> [4/7] PostgreSQL: ensuring the zenith database + postgres role password exist"
 sudo -u postgres psql -v ON_ERROR_STOP=1 -c "ALTER USER postgres PASSWORD 'postgres';" >/dev/null
 sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname = 'zenith'" | grep -q 1 \
   || sudo -u postgres createdb zenith
-
-echo "==> [4/7] Generating .env files from .env.example (existing files are never overwritten)"
-[ -f apps/api/.env ] || { cp apps/api/.env.example apps/api/.env; echo "    Created apps/api/.env"; }
-[ -f apps/web/.env ] || { cp apps/web/.env.example apps/web/.env; echo "    Created apps/web/.env"; }
 
 echo "==> [5/7] Installing dependencies"
 pnpm install
