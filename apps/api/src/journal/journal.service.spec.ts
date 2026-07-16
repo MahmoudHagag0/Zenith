@@ -76,6 +76,17 @@ describe('JournalService', () => {
     ).rejects.toBeInstanceOf(NotFoundException);
   });
 
+  it('scopes findByAsset to the requesting user, filtering by the transaction->position->asset chain', async () => {
+    prisma.journalEntry.findMany.mockResolvedValue([{ id: 'je-1' }]);
+
+    const result = await service.findByAsset('user-1', 'asset-1');
+
+    expect(prisma.journalEntry.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: 'user-1', transaction: { position: { assetId: 'asset-1' } } } }),
+    );
+    expect(result).toEqual([{ id: 'je-1' }]);
+  });
+
   it('returns 404 (not 403) when a journal entry exists but is owned by another user', async () => {
     prisma.journalEntry.findUnique.mockResolvedValue({ id: 'je-1', userId: 'someone-else' });
 

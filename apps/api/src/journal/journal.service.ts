@@ -14,6 +14,14 @@ export class JournalService {
     return this.prisma.journalEntry.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } });
   }
 
+  /** Used by WorkspaceService (S1-033) to show a user's own reflections for one instrument alongside its other signals -- walks the same Transaction -> Position -> Asset chain verifyTransactionOwnership already relies on. */
+  findByAsset(userId: string, assetId: string) {
+    return this.prisma.journalEntry.findMany({
+      where: { userId, transaction: { position: { assetId } } },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async findOne(userId: string, id: string) {
     const entry = await this.prisma.journalEntry.findUnique({ where: { id } });
     // An entry that exists but belongs to another user is reported as 404, not

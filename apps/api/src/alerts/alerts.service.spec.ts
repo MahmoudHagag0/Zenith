@@ -52,6 +52,17 @@ describe('AlertsService', () => {
     expect(assetsService.findOne).toHaveBeenCalledWith('asset-1');
   });
 
+  it('scopes findByAsset to both the requesting user and the given asset', async () => {
+    prisma.alert.findMany.mockResolvedValue([{ id: 'alert-1' }]);
+
+    const result = await service.findByAsset('user-1', 'asset-1');
+
+    expect(prisma.alert.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: 'user-1', assetId: 'asset-1' } }),
+    );
+    expect(result).toEqual([{ id: 'alert-1' }]);
+  });
+
   it('returns 404 (not 403) when removing an alert owned by another user', async () => {
     prisma.alert.findUnique.mockResolvedValue({ id: 'alert-1', userId: 'someone-else' });
 

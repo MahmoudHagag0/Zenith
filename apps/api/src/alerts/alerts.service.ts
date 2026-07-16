@@ -23,6 +23,11 @@ export class AlertsService {
     return this.prisma.alert.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } });
   }
 
+  /** Used by WorkspaceService (S1-033) to show a user's own alerts for one instrument alongside its other signals. */
+  findByAsset(userId: string, assetId: string) {
+    return this.prisma.alert.findMany({ where: { userId, assetId }, orderBy: { createdAt: 'desc' } });
+  }
+
   async create(userId: string, input: CreateAlertInput) {
     await this.assetsService.findOne(input.assetId);
     return this.prisma.alert.create({

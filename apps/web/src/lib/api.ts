@@ -382,3 +382,30 @@ export interface CotReportView {
 export function getCotReports(token: string, assetId: string): Promise<CotReportView[]> {
   return apiFetch(`/cot/${assetId}`, { headers: authHeader(token) });
 }
+
+// ---- AI Workspace (S1-033) ----
+
+export interface WorkspaceReading {
+  readonly netDirection: 'BULLISH' | 'BEARISH' | 'NEUTRAL';
+  readonly relevanceScore: number;
+  readonly agreeingDimensions: number;
+  readonly disagreementDimensions: readonly string[];
+  readonly topContributors: readonly ContributingProviderView[];
+}
+
+export interface WorkspaceView {
+  readonly assetId: string;
+  readonly symbol: string;
+  readonly name: string;
+  readonly reading: WorkspaceReading | null;
+  readonly readingFailureReason: string | null;
+  readonly news: readonly NewsItemView[];
+  readonly upcomingEvents: readonly CalendarEventView[];
+  readonly cotReports: readonly CotReportView[];
+  readonly alerts: readonly AlertView[];
+  readonly journalEntries: readonly JournalEntryView[];
+}
+
+export function getWorkspace(token: string, assetId: string): Promise<WorkspaceView> {
+  return apiFetch(`/workspace/${assetId}`, { headers: authHeader(token) });
+}
