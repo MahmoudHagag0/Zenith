@@ -1,13 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PrismaService } from '../database/prisma.service';
+import { TrackedAssetsService } from '../tracked-assets/tracked-assets.service';
 import { InstrumentReadingService } from './instrument-reading.service';
 import type { DecisionCenterResponse, FailedInstrument, RankedOpportunity } from './dashboard.types';
-
-interface TrackedInstrument {
-  readonly assetId: string;
-  readonly symbol: string;
-  readonly marketName: string;
-}
 
 /**
  * Orchestrates Decision Center (`DASH-002`) (S1-019 Sprint Brief, Scope
@@ -25,12 +19,12 @@ export class DashboardService {
   private readonly logger = new Logger(DashboardService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly trackedAssetsService: TrackedAssetsService,
     private readonly instrumentReadingService: InstrumentReadingService,
   ) {}
 
   async getDecisionCenter(userId: string): Promise<DecisionCenterResponse> {
-    const instruments = await this.gatherTrackedInstruments(userId);
+    const instruments = await this.trackedAssetsService.getTrackedInstrumentsForUser(userId);
 
     const failed: FailedInstrument[] = [];
     const opportunities: RankedOpportunity[] = [];
@@ -77,27 +71,5 @@ export class DashboardService {
       instrumentsFailed: failed,
       opportunities,
     };
-  }
-
-  /** Union of Watchlist items (across all Watchlists) and open Positions (`quantity > 0`, across all Portfolios), deduplicated by `assetId`. */
-  private async gatherTrackedInstruments(userId: string): Promise<TrackedInstrument[]> {
-    const [watchlistItems, openPositions] = await Promise.all([
-      this.prisma.watchlistItem.findMany({
-        where: { watchlist: { userId } },
-        include: { asset: { include: { market: true } } },
-      }),
-      this.prisma.position.findMany({
-        where: { portfolio: { userId }, quantity: { gt: 0 } },
-        include: { asset: { include: { market: true } } },
-      }),
-    ]);
-
-    const byAssetId = new Map<string, TrackedInstrument>();
-    for (const item of [...watchlistItems, ...openPositions]) {
-      if (!byAssetId.has(item.asset.id)) {
-        byAssetId.set(item.asset.id, { assetId: item.asset.id, symbol: item.asset.symbol, marketName: item.asset.market.name });
-      }
-    }
-    return [...byAssetId.values()];
   }
 }

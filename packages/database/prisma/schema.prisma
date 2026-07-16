@@ -275,6 +275,11 @@ model NewsItem {
 
   asset Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
+  // Foundation Hardening (Acceptance Review, Medium #1): a real natural key,
+  // replacing the findFirst-then-create idempotent guard the service used to
+  // rely on -- that guard was not safe under concurrent requests populating
+  // the same uncached asset. Caching now upserts against this constraint.
+  @@unique([assetId, headline, publishedAt])
   @@index([assetId])
   @@index([publishedAt])
 }
@@ -291,6 +296,8 @@ model CalendarEvent {
 
   asset Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
+  // Same rationale as NewsItem's own unique constraint above.
+  @@unique([assetId, title, scheduledAt])
   @@index([assetId])
   @@index([scheduledAt])
 }

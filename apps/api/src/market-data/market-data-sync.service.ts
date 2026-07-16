@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PrismaService } from '../database/prisma.service';
+import { TrackedAssetsService } from '../tracked-assets/tracked-assets.service';
 import { MarketDataService } from './market-data.service';
 
 /**
@@ -15,7 +15,7 @@ export class MarketDataSyncService {
   private readonly logger = new Logger(MarketDataSyncService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly trackedAssetsService: TrackedAssetsService,
     private readonly marketDataService: MarketDataService,
   ) {}
 
@@ -38,21 +38,8 @@ export class MarketDataSyncService {
     this.logger.log(`Market data sync finished: ${succeeded} succeeded, ${failed} failed, ${assetIds.length} tracked`);
   }
 
-  async getTrackedAssetIds(): Promise<string[]> {
-    const [watchlistRows, favouriteRows, positionRows] = await Promise.all([
-      this.prisma.watchlistItem.findMany({ select: { assetId: true }, distinct: ['assetId'] }),
-      this.prisma.favouriteAsset.findMany({ select: { assetId: true }, distinct: ['assetId'] }),
-      this.prisma.position.findMany({
-        where: { quantity: { gt: 0 } },
-        select: { assetId: true },
-        distinct: ['assetId'],
-      }),
-    ]);
-
-    const assetIds = new Set<string>();
-    for (const row of watchlistRows) assetIds.add(row.assetId);
-    for (const row of favouriteRows) assetIds.add(row.assetId);
-    for (const row of positionRows) assetIds.add(row.assetId);
-    return Array.from(assetIds);
+  /** Kept as its own public method (CalendarNewsSyncService/CotSyncService already depend on this exact name) -- delegates to the single shared implementation (TrackedAssetsService, Foundation Acceptance Review Medium #3). */
+  getTrackedAssetIds(): Promise<string[]> {
+    return this.trackedAssetsService.getAllTrackedAssetIds();
   }
 }

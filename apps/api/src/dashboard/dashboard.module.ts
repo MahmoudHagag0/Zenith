@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from '../database/database.module';
 import { AuthModule } from '../auth/auth.module';
 import { AnalysisEngineModule } from '../analysis-engine/analysis-engine.module';
+import { TrackedAssetsModule } from '../tracked-assets/tracked-assets.module';
 import { DashboardController } from './dashboard.controller';
 import { DashboardService } from './dashboard.service';
 import { InstrumentReadingService } from './instrument-reading.service';
@@ -19,7 +19,7 @@ import { InstrumentReadingService } from './instrument-reading.service';
  * duplicating it.
  */
 @Module({
-  imports: [DatabaseModule, AuthModule, AnalysisEngineModule],
+  imports: [AuthModule, AnalysisEngineModule, TrackedAssetsModule],
   controllers: [DashboardController],
   providers: [DashboardService, InstrumentReadingService],
   exports: [InstrumentReadingService, DashboardService],

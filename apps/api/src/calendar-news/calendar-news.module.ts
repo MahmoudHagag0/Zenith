@@ -3,6 +3,7 @@ import { DatabaseModule } from '../database/database.module';
 import { AuthModule } from '../auth/auth.module';
 import { AssetsModule } from '../assets/assets.module';
 import { MarketDataModule } from '../market-data/market-data.module';
+import { TrackedAssetsModule } from '../tracked-assets/tracked-assets.module';
 import { CalendarNewsController } from './calendar-news.controller';
 import { CalendarNewsService } from './calendar-news.service';
 import { CalendarNewsSyncService } from './calendar-news-sync.service';
@@ -10,7 +11,7 @@ import { CALENDAR_NEWS_PROVIDER } from './providers/calendar-news-provider.inter
 import { SimulatedCalendarNewsProvider } from './providers/simulated-calendar-news.provider';
 
 @Module({
-  imports: [DatabaseModule, AuthModule, AssetsModule, MarketDataModule],
+  imports: [DatabaseModule, AuthModule, AssetsModule, MarketDataModule, TrackedAssetsModule],
   controllers: [CalendarNewsController],
   providers: [
     CalendarNewsService,

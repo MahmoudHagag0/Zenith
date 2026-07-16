@@ -15,7 +15,12 @@ export async function POST(request: Request) {
   try {
     const { accessToken } = await login(email, password);
     const response = NextResponse.json({ ok: true });
-    response.cookies.set(TOKEN_COOKIE, accessToken, { httpOnly: true, sameSite: 'lax', path: '/' });
+    response.cookies.set(TOKEN_COOKIE, accessToken, {
+      httpOnly: true,
+      sameSite: 'lax',
+      path: '/',
+      secure: process.env.NODE_ENV === 'production',
+    });
     return response;
   } catch (error) {
     const status = error instanceof ApiError ? error.status : 500;
