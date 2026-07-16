@@ -255,3 +255,47 @@ export interface PortfolioAnalyticsView {
 export function getPortfolioAnalytics(token: string, portfolioId: string): Promise<PortfolioAnalyticsView> {
   return apiFetch(`/portfolios/${portfolioId}/analytics`, { headers: authHeader(token) });
 }
+
+export interface TransactionView {
+  readonly id: string;
+  readonly positionId: string;
+  readonly type: 'BUY' | 'SELL';
+  readonly quantity: string;
+  readonly price: string;
+  readonly executedAt: string;
+}
+
+export function getPositionTransactions(token: string, portfolioId: string, positionId: string): Promise<TransactionView[]> {
+  return apiFetch(`/portfolios/${portfolioId}/positions/${positionId}/transactions`, { headers: authHeader(token) });
+}
+
+// ---- Trading Journal (S1-029) ----
+
+export interface JournalEntryView {
+  readonly id: string;
+  readonly title: string;
+  readonly content: string;
+  readonly tags: readonly string[];
+  readonly transactionId: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface CreateJournalEntryPayload {
+  readonly title: string;
+  readonly content: string;
+  readonly tags: readonly string[];
+  readonly transactionId?: string;
+}
+
+export function getJournalEntries(token: string): Promise<JournalEntryView[]> {
+  return apiFetch('/journal', { headers: authHeader(token) });
+}
+
+export function createJournalEntry(token: string, payload: CreateJournalEntryPayload): Promise<JournalEntryView> {
+  return apiFetch('/journal', { method: 'POST', headers: authHeader(token), body: JSON.stringify(payload) });
+}
+
+export function deleteJournalEntry(token: string, id: string): Promise<void> {
+  return apiFetchVoid(`/journal/${id}`, { method: 'DELETE', headers: authHeader(token) });
+}

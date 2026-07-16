@@ -86,11 +86,21 @@ async function main() {
   const position = await prisma.position.create({
     data: { portfolioId: portfolio.id, assetId: asset.id, quantity, averageCost: firstPrice, realizedPnl: 0 },
   });
-  await prisma.transaction.create({
+  const transaction = await prisma.transaction.create({
     data: { positionId: position.id, type: 'BUY', quantity, price: firstPrice, executedAt: new Date(now.getTime() - CANDLE_DAYS * 24 * 60 * 60 * 1000) },
   });
 
-  console.log(`Seed: created demo user ${DEMO_EMAIL} (password: ${DEMO_PASSWORD}) with a tracked instrument (${DEMO_SYMBOL}), a watchlist, and an open position.`);
+  await prisma.journalEntry.create({
+    data: {
+      userId: user.id,
+      transactionId: transaction.id,
+      title: `Entered ${DEMO_SYMBOL}`,
+      content: 'Opened the position on a pullback into the prior demand zone. Plan is to reassess if the breakdown trend continues.',
+      tags: ['setup', 'demo'],
+    },
+  });
+
+  console.log(`Seed: created demo user ${DEMO_EMAIL} (password: ${DEMO_PASSWORD}) with a tracked instrument (${DEMO_SYMBOL}), a watchlist, an open position, and a journal entry.`);
 }
 
 function hashSeed(input) {

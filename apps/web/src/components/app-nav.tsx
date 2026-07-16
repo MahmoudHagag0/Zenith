@@ -6,6 +6,7 @@ const NAV_ITEMS = [
   { href: '/morning-brief', label: 'Morning Brief' },
   { href: '/watchlist', label: 'Watchlist' },
   { href: '/portfolio', label: 'Portfolio' },
+  { href: '/journal', label: 'Journal' },
 ] as const;
 
 /** Shared page header (S1-024) -- introduced once a fourth screen made the same header markup a real, repeated duplication across pages, not before. */

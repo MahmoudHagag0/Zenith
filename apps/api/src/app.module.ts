@@ -16,6 +16,7 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { AnalysisEngineModule } from './analysis-engine/analysis-engine.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MorningBriefModule } from './morning-brief/morning-brief.module';
+import { JournalModule } from './journal/journal.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { MorningBriefModule } from './morning-brief/morning-brief.module';
     AnalysisEngineModule,
     DashboardModule,
     MorningBriefModule,
+    JournalModule,
   ],
 })
 export class AppModule {}
