@@ -1,8 +1,8 @@
 # L1-003 SPRINT BRIEF — Economic Calendar & Financial News (Live Provider Integration)
 
 **Document ID:** ZOS-L1-003
-**Version:** 1.1
-**Status:** Implementation Complete — Live Verification Pending
+**Version:** 1.2
+**Status:** Approved — Live External Verification Pending (Environment Constraint)
 **Owner:** Architecture Team
 **Template Reference:** SPRINT_BRIEF_TEMPLATE.md (ZOS-SBT)
 
@@ -158,6 +158,8 @@ Added after Architecture Team approval (2026-07-16). Implementation followed thi
 **Test summary:** 155/155 `apps/api` test suites passing, 808/808 tests (23 new tests across 3 new spec files); `apps/api` and `apps/web` build + lint clean.
 
 **Live verification (2026-07-16):** Booted the API against a live local PostgreSQL instance in Simulated mode (no regression — `GET /calendar-news/news` and `/calendar-news/events` continued returning real cached data unchanged) and separately confirmed the live-mode credential-fallback path logs the expected warning and falls back safely rather than crashing. A direct connectivity check to all three new vendor hosts (`financialmodelingprep.com`, `finnhub.io`, `api.marketaux.com`) found them **blocked by this session's environment egress policy** (`CONNECT tunnel failed, response 403`), identically to `api.twelvedata.com` in L1-001 — a disclosed, outstanding environment limitation, not a code defect. The real-vendor HTTP paths are otherwise fully covered by mocked-transport unit/integration tests (success, primary-failure-fallback, secondary-failure-tolerance, both-fail).
+
+**Sprint acceptance (2026-07-16):** Architecture Team accepted this Sprint in full — correct provider selection, correct provider abstraction, existing architecture reused, no unnecessary redesign, no scope expansion, no premature Data Quality Layer or Confidence Engine, full regression suite green. The live-verification gap above is recorded as a **documented environment constraint affecting all external providers integrated to date** (Twelve Data, FMP, Finnhub, MarketAux) — not an implementation defect specific to this Sprint.
 
 ---
 
