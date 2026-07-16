@@ -76,3 +76,4 @@ before implementation.
 -   06_PROJECT_CONSTITUTION.md
 -   11_DECISION_LOG.md
 -   12_ADR_INDEX.md
+-   28_LIVE_DATA_BLUEPRINT.md

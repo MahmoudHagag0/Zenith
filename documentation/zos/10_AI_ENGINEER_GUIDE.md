@@ -83,3 +83,4 @@ Immediately stop and request guidance if:
 -   07_ENGINEERING_WORKFLOW.md
 -   09_PROJECT_BRAIN.md
 -   20_AI_BOOT_SEQUENCE.md
+-   28_LIVE_DATA_BLUEPRINT.md
