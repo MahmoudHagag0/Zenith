@@ -7,6 +7,11 @@ export interface TrackedInstrument {
   readonly marketName: string;
 }
 
+export interface TrackedAssetExchange {
+  readonly assetId: string;
+  readonly exchangeCode: string;
+}
+
 /**
  * Single source of truth for "what assets does X track" (Foundation
  * Acceptance Review, Medium #3) -- previously three separate, drifting
@@ -74,5 +79,24 @@ export class TrackedAssetsService {
     for (const row of favouriteRows) assetIds.add(row.assetId);
     for (const row of positionRows) assetIds.add(row.assetId);
     return Array.from(assetIds);
+  }
+
+  /**
+   * Same global tracked-asset union as getAllTrackedAssetIds(), joined to
+   * each asset's Exchange code -- used by MarketDataSyncService (L1-002)
+   * to gate polling on "is this asset's market open". Reuses
+   * getAllTrackedAssetIds() rather than re-deriving the union query.
+   */
+  async getAllTrackedAssetsWithExchange(): Promise<TrackedAssetExchange[]> {
+    const assetIds = await this.getAllTrackedAssetIds();
+    if (assetIds.length === 0) {
+      return [];
+    }
+
+    const assets = await this.prisma.asset.findMany({
+      where: { id: { in: assetIds } },
+      select: { id: true, market: { select: { exchange: { select: { code: true } } } } },
+    });
+    return assets.map((asset) => ({ assetId: asset.id, exchangeCode: asset.market.exchange.code }));
   }
 }

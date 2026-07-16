@@ -209,6 +209,20 @@ export function getAssetById(token: string, assetId: string): Promise<AssetSearc
   return apiFetch(`/market-data/assets/${assetId}`, { headers: authHeader(token) });
 }
 
+// ---- Market Sessions (L1-002) ----
+
+export type MarketStatus = 'OPEN' | 'CLOSED' | 'UNKNOWN';
+
+export interface MarketStatusView {
+  readonly assetId: string;
+  readonly exchangeCode: string;
+  readonly status: MarketStatus;
+}
+
+export function getMarketStatus(token: string, assetId: string): Promise<MarketStatusView> {
+  return apiFetch(`/market-data/assets/${assetId}/market-status`, { headers: authHeader(token) });
+}
+
 // ---- Portfolios (S1-004) + Analytics (S1-006) ----
 
 export interface PortfolioSummary {

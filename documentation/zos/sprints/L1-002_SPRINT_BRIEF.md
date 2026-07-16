@@ -1,8 +1,8 @@
 # L1-002 SPRINT BRIEF — Market Sessions & Trading Holidays
 
 **Document ID:** ZOS-L1-002
-**Version:** 1.0
-**Status:** Proposed
+**Version:** 1.1
+**Status:** Implementation Complete
 **Owner:** Architecture Team
 **Template Reference:** SPRINT_BRIEF_TEMPLATE.md (ZOS-SBT)
 
@@ -15,7 +15,7 @@
 - **Milestone:** M3 — Live Data Platform (`08_ROADMAP.md`)
 - **Phase:** Phase 2 of `28_LIVE_DATA_BLUEPRINT.md` (ZOS-028) §9 Implementation Roadmap
 - **Date Drafted:** 2026-07-16
-- **Approved By:** *(pending — Status: Proposed)*
+- **Approved By:** Architecture Team (2026-07-16)
 - **Baseline Sprint:** L1-001 (`ZOS-L1-001`) — "Live Market Data Foundation (Primary Provider Integration)", Status: Implementation Complete — Live Verification Pending
 
 ---
@@ -142,11 +142,26 @@
 
 ---
 
+# Implementation Notes (resolutions to the Missing Decisions above)
+
+Added after Architecture Team approval (2026-07-16). Implementation followed this Brief exactly — no redesign, no new patterns, no changes to `TwelveDataMarketDataProvider`/`MarketDataService`/`MarketDataHttpClient`/circuit breaker/retry utility.
+
+1. **Missing Decision #1 (data source) — resolved:** Architecture Team designated the **Internal Market Sessions Table as the sole primary source of truth**. External providers are used only for synchronization/verification when required, not for runtime lookups — none was required this Sprint, since the internal table needs no external data to reconcile against. `InternalMarketSessionProvider` (`apps/api/src/market-data/providers/internal-market-session.provider.ts`) is the only registered `MarketSessionProvider` implementation; no mode switch, no Twelve Data/Finnhub session/holiday integration was built.
+2. **Missing Decision #2 (Dashboard UI hook) — resolved:** No existing "market closed" UI hook was found in `apps/web` (confirmed by inspection). Per the Architecture Team's instruction ("if not, implement the minimal required integration; do not perform any unnecessary frontend redesign"), a minimal integration was added: a new `GET /market-data/assets/:assetId/market-status` endpoint (mirroring the existing `.../quote` endpoint exactly) and a single inline text annotation (`· Market open` / `· Market closed`) next to each Watchlist item — `DashboardService`/`InstrumentReadingService`/Confluence orchestration were not touched.
+
+**Files changed:**
+- New: `apps/api/src/market-data/providers/market-session-provider.interface.ts`, `market-session-config.ts`, `internal-market-session.provider.ts` (+ spec), `apps/api/src/market-data/market-session-sync.service.ts` (+ spec)
+- Modified: `apps/api/src/market-data/market-data-sync.service.ts` (+ spec) — fail-open gating; `apps/api/src/market-data/market-data.service.ts` (+ spec) and `market-data.controller.ts` — new `getMarketStatus`; `apps/api/src/market-data/market-data.module.ts` — DI registration; `apps/api/src/tracked-assets/tracked-assets.service.ts` (+ spec) — new `getAllTrackedAssetsWithExchange()`; `apps/web/src/lib/api.ts`, `apps/web/src/app/watchlist/page.tsx` — minimal frontend integration.
+
+**Live verification (2026-07-16):** Booted the API against a live local PostgreSQL instance with a real `XLON` (London Stock Exchange) exchange/market/asset added to a Watchlist. `GET .../market-status` correctly returned `CLOSED` at the real current time (21:40 BST, after the 16:30 local close) — confirming correct IANA timezone/DST handling via `Intl.DateTimeFormat`, not just a fixed UTC offset. The demo seed exchange (`ZDX`, unconfigured) correctly returned `UNKNOWN`. Manually invoking `MarketDataSyncService.syncTrackedAssets()` against the live app logged `"4 succeeded, 0 failed, 1 skipped (market closed), 5 tracked"` and no `MarketQuote` row was created for the closed-market asset — the skip behavior working end-to-end. The Watchlist page (`GET /watchlist`) rendered `Market closed` for that instrument. All test data was removed after verification. No external network call was required or attempted, consistent with the internal-table-only resolution of Missing Decision #1.
+
+---
+
 # Approval Status
 
 - [x] Proposed
 - [ ] Under Review
-- [ ] Approved
+- [x] Approved
 - [ ] Rejected
 
 ---

@@ -1,5 +1,5 @@
-import { getDecisionCenter, getWatchlistItems, getWatchlists } from '@/lib/api';
-import type { RankedOpportunity } from '@/lib/api';
+import { getDecisionCenter, getMarketStatus, getWatchlistItems, getWatchlists } from '@/lib/api';
+import type { MarketStatus, RankedOpportunity } from '@/lib/api';
 import { withAuth } from '@/lib/auth';
 import { AppHeader } from '@/components/app-nav';
 import { ConfidenceDisclosure, DirectionBadge } from '@/components/dashboard-parts';
@@ -33,14 +33,27 @@ function annotationText(opportunity: RankedOpportunity) {
   };
 }
 
+/** 'UNKNOWN' means the exchange has no entry in the Market Sessions table -- omitted rather than shown, so the UI never claims a status it doesn't actually have (L1-002). */
+function marketStatusText(status: MarketStatus): string | null {
+  if (status === 'OPEN') return 'Market open';
+  if (status === 'CLOSED') return 'Market closed';
+  return null;
+}
+
 export default async function WatchlistPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams;
-  const { watchlists, itemsByWatchlist, opportunityByAsset, failedByAsset } = await withAuth(async (token) => {
+  const { watchlists, itemsByWatchlist, opportunityByAsset, failedByAsset, marketStatusByAsset } = await withAuth(async (token) => {
     const [watchlists, decisionCenter] = await Promise.all([getWatchlists(token), getDecisionCenter(token)]);
     const itemsByWatchlist = new Map(await Promise.all(watchlists.map(async (w) => [w.id, await getWatchlistItems(token, w.id)] as const)));
     const opportunityByAsset = new Map(decisionCenter.opportunities.map((o) => [o.assetId, o]));
     const failedByAsset = new Map(decisionCenter.instrumentsFailed.map((f) => [f.assetId, f.reason]));
-    return { watchlists, itemsByWatchlist, opportunityByAsset, failedByAsset };
+
+    const assetIds = [...new Set([...itemsByWatchlist.values()].flat().map((item) => item.assetId))];
+    const marketStatusByAsset = new Map(
+      await Promise.all(assetIds.map(async (assetId) => [assetId, await getMarketStatus(token, assetId)] as const)),
+    );
+
+    return { watchlists, itemsByWatchlist, opportunityByAsset, failedByAsset, marketStatusByAsset };
   });
 
   return (
@@ -77,11 +90,13 @@ export default async function WatchlistPage({ searchParams }: { searchParams: Pr
                 {items.map((item) => {
                   const opportunity = opportunityByAsset.get(item.assetId);
                   const failureReason = failedByAsset.get(item.assetId);
+                  const marketStatusLabel = marketStatusText(marketStatusByAsset.get(item.assetId)?.status ?? 'UNKNOWN');
                   return (
                     <li key={item.assetId} className="watchlist-item">
                       <div className="row">
                         <span>
                           <strong>{item.asset.symbol}</strong> <span className="muted">{item.asset.name}</span>
+                          {marketStatusLabel && <span className="muted"> · {marketStatusLabel}</span>}
                         </span>
                         <form action={removeItemAction}>
                           <input type="hidden" name="watchlistId" value={watchlist.id} />

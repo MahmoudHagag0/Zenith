@@ -37,6 +37,11 @@ export class MarketDataController {
     return this.marketDataService.getQuote(assetId);
   }
 
+  @Get('assets/:assetId/market-status')
+  getMarketStatus(@Param('assetId') assetId: string) {
+    return this.marketDataService.getMarketStatus(assetId);
+  }
+
   @Get('assets/:assetId/candles')
   getCandles(
     @Param('assetId') assetId: string,

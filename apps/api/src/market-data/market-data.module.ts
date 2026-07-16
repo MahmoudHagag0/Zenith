@@ -6,9 +6,12 @@ import { TrackedAssetsModule } from '../tracked-assets/tracked-assets.module';
 import { MarketDataController } from './market-data.controller';
 import { MarketDataService } from './market-data.service';
 import { MarketDataSyncService } from './market-data-sync.service';
+import { MarketSessionSyncService } from './market-session-sync.service';
 import { RateLimiterService } from './rate-limiter.service';
 import { MARKET_DATA_PROVIDER } from './providers/market-data-provider.interface';
 import { createMarketDataProvider } from './providers/market-data-provider.factory';
+import { MARKET_SESSION_PROVIDER } from './providers/market-session-provider.interface';
+import { InternalMarketSessionProvider } from './providers/internal-market-session.provider';
 
 const moduleLogger = new Logger('MarketDataModule');
 
@@ -18,6 +21,7 @@ const moduleLogger = new Logger('MarketDataModule');
   providers: [
     MarketDataService,
     MarketDataSyncService,
+    MarketSessionSyncService,
     RateLimiterService,
     // First real provider as of L1-001 (28_LIVE_DATA_BLUEPRINT.md §9 Phase 1,
     // ADR-003 precedent) — a single one-line DI-registration swap, no
@@ -29,6 +33,12 @@ const moduleLogger = new Logger('MarketDataModule');
       provide: MARKET_DATA_PROVIDER,
       useFactory: () => createMarketDataProvider(process.env.TWELVE_DATA_API_KEY, process.env.MARKET_DATA_MODE, moduleLogger),
     },
+    // Market Sessions & Trading Holidays (L1-002, 28_LIVE_DATA_BLUEPRINT.md
+    // §9 Phase 2). The Architecture Team designated the Internal Market
+    // Sessions Table as the sole primary source of truth (2026-07-16) —
+    // external providers are not queried for runtime lookups — so there is
+    // exactly one implementation registered, no mode switch.
+    { provide: MARKET_SESSION_PROVIDER, useClass: InternalMarketSessionProvider },
   ],
   // MarketDataSyncService is additionally exported so later background sync
   // jobs (Calendar/News, COT) can reuse its getTrackedAssetIds() rather than
