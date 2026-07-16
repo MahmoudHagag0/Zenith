@@ -100,7 +100,29 @@ async function main() {
     },
   });
 
-  console.log(`Seed: created demo user ${DEMO_EMAIL} (password: ${DEMO_PASSWORD}) with a tracked instrument (${DEMO_SYMBOL}), a watchlist, an open position, and a journal entry.`);
+  await prisma.newsItem.create({
+    data: {
+      assetId: asset.id,
+      headline: `${DEMO_SYMBOL} issues routine investor update`,
+      summary: `${DEMO_SYMBOL} published a routine update for investors; no material change to guidance was disclosed.`,
+      category: 'COMPANY',
+      source: 'Zenith Simulated Wire',
+      publishedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000),
+    },
+  });
+
+  await prisma.calendarEvent.create({
+    data: {
+      assetId: asset.id,
+      title: `${DEMO_SYMBOL} Quarterly Earnings`,
+      category: 'EARNINGS',
+      importance: 'HIGH',
+      description: `${DEMO_SYMBOL} is scheduled to report its next quarterly results.`,
+      scheduledAt: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  console.log(`Seed: created demo user ${DEMO_EMAIL} (password: ${DEMO_PASSWORD}) with a tracked instrument (${DEMO_SYMBOL}), a watchlist, an open position, a journal entry, and Calendar/News data.`);
 }
 
 function hashSeed(input) {

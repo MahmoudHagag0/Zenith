@@ -75,6 +75,8 @@ model Asset {
   quote           MarketQuote?
   candles         Candle[]
   alerts          Alert[]
+  newsItems       NewsItem[]
+  calendarEvents  CalendarEvent[]
 
   @@unique([marketId, symbol])
 }
@@ -241,6 +243,55 @@ model MarketQuote {
   updatedAt DateTime @updatedAt
 
   asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+}
+
+// Calendar / News — S1-031 (Phase 3 of the post-S1-024 roadmap). Shared cache,
+// not user-owned (mirrors MarketQuote/Candle) -- sourced via a new
+// CalendarNewsProvider abstraction (mirroring ADR-003's MarketDataProvider),
+// the first new external-data ingestion domain since S1-005.
+enum NewsCategory {
+  EARNINGS
+  ECONOMIC
+  MARKET
+  COMPANY
+}
+
+enum CalendarImportance {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model NewsItem {
+  id          String       @id @default(uuid())
+  assetId     String?
+  headline    String
+  summary     String
+  category    NewsCategory
+  source      String
+  publishedAt DateTime
+  createdAt   DateTime     @default(now())
+
+  asset Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+  @@index([publishedAt])
+}
+
+model CalendarEvent {
+  id          String             @id @default(uuid())
+  assetId     String?
+  title       String
+  category    NewsCategory
+  importance  CalendarImportance
+  description String
+  scheduledAt DateTime
+  createdAt   DateTime           @default(now())
+
+  asset Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([assetId])
+  @@index([scheduledAt])
 }
 
 model Candle {

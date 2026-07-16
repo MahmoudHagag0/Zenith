@@ -21,6 +21,9 @@ import { SimulatedMarketDataProvider } from './providers/simulated-market-data.p
     // a new class and a change to this one registration.
     { provide: MARKET_DATA_PROVIDER, useClass: SimulatedMarketDataProvider },
   ],
-  exports: [MarketDataService],
+  // MarketDataSyncService is additionally exported so later background sync
+  // jobs (Calendar/News, COT) can reuse its getTrackedAssetIds() rather than
+  // re-querying Watchlist/Favourite/Position for the same asset set.
+  exports: [MarketDataService, MarketDataSyncService],
 })
 export class MarketDataModule {}

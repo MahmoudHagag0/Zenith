@@ -336,3 +336,33 @@ export function createAlert(token: string, payload: CreateAlertPayload): Promise
 export function deleteAlert(token: string, id: string): Promise<void> {
   return apiFetchVoid(`/alerts/${id}`, { method: 'DELETE', headers: authHeader(token) });
 }
+
+// ---- Calendar / News (S1-031) ----
+
+export interface NewsItemView {
+  readonly id: string;
+  readonly assetId: string | null;
+  readonly headline: string;
+  readonly summary: string;
+  readonly category: 'EARNINGS' | 'ECONOMIC' | 'MARKET' | 'COMPANY';
+  readonly source: string;
+  readonly publishedAt: string;
+}
+
+export interface CalendarEventView {
+  readonly id: string;
+  readonly assetId: string | null;
+  readonly title: string;
+  readonly category: 'EARNINGS' | 'ECONOMIC' | 'MARKET' | 'COMPANY';
+  readonly importance: 'LOW' | 'MEDIUM' | 'HIGH';
+  readonly description: string;
+  readonly scheduledAt: string;
+}
+
+export function getTrackedNews(token: string): Promise<NewsItemView[]> {
+  return apiFetch('/calendar-news/news', { headers: authHeader(token) });
+}
+
+export function getTrackedCalendarEvents(token: string): Promise<CalendarEventView[]> {
+  return apiFetch('/calendar-news/events', { headers: authHeader(token) });
+}
