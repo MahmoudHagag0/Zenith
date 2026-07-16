@@ -7,7 +7,7 @@ import { CotController } from './cot.controller';
 import { CotService } from './cot.service';
 import { CotSyncService } from './cot-sync.service';
 import { COT_PROVIDER } from './providers/cot-provider.interface';
-import { SimulatedCotProvider } from './providers/simulated-cot.provider';
+import { createCotProvider } from './providers/cot-provider.factory';
 
 @Module({
   imports: [DatabaseModule, AuthModule, AssetsModule, MarketDataModule],
@@ -15,10 +15,14 @@ import { SimulatedCotProvider } from './providers/simulated-cot.provider';
   providers: [
     CotService,
     CotSyncService,
-    // Only registered implementation as of S1-032 (mirroring ADR-003) --
-    // simulated, not a real CFTC feed. A future real provider requires
-    // only a new class and a change to this one registration.
-    { provide: COT_PROVIDER, useClass: SimulatedCotProvider },
+    // First real provider as of L1-004 (28_LIVE_DATA_BLUEPRINT.md §9 Phase
+    // 4, ADR-003 precedent) — a single one-line DI-registration swap, no
+    // interface change, no consumer change. Gated behind COT_MODE so an
+    // environment without it set falls back to SimulatedCotProvider.
+    {
+      provide: COT_PROVIDER,
+      useFactory: () => createCotProvider(process.env.COT_MODE, process.env.CFTC_APP_TOKEN),
+    },
   ],
   exports: [CotService],
 })

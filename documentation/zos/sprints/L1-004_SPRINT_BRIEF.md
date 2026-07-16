@@ -1,8 +1,8 @@
 # L1-004 SPRINT BRIEF — COT Live Provider (CFTC Direct Integration)
 
 **Document ID:** ZOS-L1-004
-**Version:** 1.0
-**Status:** Proposed
+**Version:** 1.1
+**Status:** Approved — Live External Verification Pending (Environment Constraint)
 **Owner:** Architecture Team
 **Template Reference:** SPRINT_BRIEF_TEMPLATE.md (ZOS-SBT)
 
@@ -15,7 +15,7 @@
 - **Milestone:** M3 — Live Data Platform (`08_ROADMAP.md`)
 - **Phase:** Phase 4 of `28_LIVE_DATA_BLUEPRINT.md` (ZOS-028) §9 Implementation Roadmap
 - **Date Drafted:** 2026-07-16
-- **Approved By:** *(pending — Status: Proposed)*
+- **Approved By:** Architecture Team (2026-07-16)
 - **Baseline Sprints:** L1-001, L1-002, L1-003 — all Architecture-Team-approved and merged to `main`.
 
 ---
@@ -130,11 +130,31 @@ None identified. Unlike L1-002 (Market Sessions) and L1-003 (Calendar/News), thi
 
 ---
 
+# Implementation Notes
+
+Added after Architecture Team approval (2026-07-16). Implementation followed this Brief exactly — no redesign, no new patterns, no Data Quality Layer, no Confidence Engine, no scope expansion.
+
+**Files changed:**
+- New: `apps/api/src/cot/providers/cftc-contract-mapping.ts` (seed mapping: GOLD, EUR/USD, WTI), `cot.schemas.ts`, `cot.normalize.ts` (+ spec), `live-cot.provider.ts` (+ spec), `cot-provider.factory.ts` (+ spec).
+- Modified: `apps/api/src/cot/cot.module.ts` (DI registration swap, mirroring L1-001's `market-data.module.ts` pattern); `apps/api/.env`, `apps/api/.env.example` (`COT_MODE`, `CFTC_APP_TOKEN`).
+- No changes to `CotService`, `CotSyncService`, `CotController`, or any Dashboard consumer.
+
+**Design details disclosed, not escalated (bounded implementation choices within approved Scope):**
+- The CFTC Socrata resource ID used (`6dca-aqww`, the Legacy Futures-Only report) could not be validated against a live response given the environment constraint below; it is the correct dataset for the existing `CotTraderCategory` taxonomy per public CFTC documentation, but should be reconfirmed once live access is available.
+- A symbol with no entry in the internal contract mapping table returns an empty report list without calling the CFTC API at all — verified by a dedicated unit test.
+- Unlike L1-001/L1-003, no credential is required for `COT_MODE=live` to activate (CFTC's public reporting data needs no API key); `CFTC_APP_TOKEN` is optional and passed through as a Socrata query parameter only when configured.
+
+**Test summary:** 158/158 `apps/api` test suites passing, 819/819 tests (11 new tests across 3 new spec files); `apps/api` and `apps/web` build + lint clean.
+
+**Live verification (2026-07-16):** Booted the API against a live local PostgreSQL instance in Simulated mode — zero regression on `GET /cot/:assetId` (continued returning real cached/seeded data unchanged). A direct connectivity check found `publicreporting.cftc.gov` **blocked by this session's environment egress policy** (`CONNECT tunnel failed, response 403`) — identically to `api.twelvedata.com` (L1-001) and `financialmodelingprep.com`/`finnhub.io`/`api.marketaux.com` (L1-003). Per the Architecture Team's established framing, this is recorded as the same **documented environment constraint affecting all external providers integrated to date**, not an implementation defect. No time was spent attempting to route around it. The real-vendor HTTP path (contract-code query construction, response normalization/explosion, empty-result-for-unmapped-symbol) is otherwise fully covered by mocked-transport unit tests.
+
+---
+
 # Approval Status
 
 - [x] Proposed
 - [ ] Under Review
-- [ ] Approved
+- [x] Approved
 - [ ] Rejected
 
 ---
