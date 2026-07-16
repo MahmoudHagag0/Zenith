@@ -77,6 +77,7 @@ model Asset {
   alerts          Alert[]
   newsItems       NewsItem[]
   calendarEvents  CalendarEvent[]
+  cotReports      CotReport[]
 
   @@unique([marketId, symbol])
 }
@@ -292,6 +293,33 @@ model CalendarEvent {
 
   @@index([assetId])
   @@index([scheduledAt])
+}
+
+// COT (Commitment of Traders) — S1-032 (Phase 4 of the post-S1-024 roadmap).
+// Shared cache, not user-owned (mirrors MarketQuote/NewsItem) -- sourced via
+// a new CotProvider abstraction (mirroring ADR-003), directly reusing the
+// ingestion pattern Phase 3 (Calendar/News) established.
+enum CotTraderCategory {
+  COMMERCIAL
+  NON_COMMERCIAL
+  NON_REPORTABLE
+}
+
+model CotReport {
+  id             String            @id @default(uuid())
+  assetId        String
+  reportDate     DateTime
+  category       CotTraderCategory
+  longPositions  Int
+  shortPositions Int
+  netPosition    Int
+  provider       String
+  createdAt      DateTime          @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, reportDate, category])
+  @@index([assetId])
 }
 
 model Candle {

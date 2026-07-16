@@ -366,3 +366,19 @@ export function getTrackedNews(token: string): Promise<NewsItemView[]> {
 export function getTrackedCalendarEvents(token: string): Promise<CalendarEventView[]> {
   return apiFetch('/calendar-news/events', { headers: authHeader(token) });
 }
+
+// ---- COT: Commitment of Traders (S1-032) ----
+
+export interface CotReportView {
+  readonly id: string;
+  readonly assetId: string;
+  readonly reportDate: string;
+  readonly category: 'COMMERCIAL' | 'NON_COMMERCIAL' | 'NON_REPORTABLE';
+  readonly longPositions: number;
+  readonly shortPositions: number;
+  readonly netPosition: number;
+}
+
+export function getCotReports(token: string, assetId: string): Promise<CotReportView[]> {
+  return apiFetch(`/cot/${assetId}`, { headers: authHeader(token) });
+}

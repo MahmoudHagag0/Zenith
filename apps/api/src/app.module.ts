@@ -19,6 +19,7 @@ import { MorningBriefModule } from './morning-brief/morning-brief.module';
 import { JournalModule } from './journal/journal.module';
 import { AlertsModule } from './alerts/alerts.module';
 import { CalendarNewsModule } from './calendar-news/calendar-news.module';
+import { CotModule } from './cot/cot.module';
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { CalendarNewsModule } from './calendar-news/calendar-news.module';
     JournalModule,
     AlertsModule,
     CalendarNewsModule,
+    CotModule,
   ],
 })
 export class AppModule {}

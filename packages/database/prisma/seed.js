@@ -122,7 +122,29 @@ async function main() {
     },
   });
 
-  console.log(`Seed: created demo user ${DEMO_EMAIL} (password: ${DEMO_PASSWORD}) with a tracked instrument (${DEMO_SYMBOL}), a watchlist, an open position, a journal entry, and Calendar/News data.`);
+  const cotCategories = [
+    { category: 'COMMERCIAL', longPositions: 54000, shortPositions: 56000 },
+    { category: 'NON_COMMERCIAL', longPositions: 43000, shortPositions: 45000 },
+    { category: 'NON_REPORTABLE', longPositions: 10500, shortPositions: 9800 },
+  ];
+  for (let weeksAgo = 1; weeksAgo >= 0; weeksAgo--) {
+    const reportDate = new Date(now.getTime() - weeksAgo * 7 * 24 * 60 * 60 * 1000);
+    for (const entry of cotCategories) {
+      await prisma.cotReport.create({
+        data: {
+          assetId: asset.id,
+          reportDate,
+          category: entry.category,
+          longPositions: entry.longPositions,
+          shortPositions: entry.shortPositions,
+          netPosition: entry.longPositions - entry.shortPositions,
+          provider: 'seed',
+        },
+      });
+    }
+  }
+
+  console.log(`Seed: created demo user ${DEMO_EMAIL} (password: ${DEMO_PASSWORD}) with a tracked instrument (${DEMO_SYMBOL}), a watchlist, an open position, a journal entry, Calendar/News data, and COT reports.`);
 }
 
 function hashSeed(input) {
