@@ -2,7 +2,7 @@
 
 **Document ID:** ZOS-L1-001
 **Template Reference:** `SPRINT_BRIEF_TEMPLATE.md` (ZOS-SBT)
-**Status:** Proposed — Awaiting Architecture Team Review (this Sprint Brief authorizes no implementation; per `10_AI_ENGINEER_GUIDE.md`'s Required Workflow, work begins only once Approval Status below is marked Approved)
+**Status:** Approved
 
 ------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@
 - **Phase:** Phases 0 and 1 of `28_LIVE_DATA_BLUEPRINT.md` (ZOS-028) §9's Implementation Roadmap, merged into a single Sprint at the Architecture Team's direction — a Phase-0-only draft was assessed as too small to deliver standalone product value, so this Sprint carries the config/infrastructure groundwork through to a real, visible outcome.
 - **Date Drafted:** 2026-07-16
 - **Revision:** Rev. 2 — expanded scope, superseding the original Phase-0-only draft of the same Sprint ID (not yet approved, so revised in place rather than as a superseding Sprint Brief; see `12_ADR_INDEX.md`'s immutable-after-approval convention, which does not yet apply here).
-- **Approved By:** *(pending — not yet approved)*
+- **Approved By:** Architecture Team (2026-07-16)
 
 ---
 
@@ -125,8 +125,8 @@ Per `07_ENGINEERING_WORKFLOW.md` and `10_AI_ENGINEER_GUIDE.md`, the assigned eng
 # Approval Status
 
 - [x] Proposed
-- [ ] Under Review
-- [ ] Approved
+- [x] Under Review
+- [x] Approved
 - [ ] Rejected / Returned for Revision
 
 ---
