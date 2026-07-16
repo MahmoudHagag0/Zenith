@@ -144,6 +144,43 @@ export const searchAssetsQuerySchema = z.object({
 
 export type SearchAssetsQueryInput = z.infer<typeof searchAssetsQuerySchema>;
 
+// Trading Journal validation — S1-029 (Phase 1 of the post-S1-024 roadmap).
+
+export const createJournalEntrySchema = z.object({
+  title: z.string().min(1, 'Title is required').max(255, 'Title must be at most 255 characters'),
+  content: z.string().min(1, 'Content is required').max(10_000, 'Content must be at most 10000 characters'),
+  tags: z.array(z.string().min(1).max(50)).max(20, 'At most 20 tags are allowed').default([]),
+  transactionId: z.string().uuid('transactionId must be a valid UUID').optional(),
+});
+
+export type CreateJournalEntryInput = z.infer<typeof createJournalEntrySchema>;
+
+export const updateJournalEntrySchema = z.object({
+  title: z.string().min(1, 'Title is required').max(255, 'Title must be at most 255 characters').optional(),
+  content: z.string().min(1, 'Content is required').max(10_000, 'Content must be at most 10000 characters').optional(),
+  tags: z.array(z.string().min(1).max(50)).max(20, 'At most 20 tags are allowed').optional(),
+  transactionId: z.string().uuid('transactionId must be a valid UUID').nullable().optional(),
+});
+
+export type UpdateJournalEntryInput = z.infer<typeof updateJournalEntrySchema>;
+
+// Alerts validation — S1-030 (Phase 2 of the post-S1-024 roadmap).
+
+export const alertConditionTypeSchema = z.enum(['DIRECTION_BULLISH', 'DIRECTION_BEARISH', 'PRICE_ABOVE', 'PRICE_BELOW']);
+
+export const createAlertSchema = z
+  .object({
+    assetId: z.string().uuid('assetId must be a valid UUID'),
+    conditionType: alertConditionTypeSchema,
+    targetPrice: positiveFinanceNumber('targetPrice').optional(),
+  })
+  .refine((value) => (value.conditionType === 'PRICE_ABOVE' || value.conditionType === 'PRICE_BELOW' ? value.targetPrice !== undefined : true), {
+    message: 'targetPrice is required for PRICE_ABOVE/PRICE_BELOW conditions',
+    path: ['targetPrice'],
+  });
+
+export type CreateAlertInput = z.infer<typeof createAlertSchema>;
+
 export const candlesQuerySchema = z
   .object({
     from: z.string().datetime('from must be an ISO 8601 datetime'),

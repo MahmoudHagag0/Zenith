@@ -205,6 +205,10 @@ export function searchAssets(token: string, query: string): Promise<AssetSearchR
   return apiFetch(`/market-data/search?q=${encodeURIComponent(query)}`, { headers: authHeader(token) });
 }
 
+export function getAssetById(token: string, assetId: string): Promise<AssetSearchResult> {
+  return apiFetch(`/market-data/assets/${assetId}`, { headers: authHeader(token) });
+}
+
 // ---- Portfolios (S1-004) + Analytics (S1-006) ----
 
 export interface PortfolioSummary {
@@ -254,4 +258,169 @@ export interface PortfolioAnalyticsView {
 
 export function getPortfolioAnalytics(token: string, portfolioId: string): Promise<PortfolioAnalyticsView> {
   return apiFetch(`/portfolios/${portfolioId}/analytics`, { headers: authHeader(token) });
+}
+
+export interface TransactionView {
+  readonly id: string;
+  readonly positionId: string;
+  readonly type: 'BUY' | 'SELL';
+  readonly quantity: string;
+  readonly price: string;
+  readonly executedAt: string;
+}
+
+export function getPositionTransactions(token: string, portfolioId: string, positionId: string): Promise<TransactionView[]> {
+  return apiFetch(`/portfolios/${portfolioId}/positions/${positionId}/transactions`, { headers: authHeader(token) });
+}
+
+// ---- Trading Journal (S1-029) ----
+
+export interface JournalEntryView {
+  readonly id: string;
+  readonly title: string;
+  readonly content: string;
+  readonly tags: readonly string[];
+  readonly transactionId: string | null;
+  readonly createdAt: string;
+  readonly updatedAt: string;
+}
+
+export interface CreateJournalEntryPayload {
+  readonly title: string;
+  readonly content: string;
+  readonly tags: readonly string[];
+  readonly transactionId?: string;
+}
+
+export function getJournalEntries(token: string): Promise<JournalEntryView[]> {
+  return apiFetch('/journal', { headers: authHeader(token) });
+}
+
+export function createJournalEntry(token: string, payload: CreateJournalEntryPayload): Promise<JournalEntryView> {
+  return apiFetch('/journal', { method: 'POST', headers: authHeader(token), body: JSON.stringify(payload) });
+}
+
+export function deleteJournalEntry(token: string, id: string): Promise<void> {
+  return apiFetchVoid(`/journal/${id}`, { method: 'DELETE', headers: authHeader(token) });
+}
+
+// ---- Alerts (S1-030) ----
+
+export type AlertConditionType = 'DIRECTION_BULLISH' | 'DIRECTION_BEARISH' | 'PRICE_ABOVE' | 'PRICE_BELOW';
+
+export interface AlertView {
+  readonly id: string;
+  readonly assetId: string;
+  readonly conditionType: AlertConditionType;
+  readonly targetPrice: string | null;
+  readonly status: 'ACTIVE' | 'TRIGGERED';
+  readonly triggeredAt: string | null;
+  readonly triggeredNote: string | null;
+  readonly createdAt: string;
+}
+
+export interface CreateAlertPayload {
+  readonly assetId: string;
+  readonly conditionType: AlertConditionType;
+  readonly targetPrice?: number;
+}
+
+export function getAlerts(token: string): Promise<AlertView[]> {
+  return apiFetch('/alerts', { headers: authHeader(token) });
+}
+
+export function createAlert(token: string, payload: CreateAlertPayload): Promise<AlertView> {
+  return apiFetch('/alerts', { method: 'POST', headers: authHeader(token), body: JSON.stringify(payload) });
+}
+
+export function deleteAlert(token: string, id: string): Promise<void> {
+  return apiFetchVoid(`/alerts/${id}`, { method: 'DELETE', headers: authHeader(token) });
+}
+
+// ---- Calendar / News (S1-031) ----
+
+export interface NewsItemView {
+  readonly id: string;
+  readonly assetId: string | null;
+  readonly headline: string;
+  readonly summary: string;
+  readonly category: 'EARNINGS' | 'ECONOMIC' | 'MARKET' | 'COMPANY';
+  readonly source: string;
+  readonly publishedAt: string;
+}
+
+export interface CalendarEventView {
+  readonly id: string;
+  readonly assetId: string | null;
+  readonly title: string;
+  readonly category: 'EARNINGS' | 'ECONOMIC' | 'MARKET' | 'COMPANY';
+  readonly importance: 'LOW' | 'MEDIUM' | 'HIGH';
+  readonly description: string;
+  readonly scheduledAt: string;
+}
+
+export function getTrackedNews(token: string): Promise<NewsItemView[]> {
+  return apiFetch('/calendar-news/news', { headers: authHeader(token) });
+}
+
+export function getTrackedCalendarEvents(token: string): Promise<CalendarEventView[]> {
+  return apiFetch('/calendar-news/events', { headers: authHeader(token) });
+}
+
+// ---- COT: Commitment of Traders (S1-032) ----
+
+export interface CotReportView {
+  readonly id: string;
+  readonly assetId: string;
+  readonly reportDate: string;
+  readonly category: 'COMMERCIAL' | 'NON_COMMERCIAL' | 'NON_REPORTABLE';
+  readonly longPositions: number;
+  readonly shortPositions: number;
+  readonly netPosition: number;
+}
+
+export function getCotReports(token: string, assetId: string): Promise<CotReportView[]> {
+  return apiFetch(`/cot/${assetId}`, { headers: authHeader(token) });
+}
+
+// ---- AI Workspace (S1-033) ----
+
+export interface WorkspaceReading {
+  readonly netDirection: 'BULLISH' | 'BEARISH' | 'NEUTRAL';
+  readonly relevanceScore: number;
+  readonly agreeingDimensions: number;
+  readonly disagreementDimensions: readonly string[];
+  readonly topContributors: readonly ContributingProviderView[];
+}
+
+export interface WorkspaceView {
+  readonly assetId: string;
+  readonly symbol: string;
+  readonly name: string;
+  readonly reading: WorkspaceReading | null;
+  readonly readingFailureReason: string | null;
+  readonly news: readonly NewsItemView[];
+  readonly upcomingEvents: readonly CalendarEventView[];
+  readonly cotReports: readonly CotReportView[];
+  readonly alerts: readonly AlertView[];
+  readonly journalEntries: readonly JournalEntryView[];
+}
+
+export function getWorkspace(token: string, assetId: string): Promise<WorkspaceView> {
+  return apiFetch(`/workspace/${assetId}`, { headers: authHeader(token) });
+}
+
+// ---- Reports (S1-034) ----
+
+export interface WeeklyReportView {
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly portfolios: readonly PortfolioAnalyticsView[];
+  readonly journalEntries: readonly JournalEntryView[];
+  readonly triggeredAlerts: readonly AlertView[];
+  readonly notableNews: readonly NewsItemView[];
+}
+
+export function getWeeklyReport(token: string): Promise<WeeklyReportView> {
+  return apiFetch('/reports/weekly', { headers: authHeader(token) });
 }

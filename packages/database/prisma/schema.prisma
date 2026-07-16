@@ -19,6 +19,8 @@ model User {
   watchlists       Watchlist[]
   favouriteAssets  FavouriteAsset[]
   portfolios       Portfolio[]
+  journalEntries   JournalEntry[]
+  alerts           Alert[]
 }
 
 enum Role {
@@ -72,6 +74,10 @@ model Asset {
   positions       Position[]
   quote           MarketQuote?
   candles         Candle[]
+  alerts          Alert[]
+  newsItems       NewsItem[]
+  calendarEvents  CalendarEvent[]
+  cotReports      CotReport[]
 
   @@unique([marketId, symbol])
 }
@@ -163,7 +169,65 @@ model Transaction {
   executedAt DateTime        @default(now())
   createdAt  DateTime        @default(now())
 
-  position Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  position       Position       @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  journalEntries JournalEntry[]
+}
+
+// Trading Journal — S1-029 (Phase 1 of the post-S1-024 roadmap). Strictly
+// user-owned, mirroring Watchlist/Portfolio. Optionally linked to a specific
+// Transaction for traceability, never required (a reflection can stand alone).
+model JournalEntry {
+  id            String   @id @default(uuid())
+  userId        String
+  transactionId String?
+  title         String
+  content       String
+  tags          String[] @default([])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // SetNull (not Cascade): deleting the underlying Transaction must not
+  // destroy the trader's own written reflection -- it just becomes unlinked.
+  transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+}
+
+enum AlertConditionType {
+  DIRECTION_BULLISH
+  DIRECTION_BEARISH
+  PRICE_ABOVE
+  PRICE_BELOW
+}
+
+enum AlertStatus {
+  ACTIVE
+  TRIGGERED
+}
+
+// Alerts — S1-030 (Phase 2 of the post-S1-024 roadmap). Strictly user-owned,
+// mirroring Watchlist/JournalEntry. Direction conditions are evaluated
+// against the existing Confluence Engine reading (InstrumentReadingService);
+// price conditions against the existing cached MarketQuote (MarketDataService)
+// -- no new signal source is introduced.
+model Alert {
+  id            String             @id @default(uuid())
+  userId        String
+  assetId       String
+  conditionType AlertConditionType
+  targetPrice   Decimal?           @db.Decimal(24, 8)
+  status        AlertStatus        @default(ACTIVE)
+  triggeredAt   DateTime?
+  triggeredNote String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
 }
 
 // Market Data Foundation — S1-005 (see Sprint Brief Scope items 3-4). Shared cache,
@@ -180,6 +244,89 @@ model MarketQuote {
   updatedAt DateTime @updatedAt
 
   asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+}
+
+// Calendar / News — S1-031 (Phase 3 of the post-S1-024 roadmap). Shared cache,
+// not user-owned (mirrors MarketQuote/Candle) -- sourced via a new
+// CalendarNewsProvider abstraction (mirroring ADR-003's MarketDataProvider),
+// the first new external-data ingestion domain since S1-005.
+enum NewsCategory {
+  EARNINGS
+  ECONOMIC
+  MARKET
+  COMPANY
+}
+
+enum CalendarImportance {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model NewsItem {
+  id          String       @id @default(uuid())
+  assetId     String?
+  headline    String
+  summary     String
+  category    NewsCategory
+  source      String
+  publishedAt DateTime
+  createdAt   DateTime     @default(now())
+
+  asset Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  // Foundation Hardening (Acceptance Review, Medium #1): a real natural key,
+  // replacing the findFirst-then-create idempotent guard the service used to
+  // rely on -- that guard was not safe under concurrent requests populating
+  // the same uncached asset. Caching now upserts against this constraint.
+  @@unique([assetId, headline, publishedAt])
+  @@index([assetId])
+  @@index([publishedAt])
+}
+
+model CalendarEvent {
+  id          String             @id @default(uuid())
+  assetId     String?
+  title       String
+  category    NewsCategory
+  importance  CalendarImportance
+  description String
+  scheduledAt DateTime
+  createdAt   DateTime           @default(now())
+
+  asset Asset? @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  // Same rationale as NewsItem's own unique constraint above.
+  @@unique([assetId, title, scheduledAt])
+  @@index([assetId])
+  @@index([scheduledAt])
+}
+
+// COT (Commitment of Traders) — S1-032 (Phase 4 of the post-S1-024 roadmap).
+// Shared cache, not user-owned (mirrors MarketQuote/NewsItem) -- sourced via
+// a new CotProvider abstraction (mirroring ADR-003), directly reusing the
+// ingestion pattern Phase 3 (Calendar/News) established.
+enum CotTraderCategory {
+  COMMERCIAL
+  NON_COMMERCIAL
+  NON_REPORTABLE
+}
+
+model CotReport {
+  id             String            @id @default(uuid())
+  assetId        String
+  reportDate     DateTime
+  category       CotTraderCategory
+  longPositions  Int
+  shortPositions Int
+  netPosition    Int
+  provider       String
+  createdAt      DateTime          @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@unique([assetId, reportDate, category])
+  @@index([assetId])
 }
 
 model Candle {

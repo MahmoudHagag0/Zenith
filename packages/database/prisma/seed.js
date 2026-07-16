@@ -86,11 +86,65 @@ async function main() {
   const position = await prisma.position.create({
     data: { portfolioId: portfolio.id, assetId: asset.id, quantity, averageCost: firstPrice, realizedPnl: 0 },
   });
-  await prisma.transaction.create({
+  const transaction = await prisma.transaction.create({
     data: { positionId: position.id, type: 'BUY', quantity, price: firstPrice, executedAt: new Date(now.getTime() - CANDLE_DAYS * 24 * 60 * 60 * 1000) },
   });
 
-  console.log(`Seed: created demo user ${DEMO_EMAIL} (password: ${DEMO_PASSWORD}) with a tracked instrument (${DEMO_SYMBOL}), a watchlist, and an open position.`);
+  await prisma.journalEntry.create({
+    data: {
+      userId: user.id,
+      transactionId: transaction.id,
+      title: `Entered ${DEMO_SYMBOL}`,
+      content: 'Opened the position on a pullback into the prior demand zone. Plan is to reassess if the breakdown trend continues.',
+      tags: ['setup', 'demo'],
+    },
+  });
+
+  await prisma.newsItem.create({
+    data: {
+      assetId: asset.id,
+      headline: `${DEMO_SYMBOL} issues routine investor update`,
+      summary: `${DEMO_SYMBOL} published a routine update for investors; no material change to guidance was disclosed.`,
+      category: 'COMPANY',
+      source: 'Zenith Simulated Wire',
+      publishedAt: new Date(now.getTime() - 6 * 60 * 60 * 1000),
+    },
+  });
+
+  await prisma.calendarEvent.create({
+    data: {
+      assetId: asset.id,
+      title: `${DEMO_SYMBOL} Quarterly Earnings`,
+      category: 'EARNINGS',
+      importance: 'HIGH',
+      description: `${DEMO_SYMBOL} is scheduled to report its next quarterly results.`,
+      scheduledAt: new Date(now.getTime() + 10 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  const cotCategories = [
+    { category: 'COMMERCIAL', longPositions: 54000, shortPositions: 56000 },
+    { category: 'NON_COMMERCIAL', longPositions: 43000, shortPositions: 45000 },
+    { category: 'NON_REPORTABLE', longPositions: 10500, shortPositions: 9800 },
+  ];
+  for (let weeksAgo = 1; weeksAgo >= 0; weeksAgo--) {
+    const reportDate = new Date(now.getTime() - weeksAgo * 7 * 24 * 60 * 60 * 1000);
+    for (const entry of cotCategories) {
+      await prisma.cotReport.create({
+        data: {
+          assetId: asset.id,
+          reportDate,
+          category: entry.category,
+          longPositions: entry.longPositions,
+          shortPositions: entry.shortPositions,
+          netPosition: entry.longPositions - entry.shortPositions,
+          provider: 'seed',
+        },
+      });
+    }
+  }
+
+  console.log(`Seed: created demo user ${DEMO_EMAIL} (password: ${DEMO_PASSWORD}) with a tracked instrument (${DEMO_SYMBOL}), a watchlist, an open position, a journal entry, Calendar/News data, and COT reports.`);
 }
 
 function hashSeed(input) {

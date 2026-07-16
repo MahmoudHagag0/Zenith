@@ -16,6 +16,12 @@ import { AnalyticsModule } from './analytics/analytics.module';
 import { AnalysisEngineModule } from './analysis-engine/analysis-engine.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MorningBriefModule } from './morning-brief/morning-brief.module';
+import { JournalModule } from './journal/journal.module';
+import { AlertsModule } from './alerts/alerts.module';
+import { CalendarNewsModule } from './calendar-news/calendar-news.module';
+import { CotModule } from './cot/cot.module';
+import { WorkspaceModule } from './workspace/workspace.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -41,6 +47,12 @@ import { MorningBriefModule } from './morning-brief/morning-brief.module';
     AnalysisEngineModule,
     DashboardModule,
     MorningBriefModule,
+    JournalModule,
+    AlertsModule,
+    CalendarNewsModule,
+    CotModule,
+    WorkspaceModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}
