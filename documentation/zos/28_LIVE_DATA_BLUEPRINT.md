@@ -551,4 +551,4 @@ Where the Data Quality Layer (§A1) assesses one provider's record in isolation,
 - 12_ADR_INDEX.md (ADR-003 — Market Data Provider Abstraction; ADR-004 — Background Job Scheduling for Market Data Synchronization)
 - 22_ANALYSIS_ENGINE_ARCHITECTURE.md
 - 25_PRODUCT_BLUEPRINT.md
-- sprints/L1-001_SPRINT_BRIEF.md (Provider Access & Config Foundation — first Sprint of this Blueprint's Implementation Roadmap §9 Phase 0; Proposed, awaiting Architecture Team review)
+- sprints/L1-001_SPRINT_BRIEF.md (Live Market Data Foundation — Primary Provider Integration; first Sprint of this Blueprint's Implementation Roadmap §9, merging Phases 0 and 1 at the Architecture Team's direction so it delivers real, visible product value; Proposed, awaiting Architecture Team review)
