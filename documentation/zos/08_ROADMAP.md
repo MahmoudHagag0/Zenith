@@ -1,7 +1,7 @@
 # 08_ROADMAP
 
 **Document ID:** ZOS-008\
-**Version:** 1.3.0\
+**Version:** 1.4.0\
 **Status:** Approved\
 **Owner:** Architecture Team
 
@@ -67,6 +67,21 @@ enrichment (steps 4-5) and Morning Brief's own full screen assembly
 (step 6) are the next candidate work; no further Sprint has been
 authorized by this update.
 
+# Milestone M3 --- Live Data Platform
+
+Planned focus: - Real market-data/calendar/news/COT provider integration
+(replacing all Simulated providers behind their existing interfaces) -
+Data Quality Layer - Provider Priority Matrix / failover - SLA &
+freshness targets - Provider versioning strategy - Future streaming
+architecture - Data Confidence Engine
+
+Status: Not started. The governing architecture and provider-selection
+specification -- `28_LIVE_DATA_BLUEPRINT.md` (ZOS-028), Live Data
+Platform Blueprint v1.1 -- was approved 2026-07-16. This document
+authorizes no implementation on its own; implementation begins only once
+its first Sprint Brief (`L1-001`) is proposed and approved, per
+`10_AI_ENGINEER_GUIDE.md`'s Required Workflow.
+
 # Planning Rules
 
 -   Only the Architecture Team approves milestones and sprint
@@ -80,3 +95,4 @@ authorized by this update.
 -   07_ENGINEERING_WORKFLOW.md
 -   09_PROJECT_BRAIN.md
 -   11_DECISION_LOG.md
+-   28_LIVE_DATA_BLUEPRINT.md

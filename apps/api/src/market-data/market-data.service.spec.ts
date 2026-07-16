@@ -7,23 +7,25 @@ import { AssetsService } from '../assets/assets.service';
 import { RateLimiterService } from './rate-limiter.service';
 import { ProviderRateLimitedError, ProviderUnavailableError } from './providers/provider-errors';
 import { MARKET_DATA_PROVIDER, type MarketDataProvider } from './providers/market-data-provider.interface';
+import { MARKET_SESSION_PROVIDER, type MarketSessionProvider } from './providers/market-session-provider.interface';
 
 describe('MarketDataService', () => {
   let service: MarketDataService;
   let prisma: {
-    asset: { findMany: jest.Mock };
+    asset: { findMany: jest.Mock; findUnique: jest.Mock };
     marketQuote: { findUnique: jest.Mock; upsert: jest.Mock };
     candle: { findMany: jest.Mock; upsert: jest.Mock };
   };
   let assetsService: { findOne: jest.Mock };
   let rateLimiter: { acquire: jest.Mock };
   let provider: jest.Mocked<MarketDataProvider>;
+  let marketSessionProvider: jest.Mocked<MarketSessionProvider>;
 
   const ASSET = { id: 'asset-1', symbol: 'AAPL', name: 'Apple Inc.' };
 
   beforeEach(async () => {
     prisma = {
-      asset: { findMany: jest.fn() },
+      asset: { findMany: jest.fn(), findUnique: jest.fn() },
       marketQuote: { findUnique: jest.fn(), upsert: jest.fn() },
       candle: { findMany: jest.fn(), upsert: jest.fn() },
     };
@@ -35,6 +37,11 @@ describe('MarketDataService', () => {
       getCandles: jest.fn(),
       checkHealth: jest.fn(),
     };
+    marketSessionProvider = {
+      name: 'test-session-provider',
+      getMarketStatus: jest.fn(),
+      checkHealth: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -43,6 +50,7 @@ describe('MarketDataService', () => {
         { provide: AssetsService, useValue: assetsService },
         { provide: RateLimiterService, useValue: rateLimiter },
         { provide: MARKET_DATA_PROVIDER, useValue: provider },
+        { provide: MARKET_SESSION_PROVIDER, useValue: marketSessionProvider },
       ],
     }).compile();
 
@@ -233,6 +241,25 @@ describe('MarketDataService', () => {
       const result = await service.checkProviderHealth();
 
       expect(result).toMatchObject({ provider: 'test-provider', status: 'UP' });
+    });
+  });
+
+  describe('getMarketStatus (L1-002)', () => {
+    it("looks up the asset's exchange code and delegates to the MarketSessionProvider", async () => {
+      prisma.asset.findUnique.mockResolvedValue({ market: { exchange: { code: 'XNAS' } } });
+      marketSessionProvider.getMarketStatus.mockResolvedValue('OPEN');
+
+      const result = await service.getMarketStatus('asset-1');
+
+      expect(marketSessionProvider.getMarketStatus).toHaveBeenCalledWith('XNAS');
+      expect(result).toEqual({ assetId: 'asset-1', exchangeCode: 'XNAS', status: 'OPEN' });
+    });
+
+    it('throws NotFoundException for a non-existent asset without calling the session provider', async () => {
+      prisma.asset.findUnique.mockResolvedValue(null);
+
+      await expect(service.getMarketStatus('missing')).rejects.toBeInstanceOf(NotFoundException);
+      expect(marketSessionProvider.getMarketStatus).not.toHaveBeenCalled();
     });
   });
 });

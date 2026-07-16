@@ -55,3 +55,4 @@ Architecture approval. 3. Documentation update.
 -   05_ARCHITECTURE.md
 -   14_DEPENDENCY_POLICY.md
 -   15_CODING_STANDARDS.md
+-   28_LIVE_DATA_BLUEPRINT.md

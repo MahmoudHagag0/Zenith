@@ -9,6 +9,7 @@ describe('TrackedAssetsService', () => {
     watchlistItem: { findMany: jest.Mock };
     favouriteAsset: { findMany: jest.Mock };
     position: { findMany: jest.Mock };
+    asset: { findMany: jest.Mock };
   };
   let service: TrackedAssetsService;
 
@@ -17,6 +18,7 @@ describe('TrackedAssetsService', () => {
       watchlistItem: { findMany: jest.fn().mockResolvedValue([]) },
       favouriteAsset: { findMany: jest.fn().mockResolvedValue([]) },
       position: { findMany: jest.fn().mockResolvedValue([]) },
+      asset: { findMany: jest.fn().mockResolvedValue([]) },
     };
     service = new TrackedAssetsService(prisma as never);
   });
@@ -73,6 +75,34 @@ describe('TrackedAssetsService', () => {
       await service.getAllTrackedAssetIds();
 
       expect(prisma.position.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { quantity: { gt: 0 } } }));
+    });
+  });
+
+  describe('getAllTrackedAssetsWithExchange (background sync gating, L1-002)', () => {
+    it('joins the global tracked-asset union to each asset\'s Exchange code', async () => {
+      prisma.watchlistItem.findMany.mockResolvedValue([{ assetId: 'asset-1' }]);
+      prisma.position.findMany.mockResolvedValue([{ assetId: 'asset-2' }]);
+      prisma.asset.findMany.mockResolvedValue([
+        { id: 'asset-1', market: { exchange: { code: 'XNAS' } } },
+        { id: 'asset-2', market: { exchange: { code: 'XLON' } } },
+      ]);
+
+      const result = await service.getAllTrackedAssetsWithExchange();
+
+      expect(result.sort((a, b) => a.assetId.localeCompare(b.assetId))).toEqual([
+        { assetId: 'asset-1', exchangeCode: 'XNAS' },
+        { assetId: 'asset-2', exchangeCode: 'XLON' },
+      ]);
+      expect(prisma.asset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ where: { id: { in: expect.arrayContaining(['asset-1', 'asset-2']) } } }),
+      );
+    });
+
+    it('returns an empty array without querying assets when nothing is tracked', async () => {
+      const result = await service.getAllTrackedAssetsWithExchange();
+
+      expect(result).toEqual([]);
+      expect(prisma.asset.findMany).not.toHaveBeenCalled();
     });
   });
 });

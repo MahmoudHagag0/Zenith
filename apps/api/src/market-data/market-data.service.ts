@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@zenith/database';
 import { PrismaService } from '../database/prisma.service';
 import { AssetsService } from '../assets/assets.service';
@@ -6,6 +6,7 @@ import { RateLimiterService } from './rate-limiter.service';
 import { withRetry } from './retry.util';
 import { ProviderRateLimitedError, ProviderUnavailableError } from './providers/provider-errors';
 import { MARKET_DATA_PROVIDER, type MarketDataProvider } from './providers/market-data-provider.interface';
+import { MARKET_SESSION_PROVIDER, type MarketSessionProvider } from './providers/market-session-provider.interface';
 
 const QUOTE_TTL_MS = 15_000;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -22,6 +23,7 @@ export class MarketDataService {
     private readonly assetsService: AssetsService,
     private readonly rateLimiter: RateLimiterService,
     @Inject(MARKET_DATA_PROVIDER) private readonly provider: MarketDataProvider,
+    @Inject(MARKET_SESSION_PROVIDER) private readonly marketSessionProvider: MarketSessionProvider,
   ) {}
 
   searchAssets(query: string) {
@@ -135,6 +137,27 @@ export class MarketDataService {
   async checkProviderHealth() {
     const status = await this.provider.checkHealth();
     return { provider: this.provider.name, status, checkedAt: new Date() };
+  }
+
+  /**
+   * Surfaces the L1-002 Market Sessions Table result for one asset's
+   * exchange, for Dashboard/Watchlist "market closed" UI state
+   * (28_LIVE_DATA_BLUEPRINT.md §9 Phase 2). A distinct, minimal read-only
+   * lookup -- deliberately not folded into getQuote()/getAsset(), which
+   * predate this Sprint and are unrelated to session/holiday data.
+   */
+  async getMarketStatus(assetId: string) {
+    const asset = await this.prisma.asset.findUnique({
+      where: { id: assetId },
+      select: { market: { select: { exchange: { select: { code: true } } } } },
+    });
+    if (!asset) {
+      throw new NotFoundException('Asset not found');
+    }
+
+    const exchangeCode = asset.market.exchange.code;
+    const status = await this.marketSessionProvider.getMarketStatus(exchangeCode);
+    return { assetId, exchangeCode, status };
   }
 
   private async callProvider<T>(fn: () => Promise<T>): Promise<T> {
