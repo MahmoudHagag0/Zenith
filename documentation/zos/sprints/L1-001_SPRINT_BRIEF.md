@@ -2,7 +2,7 @@
 
 **Document ID:** ZOS-L1-001
 **Template Reference:** `SPRINT_BRIEF_TEMPLATE.md` (ZOS-SBT)
-**Status:** Approved
+**Status:** Implementation Complete — Live Verification Pending (every item of Approved Scope is implemented, tested, and verified end-to-end against a mocked/blocked transport; the real-network leg to Twelve Data's API is blocked by this session's environment egress policy, not a code or architecture gap — see the completion report for the exact remaining steps)
 
 ------------------------------------------------------------------------
 
@@ -119,6 +119,27 @@ Per `07_ENGINEERING_WORKFLOW.md` and `10_AI_ENGINEER_GUIDE.md`, the assigned eng
 6. **Historical backfill lookback window** — how much real candle history to backfill for already-seeded catalog assets on first integration (e.g. 1–2 years of daily candles, per ZOS-028 §6's own "bulk synchronization" guidance), bounded so it doesn't exceed rate limits on first run.
 7. **Corporate-action adjustment gap, disclosed not silently ignored** — the historical backfill in this Sprint is **not** split/dividend-adjusted (Corporate Actions is explicitly out of scope, Phase 6). If any backfilled asset in the current catalog has undergone a real split/dividend during the backfill window, its historical candles will be inaccurate until Corporate Actions is implemented — acceptable for this Sprint given the current catalog's composition, but must be named in the completion report, not discovered later.
 8. **Env-file convention** — whether `TWELVE_DATA_API_KEY` and the fallback toggle are added to a committed `.env.example`-style file or documented inline, matching whatever convention `JWT_SECRET`/`DATABASE_URL` already follow.
+
+---
+
+# Implementation Notes (resolutions to the Missing Decisions above)
+
+1. **Location:** `apps/api/src/market-data/providers/{twelve-data-market-data.provider.ts, twelve-data.schemas.ts, twelve-data.normalize.ts, http-client.ts, market-data-provider.factory.ts}` — flat, alongside `simulated-market-data.provider.ts`, matching that file's existing convention rather than a new subdirectory nesting style.
+2. **HTTP client:** native `fetch`/`AbortController` (Node 22, already available in this project's runtime) — no new dependency, no `14_DEPENDENCY_POLICY.md` review required.
+3. **Circuit breaker:** imported directly from `analysis-engine/providers/provider-circuit-breaker.ts` with zero modification to that file. Promotion to `packages/utils` was judged disproportionate: the class has no framework/Prisma dependencies, and promoting it would have required touching `analysis-engine`'s own imports — outside this Sprint's Affected Components, which explicitly listed `analysis-engine` as "not expected to change."
+4. **Fallback toggle:** `MARKET_DATA_MODE` (`live` | unset/anything else → simulated), gated together with `TWELVE_DATA_API_KEY` in `createMarketDataProvider()` (`market-data-provider.factory.ts`) — logs a warning and falls back to `SimulatedMarketDataProvider` if `MARKET_DATA_MODE=live` is set without a key. Verified live (see below).
+5. **Rate-limit calibration:** no change made to `RateLimiterService` (app-internal throttle, 20 req/sec, unrelated to Twelve Data's own external limit). Given the sync job's existing 5-minute cadence, 15s quote-cache TTL, and the small number of currently-tracked assets, real Twelve Data free-tier credit consumption is expected to stay well within budget without any cron-interval change. This is a disclosed assumption pending real traffic data, not a verified measurement — recommend revisiting once real usage is observable via `/market-data/provider-health`.
+6. **Historical backfill:** no separate backfill job was built. `MarketDataService.getCandles()` already lazily fetches-and-persists on demand for whatever range a consumer requests (confirmed by tracing `MarketSeriesService.getSeries()` → `MarketDataService.getCandles()`) — the existing architecture already provides this Sprint's own "first backfill" behavior with zero new code.
+7. **Corporate-action gap:** confirmed present and unresolved this Sprint, as anticipated — historical candles for any asset that has split/paid a dividend during the fetched window will be inaccurate until Corporate Actions (`28_LIVE_DATA_BLUEPRINT.md` §9 Phase 6) is implemented.
+8. **Env files:** added to both `apps/api/.env.example` (committed) and the local, gitignored `apps/api/.env`, matching the existing `JWT_SECRET`/`DATABASE_URL` convention.
+
+**Correctness fix made during implementation (disclosed, not silent):** the first draft of the HTTP client's error handling only converted `AbortError`-named timeouts into `ProviderUnavailableError`; a genuine network failure (blocked host, DNS failure, connection refused — exactly the failure mode this session's own environment produces) threw a raw, unmapped exception instead of degrading gracefully. Fixed before live verification and covered by a dedicated test.
+
+**Live verification performed (network-independent parts):** booted the API in both modes against the live PostgreSQL instance.
+- Default (`MARKET_DATA_MODE` unset): `provider-health` reports `simulated`/`UP`; Dashboard, Watchlist-linked Confluence readings, and Portfolio analytics behave identically to pre-Sprint behavior (zero regression).
+- `MARKET_DATA_MODE=live` with a placeholder key: DI correctly resolves `TwelveDataMarketDataProvider` (no fallback warning logged); `provider-health` reports `twelve-data`/`DOWN` (network blocked); a quote request cleanly degrades to `503` with a friendly message; Dashboard continues serving its existing cached reading; Portfolio analytics honestly reports `freshness: MISSING`/`confidence: LOW` rather than crashing or showing a stale value mislabeled as current. No unhandled exception, no raw stack trace, no crash, in either mode.
+
+**Not performed — the one item left outstanding:** a live request to the real `api.twelvedata.com` succeeding end-to-end, since this session's environment egress policy blocks that host (confirmed via a recorded `connect_rejected`/`403` policy denial, not a code issue — `finnhub.io` is blocked identically, `api.github.com` is not, ruling out a general outage). See the completion report for the exact steps to close this out once network access or an alternate execution environment is available.
 
 ---
 
