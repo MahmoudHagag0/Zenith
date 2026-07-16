@@ -409,3 +409,18 @@ export interface WorkspaceView {
 export function getWorkspace(token: string, assetId: string): Promise<WorkspaceView> {
   return apiFetch(`/workspace/${assetId}`, { headers: authHeader(token) });
 }
+
+// ---- Reports (S1-034) ----
+
+export interface WeeklyReportView {
+  readonly periodStart: string;
+  readonly periodEnd: string;
+  readonly portfolios: readonly PortfolioAnalyticsView[];
+  readonly journalEntries: readonly JournalEntryView[];
+  readonly triggeredAlerts: readonly AlertView[];
+  readonly notableNews: readonly NewsItemView[];
+}
+
+export function getWeeklyReport(token: string): Promise<WeeklyReportView> {
+  return apiFetch('/reports/weekly', { headers: authHeader(token) });
+}

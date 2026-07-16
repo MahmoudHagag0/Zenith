@@ -21,6 +21,7 @@ import { AlertsModule } from './alerts/alerts.module';
 import { CalendarNewsModule } from './calendar-news/calendar-news.module';
 import { CotModule } from './cot/cot.module';
 import { WorkspaceModule } from './workspace/workspace.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { WorkspaceModule } from './workspace/workspace.module';
     CalendarNewsModule,
     CotModule,
     WorkspaceModule,
+    ReportsModule,
   ],
 })
 export class AppModule {}
