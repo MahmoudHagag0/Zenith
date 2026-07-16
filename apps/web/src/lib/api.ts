@@ -205,6 +205,10 @@ export function searchAssets(token: string, query: string): Promise<AssetSearchR
   return apiFetch(`/market-data/search?q=${encodeURIComponent(query)}`, { headers: authHeader(token) });
 }
 
+export function getAssetById(token: string, assetId: string): Promise<AssetSearchResult> {
+  return apiFetch(`/market-data/assets/${assetId}`, { headers: authHeader(token) });
+}
+
 // ---- Portfolios (S1-004) + Analytics (S1-006) ----
 
 export interface PortfolioSummary {
@@ -298,4 +302,37 @@ export function createJournalEntry(token: string, payload: CreateJournalEntryPay
 
 export function deleteJournalEntry(token: string, id: string): Promise<void> {
   return apiFetchVoid(`/journal/${id}`, { method: 'DELETE', headers: authHeader(token) });
+}
+
+// ---- Alerts (S1-030) ----
+
+export type AlertConditionType = 'DIRECTION_BULLISH' | 'DIRECTION_BEARISH' | 'PRICE_ABOVE' | 'PRICE_BELOW';
+
+export interface AlertView {
+  readonly id: string;
+  readonly assetId: string;
+  readonly conditionType: AlertConditionType;
+  readonly targetPrice: string | null;
+  readonly status: 'ACTIVE' | 'TRIGGERED';
+  readonly triggeredAt: string | null;
+  readonly triggeredNote: string | null;
+  readonly createdAt: string;
+}
+
+export interface CreateAlertPayload {
+  readonly assetId: string;
+  readonly conditionType: AlertConditionType;
+  readonly targetPrice?: number;
+}
+
+export function getAlerts(token: string): Promise<AlertView[]> {
+  return apiFetch('/alerts', { headers: authHeader(token) });
+}
+
+export function createAlert(token: string, payload: CreateAlertPayload): Promise<AlertView> {
+  return apiFetch('/alerts', { method: 'POST', headers: authHeader(token), body: JSON.stringify(payload) });
+}
+
+export function deleteAlert(token: string, id: string): Promise<void> {
+  return apiFetchVoid(`/alerts/${id}`, { method: 'DELETE', headers: authHeader(token) });
 }

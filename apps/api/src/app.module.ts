@@ -17,6 +17,7 @@ import { AnalysisEngineModule } from './analysis-engine/analysis-engine.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { MorningBriefModule } from './morning-brief/morning-brief.module';
 import { JournalModule } from './journal/journal.module';
+import { AlertsModule } from './alerts/alerts.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { JournalModule } from './journal/journal.module';
     DashboardModule,
     MorningBriefModule,
     JournalModule,
+    AlertsModule,
   ],
 })
 export class AppModule {}

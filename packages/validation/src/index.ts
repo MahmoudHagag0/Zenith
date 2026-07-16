@@ -164,6 +164,23 @@ export const updateJournalEntrySchema = z.object({
 
 export type UpdateJournalEntryInput = z.infer<typeof updateJournalEntrySchema>;
 
+// Alerts validation — S1-030 (Phase 2 of the post-S1-024 roadmap).
+
+export const alertConditionTypeSchema = z.enum(['DIRECTION_BULLISH', 'DIRECTION_BEARISH', 'PRICE_ABOVE', 'PRICE_BELOW']);
+
+export const createAlertSchema = z
+  .object({
+    assetId: z.string().uuid('assetId must be a valid UUID'),
+    conditionType: alertConditionTypeSchema,
+    targetPrice: positiveFinanceNumber('targetPrice').optional(),
+  })
+  .refine((value) => (value.conditionType === 'PRICE_ABOVE' || value.conditionType === 'PRICE_BELOW' ? value.targetPrice !== undefined : true), {
+    message: 'targetPrice is required for PRICE_ABOVE/PRICE_BELOW conditions',
+    path: ['targetPrice'],
+  });
+
+export type CreateAlertInput = z.infer<typeof createAlertSchema>;
+
 export const candlesQuerySchema = z
   .object({
     from: z.string().datetime('from must be an ISO 8601 datetime'),

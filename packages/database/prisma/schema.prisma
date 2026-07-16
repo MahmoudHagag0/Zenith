@@ -20,6 +20,7 @@ model User {
   favouriteAssets  FavouriteAsset[]
   portfolios       Portfolio[]
   journalEntries   JournalEntry[]
+  alerts           Alert[]
 }
 
 enum Role {
@@ -73,6 +74,7 @@ model Asset {
   positions       Position[]
   quote           MarketQuote?
   candles         Candle[]
+  alerts          Alert[]
 
   @@unique([marketId, symbol])
 }
@@ -187,6 +189,42 @@ model JournalEntry {
   transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
 
   @@index([userId])
+}
+
+enum AlertConditionType {
+  DIRECTION_BULLISH
+  DIRECTION_BEARISH
+  PRICE_ABOVE
+  PRICE_BELOW
+}
+
+enum AlertStatus {
+  ACTIVE
+  TRIGGERED
+}
+
+// Alerts — S1-030 (Phase 2 of the post-S1-024 roadmap). Strictly user-owned,
+// mirroring Watchlist/JournalEntry. Direction conditions are evaluated
+// against the existing Confluence Engine reading (InstrumentReadingService);
+// price conditions against the existing cached MarketQuote (MarketDataService)
+// -- no new signal source is introduced.
+model Alert {
+  id            String             @id @default(uuid())
+  userId        String
+  assetId       String
+  conditionType AlertConditionType
+  targetPrice   Decimal?           @db.Decimal(24, 8)
+  status        AlertStatus        @default(ACTIVE)
+  triggeredAt   DateTime?
+  triggeredNote String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
 }
 
 // Market Data Foundation — S1-005 (see Sprint Brief Scope items 3-4). Shared cache,
