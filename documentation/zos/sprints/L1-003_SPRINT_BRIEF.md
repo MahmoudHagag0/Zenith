@@ -1,8 +1,8 @@
 # L1-003 SPRINT BRIEF — Economic Calendar & Financial News (Live Provider Integration)
 
 **Document ID:** ZOS-L1-003
-**Version:** 1.0
-**Status:** Proposed
+**Version:** 1.1
+**Status:** Implementation Complete — Live Verification Pending
 **Owner:** Architecture Team
 **Template Reference:** SPRINT_BRIEF_TEMPLATE.md (ZOS-SBT)
 
@@ -15,7 +15,7 @@
 - **Milestone:** M3 — Live Data Platform (`08_ROADMAP.md`)
 - **Phase:** Phase 3 of `28_LIVE_DATA_BLUEPRINT.md` (ZOS-028) §9 Implementation Roadmap
 - **Date Drafted:** 2026-07-16
-- **Approved By:** *(pending — Status: Proposed)*
+- **Approved By:** Architecture Team (2026-07-16)
 - **Baseline Sprints:** L1-001 (`ZOS-L1-001`, Implementation Complete — Live Verification Pending) and L1-002 (`ZOS-L1-002`, Implementation Complete, Accepted) — both Approved and merged to `main`.
 
 ---
@@ -138,11 +138,34 @@
 
 ---
 
+# Implementation Notes (resolutions to the Missing Decisions above)
+
+Added after Architecture Team approval (2026-07-16). Implementation followed this Brief exactly.
+
+1. **Missing Decision #1 (single-vs-dual-source News) — resolved:** Architecture Team decided **both providers ship from day one** — Finnhub as primary, MarketAux as secondary (fallback + enrichment): if Finnhub fails outright, MarketAux's results are used alone; if Finnhub succeeds, MarketAux is still queried best-effort and its non-duplicate items are merged in. A MarketAux failure never fails the overall call once Finnhub has already succeeded. Economic Calendar remains single-sourced from FMP, as originally scoped (no secondary was approved or requested for Calendar).
+2. **Missing Decision #2 (Data Quality Layer) — resolved:** The Architecture Team explicitly excluded `DataQualityService`, the Confidence Engine, cross-provider scoring, provider trust ranking, and the quality-assessment pipeline from this Sprint — deferred to their own dedicated future Sprint per ZOS-028. This Sprint implements only: provider integrations, normalization, DTO validation, basic (non-scored) deduplication, timestamp validation, persistence, and the existing cache/sync flow.
+
+**Files changed:**
+- New: `apps/api/src/calendar-news/providers/calendar-news.schemas.ts`, `calendar-news.normalize.ts` (+ spec), `live-calendar-news.provider.ts` (+ spec), `calendar-news-provider.factory.ts` (+ spec).
+- Modified: `apps/api/src/calendar-news/calendar-news.module.ts` (DI registration swap, mirroring L1-001's `market-data.module.ts` pattern); `apps/api/.env`, `apps/api/.env.example` (`CALENDAR_NEWS_MODE`, `FMP_API_KEY`, `FINNHUB_API_KEY`, `MARKETAUX_API_KEY`).
+- No changes to `CalendarNewsService`, `CalendarNewsSyncService`, `CalendarNewsController`, or any Dashboard/Morning-Brief/Alerts consumer.
+
+**Design details disclosed, not escalated (bounded implementation choices within approved Scope):**
+- FMP's Economic Calendar endpoint returns a single global feed with no per-symbol filtering; this Sprint surfaces the same upcoming-events feed for every symbol. Symbol/currency-specific relevance filtering was not part of the approved Scope and is not implemented.
+- "Basic deduplication" is a normalized-headline-key merge (first occurrence wins, so Finnhub's version of a duplicated story is kept) — explicitly not the Data Quality Layer's semantic/scored dedup, per Missing Decision #2's resolution.
+- "Timestamp validation" rejects (returns `null`, filtered out) any record whose timestamp cannot be parsed, at the `normalize()` step — consistent with the base §4.4 pipeline, not the fuller Quality Assessment pipeline.
+
+**Test summary:** 155/155 `apps/api` test suites passing, 808/808 tests (23 new tests across 3 new spec files); `apps/api` and `apps/web` build + lint clean.
+
+**Live verification (2026-07-16):** Booted the API against a live local PostgreSQL instance in Simulated mode (no regression — `GET /calendar-news/news` and `/calendar-news/events` continued returning real cached data unchanged) and separately confirmed the live-mode credential-fallback path logs the expected warning and falls back safely rather than crashing. A direct connectivity check to all three new vendor hosts (`financialmodelingprep.com`, `finnhub.io`, `api.marketaux.com`) found them **blocked by this session's environment egress policy** (`CONNECT tunnel failed, response 403`), identically to `api.twelvedata.com` in L1-001 — a disclosed, outstanding environment limitation, not a code defect. The real-vendor HTTP paths are otherwise fully covered by mocked-transport unit/integration tests (success, primary-failure-fallback, secondary-failure-tolerance, both-fail).
+
+---
+
 # Approval Status
 
 - [x] Proposed
 - [ ] Under Review
-- [ ] Approved
+- [x] Approved
 - [ ] Rejected
 
 ---
