@@ -1,7 +1,7 @@
 # 08_ROADMAP
 
 **Document ID:** ZOS-008\
-**Version:** 1.4.0\
+**Version:** 1.5.0\
 **Status:** Approved\
 **Owner:** Architecture Team
 
@@ -75,12 +75,33 @@ Data Quality Layer - Provider Priority Matrix / failover - SLA &
 freshness targets - Provider versioning strategy - Future streaming
 architecture - Data Confidence Engine
 
-Status: Not started. The governing architecture and provider-selection
+Status: In Progress. The governing architecture and provider-selection
 specification -- `28_LIVE_DATA_BLUEPRINT.md` (ZOS-028), Live Data
-Platform Blueprint v1.1 -- was approved 2026-07-16. This document
-authorizes no implementation on its own; implementation begins only once
-its first Sprint Brief (`L1-001`) is proposed and approved, per
+Platform Blueprint v1.1 -- was approved 2026-07-16, and implementation
+is proceeding via the Blueprint's own §9 Implementation Roadmap
+(Phases 0-9), one Sprint Brief per Phase, per
 `10_AI_ENGINEER_GUIDE.md`'s Required Workflow.
+
+Completed: Phase 0 (Provider Access & Config Foundation) and Phase 1
+(Live Market Data Provider), merged into a single Sprint at the
+Architecture Team's direction -- Sprint `L1-001`; Phase 2 (Market
+Sessions & Trading Holidays) -- Sprint `L1-002`; Phase 3 (Economic
+Calendar & Financial News) -- Sprint `L1-003`; Phase 4 (COT Live
+Provider) -- Sprint `L1-004`; Phase 5 (Instrument Metadata, Symbol
+Search & Classification) -- Sprint `L1-005`; Phase 6 (Corporate
+Actions) -- Sprint `L1-006`. All six Sprints are Architecture-Team-approved
+and merged to `main`; each is recorded as `Approved -- Live External
+Verification Pending (Environment Constraint)` per
+`documentation/zos/sprints/L1-001_SPRINT_BRIEF.md` through
+`L1-006_SPRINT_BRIEF.md` -- a documented environment egress-policy
+limitation affecting every external provider integrated to date, not an
+implementation defect.
+
+Remaining: Phase 7 (Macro Context/FRED), Phase 8 (Monitoring, Alerting
+& Cost Observability), Phase 9 (Live Data Acceptance Review) -- none
+started; no Sprint Brief has been proposed for Phase 7 or later.
+
+Progress: 7 of 10 Blueprint phases complete (~70%).
 
 # Planning Rules
 

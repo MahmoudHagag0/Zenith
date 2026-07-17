@@ -551,4 +551,9 @@ Where the Data Quality Layer (§A1) assesses one provider's record in isolation,
 - 12_ADR_INDEX.md (ADR-003 — Market Data Provider Abstraction; ADR-004 — Background Job Scheduling for Market Data Synchronization)
 - 22_ANALYSIS_ENGINE_ARCHITECTURE.md
 - 25_PRODUCT_BLUEPRINT.md
-- sprints/L1-001_SPRINT_BRIEF.md (Live Market Data Foundation — Primary Provider Integration; first Sprint of this Blueprint's Implementation Roadmap §9, merging Phases 0 and 1 at the Architecture Team's direction so it delivers real, visible product value; Proposed, awaiting Architecture Team review)
+- sprints/L1-001_SPRINT_BRIEF.md (Live Market Data Foundation — Primary Provider Integration; first Sprint of this Blueprint's Implementation Roadmap §9, merging Phases 0 and 1 at the Architecture Team's direction so it delivers real, visible product value; Approved — Live External Verification Pending (Environment Constraint))
+- sprints/L1-002_SPRINT_BRIEF.md (Market Sessions & Trading Holidays; §9 Phase 2; Approved — Live External Verification Pending (Environment Constraint))
+- sprints/L1-003_SPRINT_BRIEF.md (Economic Calendar & Financial News; §9 Phase 3; Approved — Live External Verification Pending (Environment Constraint))
+- sprints/L1-004_SPRINT_BRIEF.md (COT Live Provider — CFTC Direct Integration; §9 Phase 4; Approved — Live External Verification Pending (Environment Constraint))
+- sprints/L1-005_SPRINT_BRIEF.md (Instrument Metadata, Symbol Search & Classification; §9 Phase 5; Approved — Live External Verification Pending (Environment Constraint))
+- sprints/L1-006_SPRINT_BRIEF.md (Corporate Actions — Splits & Dividends; §9 Phase 6; Approved — Live External Verification Pending (Environment Constraint))
