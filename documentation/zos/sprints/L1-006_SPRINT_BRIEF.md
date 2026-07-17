@@ -1,8 +1,8 @@
 # L1-006 SPRINT BRIEF — Corporate Actions (Splits & Dividends)
 
 **Document ID:** ZOS-L1-006
-**Version:** 1.0
-**Status:** Proposed
+**Version:** 1.1
+**Status:** Approved — Live External Verification Pending (Environment Constraint)
 **Owner:** Architecture Team
 **Template Reference:** SPRINT_BRIEF_TEMPLATE.md (ZOS-SBT)
 
@@ -134,8 +134,67 @@ This Sprint is unlike every prior L1 Sprint: L1-001 through L1-005 all added **n
 
 - [x] Proposed
 - [ ] Under Review
-- [ ] Approved
+- [x] Approved
 - [ ] Rejected
+
+**Final Status:** Approved — Live External Verification Pending (Environment Constraint)
+
+---
+
+# Implementation Notes
+
+**Date Implemented:** 2026-07-17
+**Approved By:** Architecture Team
+
+## Resolution of Missing Decisions
+
+1. **Adjustment mechanism (Missing Decision #1) — resolved as compute-on-read.** Corporate Actions are stored exclusively in a new, independent `CorporateAction` table (`assetId`, `type`, `effectiveDate`, `ratio`/`amount`+`currency`, `provider`, `providerEventId`, `retrievedAt`, `rawPayload`). This Sprint never reads or writes `Candle`, `Position`, or `Transaction` — no mutate-in-place logic of any kind was implemented. Any future adjustment consumer (Analysis Engine, Portfolio valuation) must compute the adjustment on read from this table; that consumer is explicitly out of scope for L1-006.
+2. **Portfolio cash / dividend accounting (Missing Decision #2) — resolved as out of scope.** No cash balance, wallet, or dividend-income concept was introduced anywhere in `Portfolio`/`Position`. Dividend events are recorded as raw `CorporateAction` rows (amount + currency) only, with no effect on any existing Portfolio calculation. This belongs to a future dedicated financial-accounting milestone per the Architecture Team's decision.
+3. **Provider responsibility (Missing Decision #3) — resolved as Finnhub-only.** `FinnhubCorporateActionsProvider` is the sole live implementation, calling Finnhub's `/stock/split` and `/stock/dividend` endpoints exclusively. It does not call Twelve Data. Twelve Data's existing responsibility (Quotes, Candles, Instrument Metadata) is unchanged.
+
+## Work Completed
+
+- Added `CorporateActionType` enum (`SPLIT`, `DIVIDEND`) and `CorporateAction` Prisma model, with a real compound `@@unique([assetId, type, effectiveDate])` natural key (idempotency requirement) and `onDelete: Cascade` (non-authoritative cached domain, consistent with `NewsItem`/`CalendarEvent`/`CotReport`). Migration `20260717010830_add_corporate_action` applied.
+- New `CorporateActionsProvider` interface (`ProviderSplitEvent`, `ProviderDividendEvent`) — a NEW abstraction per Blueprint §4.1, following the ADR-003 interface + token + Simulated-implementation pattern.
+- `SimulatedCorporateActionsProvider` — returns no events for either method (disclosed: splits/dividends have no meaningful simulated equivalent, unlike quotes/news/COT).
+- `FinnhubCorporateActionsProvider` — live implementation using two independent `MarketDataHttpClient` instances (`finnhub-splits`, `finnhub-dividends`, separate circuit breakers), Zod raw-schema validation, and `normalize()` mapping (`normalizeFinnhubSplit`/`normalizeFinnhubDividend`). `providerEventId` is left `undefined` since Finnhub supplies no distinct per-event identifier — an honest absence, not a fabricated one.
+- `createCorporateActionsProvider()` factory — `CORPORATE_ACTIONS_MODE=live` + `FINNHUB_API_KEY` (reused as-is from L1-003, no duplicate credential introduced) selects the live provider; otherwise falls back to Simulated with a logged warning.
+- `CorporateActionsService` — idempotent `upsert()` against the `(assetId, type, effectiveDate)` natural key, 24h cache-freshness window; reads/writes only the `CorporateAction` Prisma model.
+- `CorporateActionsSyncService` — daily cron (`EVERY_DAY_AT_MIDNIGHT`, matching the Blueprint's stated "Daily" sync frequency for this domain), reusing `MarketDataSyncService.getTrackedAssetIds()`.
+- `CorporateActionsController` — read-only `GET /corporate-actions/:assetId`, mirroring `CotController` exactly (`JwtAuthGuard`, Swagger tags).
+- `CorporateActionsModule` — registered in `AppModule`; imports `DatabaseModule`, `AuthModule`, `AssetsModule`, `MarketDataModule`, mirroring `CotModule`'s import list.
+- `CORPORATE_ACTIONS_MODE` added to `apps/api/.env` and `.env.example`.
+
+## Files Changed
+
+- `packages/database/prisma/schema.prisma` (+ generated migration `20260717010830_add_corporate_action`)
+- `apps/api/src/corporate-actions/providers/corporate-actions-provider.interface.ts` (new)
+- `apps/api/src/corporate-actions/providers/simulated-corporate-actions.provider.ts` (new)
+- `apps/api/src/corporate-actions/providers/corporate-actions.schemas.ts` (new)
+- `apps/api/src/corporate-actions/providers/corporate-actions.normalize.ts` (new)
+- `apps/api/src/corporate-actions/providers/finnhub-corporate-actions.provider.ts` (new)
+- `apps/api/src/corporate-actions/providers/corporate-actions-provider.factory.ts` (new)
+- `apps/api/src/corporate-actions/corporate-actions.service.ts` (new)
+- `apps/api/src/corporate-actions/corporate-actions-sync.service.ts` (new)
+- `apps/api/src/corporate-actions/corporate-actions.controller.ts` (new)
+- `apps/api/src/corporate-actions/corporate-actions.module.ts` (new)
+- `apps/api/src/app.module.ts` (registered `CorporateActionsModule`)
+- `apps/api/.env`, `apps/api/.env.example` (added `CORPORATE_ACTIONS_MODE`)
+- Test spec files: `corporate-actions.normalize.spec.ts`, `corporate-actions-provider.factory.spec.ts`, `finnhub-corporate-actions.provider.spec.ts`, `corporate-actions.service.spec.ts`, `corporate-actions-sync.service.spec.ts`
+
+## Test Summary
+
+- 23 new tests across 5 new spec files, all passing: normalize mapping (ratio computation, reverse splits, unparseable dates, missing currency default), factory fallback (simulated/live/missing-credential warning), live Finnhub provider (URL construction, normalization, filtering unparseable events), service idempotency (repeated upsert against the same natural key produces no duplicate, and touches only the `corporateAction` Prisma model), and sync-service batch tolerance.
+- Full regression suite: `turbo run build lint test` for `@zenith/api`/`@zenith/database` — **166 test suites, 860 tests, all passing, zero regressions.**
+
+## Live Verification Summary
+
+- Booted the API against real local PostgreSQL in `CORPORATE_ACTIONS_MODE=simulated` (default): `CorporateActionsController` routes registered cleanly, `GET /corporate-actions/:assetId` returned `[]` as expected for the Simulated provider.
+- Captured `Candle`/`Position` row-count and `md5` ID-set hashes before and after exercising the new endpoint: **identical in both counts and hashes** — empirically confirms Decision 1 (Corporate Actions never mutates existing financial data), not just by code review.
+- Booted with `CORPORATE_ACTIONS_MODE=live` and `FINNHUB_API_KEY` unset: confirmed the exact expected fallback warning log (`CORPORATE_ACTIONS_MODE=live but FINNHUB_API_KEY is not set — falling back to SimulatedCorporateActionsProvider`) and correct fallback behavior.
+- Attempted a real connectivity check against `finnhub.io`'s corporate-actions endpoints: blocked by this session's environment egress policy (`403`/`CONNECT tunnel failed`), consistent with the same host's finding in L1-003. No workaround attempted, per standing instruction.
+
+**Sprint Status:** Approved — Live External Verification Pending (Environment Constraint)
 
 ---
 
