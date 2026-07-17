@@ -122,6 +122,17 @@ this is the entire reason tabular figures exist (D1-001 §3).
 6.3. Row height is set by the spacing scale (D2-004), not by
 typography — typography does not dictate layout rhythm in this system.
 
+6.4. **Minimum column gutter (found during the professional-trader
+long-session review):** adjacent numeric columns in a dense table
+(a watchlist, a portfolio, a trade history) maintain at least
+`space.16` (D2-004 §1) between them. Tabular figures solve digit
+alignment *within* a column; without a minimum gutter, adjacent
+columns of right-aligned digits can visually run together during rapid
+scanning, which is precisely the "financial reading speed" this
+document exists to protect. This is a spacing rule, not a typography
+one, but is stated here because it only matters in the numeric-table
+context this section governs.
+
 ------------------------------------------------------------------------
 
 # 7. Monospace Usage

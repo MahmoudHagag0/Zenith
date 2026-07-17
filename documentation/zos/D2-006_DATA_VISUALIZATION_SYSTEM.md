@@ -85,6 +85,28 @@ update regardless of the magnitude of change (D1-002 §5.3).
 what; this is Constitution §8.4's consistency-reduces-relearning
 principle applied to a single chart's own internal vocabulary.
 
+2.7. **A chart's size and visual weight follow its own Attention level
+(D1-002 §1), never its own visual complexity** (added during the
+professional-trader long-session review, closing a real gap: this
+document specified chart *color* extensively but never chart *size/
+dominance* explicitly). A chart occupying Secondary or Supporting
+Attention is sized and weighted accordingly — a visually rich chart
+does not earn a larger footprint than its assigned Attention level
+just because it is more complex to render than the text/numeric
+element that holds Primary Attention on the same screen. This is the
+concrete answer to "charts never dominate the interface."
+
+2.8. **Chart + table pairing.** When a chart and a table represent
+related data on the same screen (a common trading-UI pattern), exactly
+one of the two carries Primary Attention (D1-002 §1.1) and the other is
+Secondary/Supporting — never both competing for the first glance
+simultaneously. Which one is Primary depends on the screen's own
+Decision Flow question (D1-005 §1, ZXL §2): a screen answering "what is
+the current state, precisely" leads with the table; a screen answering
+"what is the trend/shape over time" leads with the chart. The
+non-Primary element is not deleted, only demoted — this is how charts
+and tables "complement" rather than compete.
+
 ------------------------------------------------------------------------
 
 # 3. Charts (Price/Time Series)

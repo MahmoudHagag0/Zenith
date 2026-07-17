@@ -64,6 +64,18 @@ remains binding: color meaning stays closed and singular).
 | Teal 500 | `#3E7C72` | Secondary interactive accent (distinct role from primary, e.g. a secondary tab indicator) |
 | Teal 700 | `#2A5750` | Secondary accent, active state |
 
+**When Secondary is used vs. Primary (stated explicitly to prevent
+per-screen reinterpretation over time, a real long-session consistency
+risk — D1-001 §10):** Primary (`accent.*`, Ink) is the single
+system-wide "you can act here" signal (D1-003 §3) — every Primary
+button, every default focus ring, every main navigation-selected state.
+Secondary (Teal) is reserved for exactly one narrower role: marking a
+*second, simultaneously-visible* interactive class that must be
+visually distinguishable from Primary within the same view (e.g. a
+secondary tab strip alongside a Primary action bar). If a screen has no
+such second interactive class, it uses Primary and neutral tokens only
+— Secondary is not a default decorative accent.
+
 ------------------------------------------------------------------------
 
 # 3. Neutral Palette
@@ -74,8 +86,8 @@ avoid the "clinical dark-mode terminal" read of most trading software.
 
 | Step | Value (reference) | Maps to |
 |---|---|---|
-| Neutral 0 | `#FFFFFF` | `surface.base` (light mode) |
-| Neutral 50 | `#F7F6F4` | `surface.raised` (light mode) |
+| Neutral 0 | `#FFFFFF` | `surface.raised` (light mode) |
+| Neutral 50 | `#F7F6F4` | `surface.base` (light mode) |
 | Neutral 100 | `#EDEBE7` | `border.default` (light mode) |
 | Neutral 400 | `#8B877E` | `text.muted` |
 | Neutral 600 | `#5B584F` | `text.secondary` |
@@ -101,13 +113,21 @@ keep the system calm even at its most severe (D1-001 §7; Constitution
 | `signal.critical` | `#8C4A3D` (muted clay-brick red) | Blocking, requires-attention-now condition (D1-003 §4) |
 | `signal.warn` | `#8C6E3D` (muted ochre/amber) | Degraded-but-usable condition |
 | `signal.info` | Same as `accent.default` (Ink 600) | Neutral factual disclosure — reuses the accent, not a fourth hue |
-| `success` (referenced only where a factual, non-financial confirmation is needed — e.g. "saved") | `#3E7C55` (muted sage green) | Confirmation of a completed action, never used for gain/loss (§9 below) |
+| `success` (referenced only where a factual, non-financial confirmation is needed — e.g. "saved") | `#3E8C5E` (clear, moderately saturated green) | Confirmation of a completed action, never used for gain/loss (§11 below) |
 | Muted | Neutral 400/600 (§3) | De-emphasized text/icon, not a color signal at all |
 
 **Note:** `success` above is deliberately *not* the same token as
-`data.positive` (§9) — a saved-settings confirmation and a portfolio
+`data.positive` (§11) — a saved-settings confirmation and a portfolio
 gain are different concepts and must never share a token, per D1-002
-§2.1's closed-vocabulary rule.
+§2.1's closed-vocabulary rule. **Long-session correction:** the
+original reference value for `success` (`#3E7C55`) was too close in
+hue and lightness to `data.positive` (§11) to reliably tell apart at a
+glance during rapid scanning — exactly the kind of near-miss that
+undermines the closed-vocabulary rule in practice, not just on paper.
+`success` is now shifted brighter/greener; `data.positive` (§11) stays
+deliberately muted/grayer, since financial direction — unlike a UI
+confirmation — must never read as celebratory (D1-003 §5, Constitution
+§7.3).
 
 ------------------------------------------------------------------------
 
@@ -115,9 +135,20 @@ gain are different concepts and must never share a token, per D1-002
 
 | Token | Light mode | Dark mode |
 |---|---|---|
-| `surface.base` | Neutral 0 | Neutral 950 |
-| `surface.raised` | Neutral 50 | Neutral 850 |
+| `surface.base` | Neutral 50 | Neutral 950 |
+| `surface.raised` | Neutral 0 | Neutral 850 |
 | `surface.overlay` (modal backdrop surface itself, not the scrim) | Neutral 0 | Neutral 850 |
+
+**Long-session correction (found during the professional-trader
+review):** the page background is deliberately *not* pure white
+(`#FFFFFF`). A pure-white base is a known contributor to glare/eye
+strain across a sustained 6–10 hour viewing session — the same reason
+most professional long-session software (IDEs, research terminals)
+avoids a stark-white default surface. `surface.raised` (a card) is the
+lighter, whiter surface instead, correctly implementing D1-003 §2's
+own rule that a raised surface reads as "lighter/whiter than base" —
+which is impossible to satisfy if the base itself is already pure
+white. This also resolves that latent contradiction.
 
 ------------------------------------------------------------------------
 
@@ -176,9 +207,18 @@ BI/trading dashboards:
 |---|---|
 | Series 1 | Ink 600 (`#33435F`) |
 | Series 2 | Teal 500 (`#3E7C72`) |
-| Series 3 | `#8C6E3D` (muted ochre, shared family with `signal.warn` but used only as a categorical series color, not a severity signal, in this context) |
+| Series 3 | `#6B7C4A` (muted olive) |
 | Series 4 | `#6B5B7C` (muted plum) |
 | Series 5 | Neutral 600 (for a "baseline/other" series) |
+
+**Long-session correction:** Series 3 previously shared its exact hue
+with `signal.warn` (§4). Over a full trading day, a trader's eye learns
+color associations from repeated exposure (D1-001 §10, D1-002 §8) — a
+chart line using the same color as an operational-warning indicator
+risks a brief, subconscious "is something wrong?" read on every glance
+at that series, an avoidable low-grade stress source. Series 3 now
+uses a distinct hue (muted olive) entirely outside the `signal.*`
+family.
 
 Sequential scales (e.g. a heatmap, D2-006) use a single-hue ramp from
 Neutral or Ink at varying lightness — never a red-to-green diverging
@@ -209,8 +249,22 @@ lower-saturation than `signal.critical` per D1-003 §5.2:
 | Token | Reference value |
 |---|---|
 | `data.positive` | `#4F7D5E` (muted, closer to Success than to a vivid green) |
-| `data.negative` | `#8C4A3D` (same hue family as `signal.critical`, at lower saturation — direction is a fact, not an alert) |
+| `data.negative` | `#A9695D` (same hue family as `signal.critical`, but distinctly lighter/less saturated — direction is a fact, not an alert) |
 | `data.neutral` | `text.secondary` (no distinct hue — D1-003 §5.4) |
+
+**Long-session correction:** the original reference value for
+`data.negative` was byte-identical to `signal.critical` (`#8C4A3D`) —
+not merely "the same family" as intended, but the literal same color.
+This is exactly the failure mode D1-002 §2.1's closed-vocabulary rule
+exists to prevent: a trader glancing at a red P/L figure and a
+critical operational alert side by side (e.g. a losing position next
+to a stale-data warning on the same screen) would see no visual
+difference between "you have a loss" and "something is broken,"
+despite these being entirely different concerns. `data.negative` is
+now visibly lighter/less saturated than `signal.critical` while
+remaining in the same muted hue family, per D1-003 §5.2's own
+"markedly lower-saturation" requirement — which this reference value
+did not actually satisfy until this correction.
 
 A candlestick or bar chart following this system will read as visibly
 calmer/lower-contrast than Bloomberg/TradingView/MetaTrader by design
