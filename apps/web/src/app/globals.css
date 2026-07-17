@@ -263,20 +263,29 @@ tbody tr:hover {
  * on interaction. Kept local (not merged into the shared `.link` class,
  * which the login page's register/sign-in toggle still uses unchanged).
  */
+/*
+ * M6 Visual Identity fix: previously hardcoded (#6b6b6f/#3a3a3d),
+ * matching neither the sidebar's other nav items nor either theme mode
+ * -- flagged during the prior Dashboard visual review as visibly
+ * inconsistent. Now token-driven (`@zenith/design-tokens` is imported
+ * at the top of this file), so it follows both light/dark mode
+ * automatically and matches every other nav-tier control's rest/hover
+ * treatment, on this screen and the nine not-yet-migrated ones alike.
+ */
 .signout {
   background: none;
   border: none;
   padding: 0;
   font: inherit;
   font-size: 0.85rem;
-  color: #6b6b6f;
+  color: var(--zenith-text-secondary, #6b6b6f);
   text-decoration: none;
   cursor: pointer;
 }
 
 .signout:hover,
 .signout:focus-visible {
-  color: #3a3a3d;
+  color: var(--zenith-accent-default, #3a3a3d);
   text-decoration: underline;
 }
 

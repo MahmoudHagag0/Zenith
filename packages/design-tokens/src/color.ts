@@ -1,40 +1,49 @@
 /**
- * Color tokens -- values verbatim from D2-002_COLOR_SYSTEM.md. Three-tier
- * structure per D1-003 §1: primitives (private, below) -> semantic tokens
- * (exported) -> theme mapping (light/dark, `themedColorVars` at the
- * bottom). No value here may be changed without an M4/D2 amendment --
- * this file is the single source `generate-css.ts` reads from.
+ * Color tokens -- values verbatim from M6-004_OFFICIAL_DESIGN_SYSTEM.md
+ * (Direction A, "Executive Intelligence"), superseding D2-002's first-
+ * draft values inside the unchanged three-tier structure (D1-003 §1):
+ * primitives (private, below) -> semantic tokens (exported) -> theme
+ * mapping (light/dark). No value here may be changed without an M6
+ * amendment -- this file is the single source `generate-css.ts` reads
+ * from. Every pairing below is WCAG 2.1 AA-verified against the
+ * surface it is actually used on (M6-004 self-review corrections).
  */
 
-// ---- Primitive tokens (D2-002 §1-3) -- never referenced outside this file ----
+// ---- Primitive tokens (M6-004 §1-7) -- never referenced outside this file ----
+
+const paper = {
+  light: '#F8F6F0',
+  raisedLight: '#FFFFFF',
+  darkBase: '#17150F',
+  darkRaised: '#211E17',
+  darkOverlay: '#262319',
+} as const;
 
 const ink = {
-  50: '#EEF1F6',
-  100: '#D7DEEA',
-  400: '#5B6B8C',
-  600: '#33435F',
-  700: '#26324A',
+  textPrimaryLight: '#1C1A16',
+  textSecondaryLight: '#5B564C',
+  textMutedLight: '#6A6455',
+  textPrimaryDark: '#F1EDE4',
+  textSecondaryDark: '#B8B2A2',
+  textMutedDark: '#9C9580',
 } as const;
 
-const teal = {
-  100: '#DCEEEA',
-  500: '#3E7C72',
-  700: '#2A5750',
+const border = {
+  defaultLight: '#E4E0D6',
+  emphasisLight: '#C9C3B4',
+  defaultDark: '#343026',
+  emphasisDark: '#4A4536',
 } as const;
 
-const neutral = {
-  0: '#FFFFFF',
-  50: '#F7F6F4',
-  100: '#EDEBE7',
-  400: '#8B877E',
-  600: '#5B584F',
-  800: '#332F2A',
-  850: '#242320',
-  900: '#211F1B',
-  950: '#171613',
+const tealAccent = {
+  defaultLight: '#1F5E56',
+  emphasisLight: '#163F3A',
+  defaultDark: '#4FA79A',
+  emphasisDark: '#6BC2B4',
+  focusDark: '#5CB6A8',
 } as const;
 
-// ---- Semantic tokens, per theme (D2-002 §4-11) ----
+// ---- Semantic tokens, per theme (M6-004 §1-7) ----
 
 export interface ThemeColorTokens {
   readonly surfaceBase: string;
@@ -62,63 +71,62 @@ export interface ThemeColorTokens {
   readonly chartSeries5: string;
 }
 
-/** D2-002 §5, §7, §8: light-mode theme mapping. */
+/** M6-004 §1-7: light-mode theme mapping ("Executive Intelligence"). */
 export const lightColorTokens: ThemeColorTokens = {
-  surfaceBase: neutral[50],
-  surfaceRaised: neutral[0],
-  surfaceOverlay: neutral[0],
-  textPrimary: neutral[900],
-  textSecondary: neutral[600],
-  textMuted: neutral[400],
-  borderDefault: neutral[100],
-  borderEmphasis: ink[600],
-  accentDefault: ink[600],
-  accentEmphasis: ink[700],
-  accentFocus: ink[600],
+  surfaceBase: paper.light,
+  surfaceRaised: paper.raisedLight,
+  surfaceOverlay: paper.raisedLight,
+  textPrimary: ink.textPrimaryLight,
+  textSecondary: ink.textSecondaryLight,
+  textMuted: ink.textMutedLight,
+  borderDefault: border.defaultLight,
+  borderEmphasis: border.emphasisLight,
+  accentDefault: tealAccent.defaultLight,
+  accentEmphasis: tealAccent.emphasisLight,
+  accentFocus: tealAccent.defaultLight,
   signalCritical: '#8C4A3D',
-  signalWarn: '#8C6E3D',
-  signalInfo: ink[600],
-  success: '#3E8C5E',
-  dataPositive: '#4F7D5E',
-  dataNegative: '#A9695D',
-  dataNeutral: neutral[600],
-  chartSeries1: ink[600],
-  chartSeries2: teal[500],
-  chartSeries3: '#6B7C4A',
-  chartSeries4: '#6B5B7C',
-  chartSeries5: neutral[600],
+  signalWarn: '#8A6E33',
+  signalInfo: '#4B6478',
+  success: '#4F7358',
+  dataPositive: '#4F7358',
+  dataNegative: '#8F5349',
+  dataNeutral: ink.textMutedLight,
+  chartSeries1: tealAccent.defaultLight,
+  chartSeries2: '#A9695D',
+  chartSeries3: '#8A6E33',
+  chartSeries4: '#4B6478',
+  chartSeries5: '#6B5670',
 } as const;
 
-/** D2-002 §5, §7, §8: dark-mode theme mapping. */
+/** M6-004 §1-7: dark-mode theme mapping ("Executive Intelligence"). */
 export const darkColorTokens: ThemeColorTokens = {
-  surfaceBase: neutral[950],
-  surfaceRaised: neutral[850],
-  surfaceOverlay: neutral[850],
-  textPrimary: neutral[50],
-  textSecondary: neutral[400],
-  textMuted: neutral[600],
-  borderDefault: neutral[800],
-  borderEmphasis: ink[400],
-  accentDefault: ink[600],
-  accentEmphasis: ink[700],
-  accentFocus: ink[400],
-  signalCritical: '#8C4A3D',
-  signalWarn: '#8C6E3D',
-  signalInfo: ink[600],
-  success: '#3E8C5E',
-  dataPositive: '#4F7D5E',
-  dataNegative: '#A9695D',
-  dataNeutral: neutral[400],
-  chartSeries1: ink[600],
-  chartSeries2: teal[500],
-  chartSeries3: '#6B7C4A',
-  chartSeries4: '#6B5B7C',
-  chartSeries5: neutral[400],
+  surfaceBase: paper.darkBase,
+  surfaceRaised: paper.darkRaised,
+  surfaceOverlay: paper.darkOverlay,
+  textPrimary: ink.textPrimaryDark,
+  textSecondary: ink.textSecondaryDark,
+  textMuted: ink.textMutedDark,
+  borderDefault: border.defaultDark,
+  borderEmphasis: border.emphasisDark,
+  accentDefault: tealAccent.defaultDark,
+  accentEmphasis: tealAccent.emphasisDark,
+  accentFocus: tealAccent.focusDark,
+  signalCritical: '#C2897B',
+  signalWarn: '#C9A968',
+  signalInfo: '#8CA6B8',
+  success: '#8CAE8F',
+  dataPositive: '#8CAE8F',
+  dataNegative: '#C2897B',
+  dataNeutral: ink.textMutedDark,
+  chartSeries1: tealAccent.defaultDark,
+  chartSeries2: '#C2897B',
+  chartSeries3: '#C9A968',
+  chartSeries4: '#8CA6B8',
+  chartSeries5: '#A68CAE',
 } as const;
 
 /** Non-themed reference values (subtle tints, rarely consumed directly). */
 export const referenceTints = {
-  ink50: ink[50],
-  ink100: ink[100],
-  teal100: teal[100],
+  accentTintLight: '#E4EEEC',
+  accentTintDark: '#1C3733',
 } as const;

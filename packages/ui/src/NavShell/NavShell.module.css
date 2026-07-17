@@ -16,10 +16,18 @@
   text-decoration: none;
   padding: var(--zenith-space-8) var(--zenith-space-12);
   border-radius: var(--zenith-radius-sm);
+  transition: background-color var(--zenith-duration-fast) var(--zenith-easing-standard), color var(--zenith-duration-fast) var(--zenith-easing-standard);
 }
 
+/*
+ * M6-002 §17 fix: color-only hover (previous version) measured too
+ * faint to notice at a glance during the prior Dashboard visual
+ * review. Adding the same background-tint mechanism Card uses makes
+ * the affordance readable without close inspection.
+ */
 .navItem:hover {
   color: var(--zenith-text-primary);
+  background: color-mix(in srgb, transparent calc((1 - var(--zenith-opacity-hover)) * 100%), var(--zenith-text-primary) calc(var(--zenith-opacity-hover) * 100%));
 }
 
 .navItem[data-active] {
@@ -42,6 +50,8 @@
   justify-content: space-between;
   padding: var(--zenith-space-16) var(--zenith-space-16);
   border-bottom: 1px solid var(--zenith-border-default);
+  /* Anchors `.topbarMenuList`'s absolute positioning below (bug fix, see it). */
+  position: relative;
 }
 
 .brand {
@@ -63,11 +73,31 @@
   display: none;
 }
 
+/*
+ * Bug fix (found during the prior Dashboard visual review): this list
+ * previously flowed in normal document layout inside `.topbar`, so
+ * opening it inflated the whole flex row's height -- with
+ * `align-items: center` on `.topbar`, that dragged `.brand` and the
+ * utility slot down into the middle of the now-tall row instead of
+ * staying pinned to the top. Taking the open list out of flow
+ * (`position: absolute`, anchored to `.topbar`'s new `position:
+ * relative`) means opening the menu no longer changes the row's own
+ * height at all -- brand/summary/utility stay exactly where they were.
+ */
 .topbarMenuList {
   display: flex;
   flex-direction: column;
   gap: var(--zenith-space-4);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
   margin-top: var(--zenith-space-8);
+  padding: var(--zenith-space-12);
+  background: var(--zenith-surface-raised);
+  border: 1px solid var(--zenith-border-emphasis);
+  border-radius: var(--zenith-radius-md);
+  z-index: var(--zenith-layer-overlay);
 }
 
 @media (min-width: 640px) {

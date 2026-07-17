@@ -11,9 +11,13 @@ export const spacing = {
   96: '6rem',
 } as const;
 
-/** D2-004 §4: container widths. */
+/**
+ * Container widths. `wide` widened per M6-004 §11: the prior 1200px
+ * cap left a stark, asymmetric dead gutter on common 1440px+ desktop
+ * viewports (a finding from the prior Dashboard visual review).
+ */
 export const containerWidths = {
   narrow: '40rem', // 640px
   default: '60rem', // 960px
-  wide: '75rem', // 1200px
+  wide: '85rem', // 1360px (was 75rem/1200px)
 } as const;
