@@ -452,6 +452,36 @@ Sprint or milestone where the decision was applied.
 -   **Affected Components:** `packages/database/prisma/schema.prisma`, `apps/api/src/corporate-actions/**`, `apps/api/src/app.module.ts`.
 -   **Implemented In:** L1-006.
 
+## DEC-2026-032
+
+-   **Date:** 2026-07-17
+-   **Title:** L1-007 (Macro Context / FRED) — Live Data Layer Only, No Narrative Integration
+-   **Status:** Approved
+-   **Decision Summary:** A new `MacroDataProvider` interface was introduced (per Blueprint §4.1, this domain had no prior abstraction), sourced exclusively from FRED — the Blueprint's own sole-recommended source for this domain, with no dual-source tension to resolve. The Architecture Team resolved the Sprint's one Missing Decision (how far the integration reaches into Morning Brief/AI Workspace narrative generation) with **Scope Option A**: this Sprint is strictly limited to the Live Data layer — provider, normalization, persistence (`MacroSeriesValue`, natural key `(seriesId, observationDate)`), daily sync, and a read-only endpoint. `NarrativeComposerService`, `WorkspaceService`, and any AI-generated or consumer-side macro interpretation were explicitly kept out of scope and confirmed unmodified. A small, disclosed reference set (`TRACKED_MACRO_SERIES`: `FEDFUNDS`, `CPIAUCSL`, `UNRATE`, `GDP`) was used, mirroring L1-004's CFTC contract-mapping-table precedent, and `MacroDataSyncService` iterates that set directly rather than reusing `MarketDataSyncService.getTrackedAssetIds()`, since macro-economic series have no Asset/Watchlist/Portfolio scope to derive from — a disclosed, deliberate deviation from every other L1 Sprint's sync-service pattern.
+-   **Alternatives Considered:** Full narrative integration (extending `NarrativeComposerService`/`WorkspaceService` to reference macro values in generated text) — rejected for this Sprint; narrative generation belongs to the Zenith Intelligence Layer after Milestone M3 is fully completed, per the Architecture Team's own rationale.
+-   **Rationale:** Keeping this Sprint bounded to the Live Data layer preserved the same "new domain, existing consumers untouched" precedent every other L1 Sprint followed, and avoided prematurely building a narrative-template change whose actual shape depends on Intelligence Layer design decisions not yet made.
+-   **Consequences:** Any future Sprint that wants macro-aware Morning Brief/AI Workspace commentary must build the narrative-consumer integration as new, separate work — nothing in `apps/api/src/morning-brief/**` or `apps/api/src/workspace/**` references macro data today. Live verification of `api.stlouisfed.org` was blocked by this session's environment egress policy, identically to every prior external provider.
+-   **Related Sprint:** L1-007.
+-   **Related Blueprint Section:** `28_LIVE_DATA_BLUEPRINT.md` §1, §3, §4.1, §6, §9 Implementation Roadmap Phase 7, Addendum §A2, §A3.
+-   **Related ADR:** ADR-003 (Provider Abstraction).
+-   **Affected Components:** `packages/database/prisma/schema.prisma`, `apps/api/src/macro-data/**`, `apps/api/src/app.module.ts`.
+-   **Implemented In:** L1-007.
+
+## DEC-2026-033
+
+-   **Date:** 2026-07-17
+-   **Title:** L1-008 (Monitoring, Alerting & Cost Observability) — Operational Alerting Only; Passive Health Monitoring; Dedicated LiveDataObservabilityService
+-   **Status:** Approved
+-   **Decision Summary:** Three decisions were made. **(1) Alerting scope:** Operational Alerting only (provider availability, sync failures, provider degradation, high error rate, API usage/cost observability) — explicitly distinct from, and never integrated with, the existing user-facing `Alert`/`AlertsService` domain (per-user price-condition alerts). **(2) Provider health:** Passive Health Monitoring only — health is derived entirely from already-occurring runtime events (`MarketDataHttpClient` calls, `*SyncService` runs); no new periodic live-ping request was introduced anywhere. **(3) Observability ownership:** a new, dedicated `LiveDataObservabilityService` (`apps/api/src/monitoring/**`) was created rather than extending Analysis Engine's existing `ObservabilityService` (S1-007), keeping the two domains isolated since the Analysis Engine service's failure-detection is keyed to `ComputationRejectedError`, a type Live Data providers never throw. `MarketDataHttpClient`'s constructor was extended with optional trailing `domain`/`metrics` parameters (backward-compatible), and every live provider across all six existing Live Data domains was wired to record circuit state, success, failure, and retry events; every `*SyncService` now calls `recordSync()` once per cron run.
+-   **Alternatives Considered:** Extending the existing `/market-data/provider-health` endpoint/`ObservabilityService` to cover every domain — rejected, since it would have required `MarketDataModule` to import every other domain module (inverting the existing one-directional dependency flow and risking circular imports). Resolved instead by making `LiveDataObservabilityService` the single, centrally-written-to source of truth that every domain module already imports `MonitoringModule` to reach, so the read-side `MonitoringController` needs no cross-domain-module imports at all.
+-   **Rationale:** Keeping operational alerting and passive-only health monitoring separate from both the user-facing `Alert` domain and the Analysis Engine's `ObservabilityService` avoided conflating three genuinely different concerns (trading alerts, computation observability, live-provider operational health) under one service, at the cost of a small amount of duplicated plumbing (each domain's own module/service wiring) rather than a shared aggregator with a harder dependency-direction problem.
+-   **Consequences:** `LiveDataObservabilityService`'s metrics are in-memory only and reset on process restart — explicitly reviewed by the L1-009 Live Data Acceptance Review and confirmed appropriate for this project's current stage, not superseded here. The pre-existing `GET /market-data/provider-health` endpoint (L1-001, single Market Data provider) was left completely unchanged; the new `GET /monitoring/provider-health` and `GET /monitoring/alerts` endpoints are additive.
+-   **Related Sprint:** L1-008.
+-   **Related Blueprint Section:** `28_LIVE_DATA_BLUEPRINT.md` §9 Implementation Roadmap Phase 8.
+-   **Related ADR:** ADR-003 (Provider Abstraction); S1-007's `ObservabilityService` (Analysis Engine) — referenced, not extended, not superseded.
+-   **Affected Components:** `apps/api/src/monitoring/**`, `apps/api/src/market-data/providers/http-client.ts`, `apps/api/src/market-data/retry.util.ts`, and every provider/factory/module/sync-service file across `market-data`, `calendar-news`, `cot`, `corporate-actions`, `macro-data`.
+-   **Implemented In:** L1-008.
+
 # Rules
 
 -   Every architectural decision must have a Decision Log entry.

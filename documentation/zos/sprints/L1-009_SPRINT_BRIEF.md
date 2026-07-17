@@ -328,10 +328,64 @@ architecture is introduced. Concretely:
 
 - [x] Proposed
 - [ ] Under Review
-- [ ] Approved
+- [x] Approved
 - [ ] Rejected
 
-**Final Status:** Proposed — awaiting Architecture Team resolution of Missing Decisions #1 and #2.
+**Final Status:** Approved — Accepted. Milestone M3 (Live Data Platform) formally closed.
+
+---
+
+# Implementation Notes
+
+**Date Implemented:** 2026-07-17
+**Approved By:** Architecture Team
+
+## Resolution of Missing Decisions
+
+- **Missing Decision #1 (release tag):** Approved conditionally — create and push `v1.0-live-data` only if the Acceptance Review concludes "Accepted," following the `v1.0-foundation` precedent. The review below concludes Accepted with no blocking defects, so the tag was created and pushed.
+- **Missing Decision #2 (Decision Log backfill):** Approved — backfill `DEC-2026-032` (L1-007) and `DEC-2026-033` (L1-008) using the established template; no additional entries.
+
+## Review Summary
+
+A full evidence-based review was conducted across all sixteen named objectives (grep/read of every provider, factory, module, sync service, controller, and spec file across all eight Live Data domains — Market Data, Market Sessions, Calendar/News, COT, Instrument Metadata, Corporate Actions, Macro Context, Monitoring/Observability). Findings:
+
+- **Provider abstraction / DI / HTTP reuse / retry / circuit breaker**: fully consistent. Every live provider instantiates the shared `MarketDataHttpClient` (single implementation, reused nine times across six domains); `withRetry`/`ProviderCircuitBreaker` exist in exactly one place each and are never duplicated; every provider token follows the `interface + string token + Simulated fallback + factory` shape.
+- **Cache strategy / sync pipeline**: each domain declares its own disclosed freshness-window constant matching that data's real-world publication cadence (quotes 15s, calendar/news 24h, corporate actions 24h, macro 24h, COT 7d) and a consistent `ensureCached`-then-upsert pattern; cron cadences (5 min / daily / 30 min / weekly / daily / daily) match Blueprint §6/§9 exactly. Every `*SyncService` reuses `MarketDataSyncService.getTrackedAssetIds()` except `MacroDataSyncService`, a disclosed, architecturally justified exception (macro series have no Asset/Watchlist scope).
+- **Database consistency**: every new model has a real compound `@@unique` natural key and `onDelete: Cascade`; `Decimal @db.Decimal(24,8)` used uniformly for monetary/numeric fields.
+- **API consistency**: all six controllers use the identical `@ApiTags` + `@ApiBearerAuth` + `@UseGuards(JwtAuthGuard)` + `@Controller` shape.
+- **Documentation / Sprint / cross-reference consistency**: two gaps found and corrected in this Sprint's hardening pass (see below); no other broken cross-references found across Sprint Briefs, Blueprint, or Roadmap.
+- **Technical debt** (disclosed, none requiring a code change): (1) `MarketDataHttpClient`-consuming factory functions have inconsistent parameter ordering between `createMarketDataProvider(apiKey, mode, ...)` and `createMacroDataProvider`/`createCorporateActionsProvider(mode, apiKey, ...)` — cosmetic only, each call site is internally consistent and type-checked; not fixed, since doing so would touch already-working, already-tested call sites for zero functional benefit. (2) The CFTC Socrata resource ID and FRED/Finnhub/TwelveData/MarketAux integrations remain unverified against live traffic due to the standing environment egress-policy constraint (see Risks). (3) `cot-sync.service.spec.ts` was missing (every sibling `*SyncService` had one) — a genuine test-coverage gap, fixed in this Sprint's hardening pass (see below).
+- **Operational monitoring**: `LiveDataObservabilityService` correctly receives circuit-state/success/failure/retry events from all nine `MarketDataHttpClient` instances and `recordSync()` calls from all six `*SyncService`s (confirmed by reading each call site); `GET /monitoring/provider-health` and `GET /monitoring/alerts` verified live in Simulated mode.
+- **Performance observations**: no N+1 query pattern found in any sync service (each iterates a bounded tracked-asset or tracked-series set, one upsert per item); no unbounded fan-out; HTTP timeouts (10s) and circuit breakers bound worst-case latency per provider.
+- **Security review**: `.env` is git-ignored and has never been committed; `.env.example` ships only empty placeholder values; every live provider defaults to Simulated unless both an explicit `*_MODE=live` and a real credential are present, logging a clear warning otherwise; every new endpoint requires `JwtAuthGuard`; no endpoint exposes credentials or raw provider responses.
+- **Testing review**: full regression suite — **174 test suites, 913 tests, all passing, zero regressions** (up from 171/881 at L1-007 close).
+
+## Special Review Item Verdicts
+
+1. **`TRACKED_MACRO_SERIES` hardcoding**: **Keep as-is.** It mirrors the already-accepted `CFTC_CONTRACT_MAPPING` (L1-004) precedent exactly — a small, disclosed, extensible reference set, not an exhaustive catalog. Extending it is a one-line, low-risk code change; nothing in the Blueprint or any Sprint Brief calls for runtime/admin configurability of tracked series; a database-backed migration would add a migration, a CRUD/admin surface, and operational complexity with no current requirement driving it. No compelling architectural reason to migrate was found. No code changed.
+2. **`LiveDataObservabilityService` in-memory-only implementation**: **Keep as-is.** This is a direct, disclosed consequence of Architecture Team Decision 2 (Passive Health Monitoring only) and Decision 3's own bounded field list (success/failure count, latency, retry, rate-limit events, last success/failure/sync) — none of which implies cross-restart durability. The platform runs as a single API instance today; persisting every provider call to the database would add write amplification with no current consumer needing historical trend data beyond the current snapshot. If Zenith later moves to a multi-instance deployment, in-memory state would no longer be shared/consistent across instances — a real, already-implicit limitation of "in-memory only," not a new finding, and a legitimate trigger for revisiting this decision in a future Sprint. No compelling reason to implement persistence now. No code changed.
+
+## Hardening Pass (defects found and fixed)
+
+1. **Missing `DEC-2026-032`/`DEC-2026-033` Decision Log entries** for L1-007/L1-008 (log's last entry was `DEC-2026-031`) — backfilled in `11_DECISION_LOG.md` using the established template.
+2. **`08_ROADMAP.md`'s M3 status stale** (listed only six Sprints, "70%") — updated to reflect all nine Sprints and 100% completion.
+3. **Missing `cot-sync.service.spec.ts`** (the only `*SyncService` without a spec file, inconsistent with all five siblings) — added, mirroring `corporate-actions-sync.service.spec.ts` exactly (3 tests: `recordSync` domain assertion, `getTrackedAssetIds()` reuse assertion, partial-failure tolerance assertion).
+
+No other code was changed. No refactor was performed absent these three concretely identified gaps.
+
+## Files Changed
+
+- `documentation/zos/11_DECISION_LOG.md` (+2 entries: `DEC-2026-032`, `DEC-2026-033`)
+- `documentation/zos/08_ROADMAP.md` (M3 status synced to reflect L1-007–L1-009 and 100% completion)
+- `apps/api/src/cot/cot-sync.service.spec.ts` (new — closes test-coverage gap)
+- `documentation/zos/sprints/L1-009_SPRINT_BRIEF.md` (this file — Implementation Notes)
+
+## Live Verification Summary
+
+- Booted the API against real local PostgreSQL in default (Simulated) mode: all routes across all eight Live Data domains registered cleanly, including `GET /monitoring/provider-health`, `GET /monitoring/alerts`, `GET /macro-data`, `GET /market-data/provider-health` (pre-existing, confirmed byte-for-byte behaviorally unchanged).
+- No new external provider was introduced by this Sprint, so no new live-connectivity attempt applies. The environment egress-policy constraint affecting `api.twelvedata.com`, `financialmodelingprep.com`, `finnhub.io`, `api.marketaux.com`, `publicreporting.cftc.gov`, and `api.stlouisfed.org` remains the standing, documented limitation carried forward from L1-001 through L1-007 — referenced, not re-investigated, per the Architecture Team's explicit instruction for this Sprint.
+
+**Sprint Status:** Approved — Accepted. Milestone M3 formally closed; `v1.0-live-data` tag created and pushed.
 
 ---
 
