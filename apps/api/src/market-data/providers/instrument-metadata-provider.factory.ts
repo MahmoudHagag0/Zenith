@@ -1,4 +1,5 @@
 import type { InstrumentMetadataProvider } from './instrument-metadata-provider.interface';
+import type { LiveDataMetricsRecorder } from './live-data-metrics-recorder.interface';
 import { SimulatedInstrumentMetadataProvider } from './simulated-instrument-metadata.provider';
 import { TwelveDataInstrumentMetadataProvider } from './twelve-data-instrument-metadata.provider';
 
@@ -19,10 +20,11 @@ export function createInstrumentMetadataProvider(
   apiKey: string | undefined,
   mode: string | undefined,
   logger: InstrumentMetadataProviderFactoryLogger,
+  metrics?: LiveDataMetricsRecorder,
 ): InstrumentMetadataProvider {
   if (mode === 'live') {
     if (apiKey) {
-      return new TwelveDataInstrumentMetadataProvider(apiKey);
+      return new TwelveDataInstrumentMetadataProvider(apiKey, metrics);
     }
     logger.warn('MARKET_DATA_MODE=live but TWELVE_DATA_API_KEY is not set — falling back to SimulatedInstrumentMetadataProvider');
   }

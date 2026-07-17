@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { AssetsService } from '../assets/assets.service';
 import { MarketDataSyncService } from '../market-data/market-data-sync.service';
+import { LiveDataObservabilityService } from '../monitoring/live-data-observability.service';
 import { CotService } from './cot.service';
 
 /**
@@ -19,6 +20,7 @@ export class CotSyncService {
     private readonly cotService: CotService,
     private readonly marketDataSyncService: MarketDataSyncService,
     private readonly assetsService: AssetsService,
+    private readonly liveDataObservabilityService: LiveDataObservabilityService,
   ) {}
 
   @Cron(CronExpression.EVERY_WEEK)
@@ -38,6 +40,7 @@ export class CotSyncService {
       }
     }
 
+    this.liveDataObservabilityService.recordSync('cot', succeeded, failed);
     this.logger.log(`COT sync finished: ${succeeded} succeeded, ${failed} failed, ${assetIds.length} tracked`);
   }
 }

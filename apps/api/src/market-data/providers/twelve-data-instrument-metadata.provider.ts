@@ -6,6 +6,7 @@ import type {
   ProviderSymbolSearchResult,
 } from './instrument-metadata-provider.interface';
 import { MarketDataHttpClient } from './http-client';
+import type { LiveDataMetricsRecorder } from './live-data-metrics-recorder.interface';
 import { ProviderUnavailableError } from './provider-errors';
 import {
   twelveDataExchangeResponseSchema,
@@ -33,8 +34,11 @@ export class TwelveDataInstrumentMetadataProvider implements InstrumentMetadataP
   readonly name = 'twelve-data';
   private readonly httpClient: MarketDataHttpClient;
 
-  constructor(private readonly apiKey: string) {
-    this.httpClient = new MarketDataHttpClient('twelve-data-instrument-metadata');
+  constructor(
+    private readonly apiKey: string,
+    metrics?: LiveDataMetricsRecorder,
+  ) {
+    this.httpClient = new MarketDataHttpClient('twelve-data-instrument-metadata', undefined, 'instrument-metadata', metrics);
   }
 
   async searchSymbols(query: string): Promise<ProviderSymbolSearchResult[]> {

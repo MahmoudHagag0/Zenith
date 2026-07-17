@@ -1,4 +1,5 @@
 import type { MarketDataProvider } from './market-data-provider.interface';
+import type { LiveDataMetricsRecorder } from './live-data-metrics-recorder.interface';
 import { SimulatedMarketDataProvider } from './simulated-market-data.provider';
 import { TwelveDataMarketDataProvider } from './twelve-data-market-data.provider';
 
@@ -19,10 +20,11 @@ export function createMarketDataProvider(
   apiKey: string | undefined,
   mode: string | undefined,
   logger: MarketDataProviderFactoryLogger,
+  metrics?: LiveDataMetricsRecorder,
 ): MarketDataProvider {
   if (mode === 'live') {
     if (apiKey) {
-      return new TwelveDataMarketDataProvider(apiKey);
+      return new TwelveDataMarketDataProvider(apiKey, metrics);
     }
     logger.warn('MARKET_DATA_MODE=live but TWELVE_DATA_API_KEY is not set — falling back to SimulatedMarketDataProvider');
   }

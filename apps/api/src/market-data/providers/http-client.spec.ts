@@ -88,4 +88,77 @@ describe('MarketDataHttpClient', () => {
       ProviderUnavailableError,
     );
   });
+
+  describe('passive metrics recording (L1-008)', () => {
+    it('records circuit state and success on a successful call', async () => {
+      global.fetch = jest.fn().mockResolvedValue(jsonResponse(200, { ok: true }));
+      const metrics = { recordCircuitState: jest.fn(), recordSuccess: jest.fn(), recordFailure: jest.fn(), recordRetry: jest.fn() };
+      const client = new MarketDataHttpClient('test-provider', undefined, 'test-domain', metrics);
+
+      await client.fetchJson('https://example.test/quote');
+
+      expect(metrics.recordCircuitState).toHaveBeenCalledWith('test-provider', 'test-domain', false);
+      expect(metrics.recordSuccess).toHaveBeenCalledWith('test-provider', 'test-domain', expect.any(Number));
+      expect(metrics.recordFailure).not.toHaveBeenCalled();
+    });
+
+    it('records failure with rateLimited=true on a 429', async () => {
+      global.fetch = jest.fn().mockResolvedValue(jsonResponse(429, { message: 'rate limited' }));
+      const metrics = { recordCircuitState: jest.fn(), recordSuccess: jest.fn(), recordFailure: jest.fn(), recordRetry: jest.fn() };
+      const client = new MarketDataHttpClient('test-provider', undefined, 'test-domain', metrics);
+
+      await expect(client.fetchJson('https://example.test/quote', { retries: 0 })).rejects.toBeInstanceOf(ProviderRateLimitedError);
+
+      expect(metrics.recordFailure).toHaveBeenCalledWith('test-provider', 'test-domain', expect.any(Number), true);
+    });
+
+    it('records failure with rateLimited=false on a non-429 error', async () => {
+      global.fetch = jest.fn().mockResolvedValue(jsonResponse(500, { message: 'down' }));
+      const metrics = { recordCircuitState: jest.fn(), recordSuccess: jest.fn(), recordFailure: jest.fn(), recordRetry: jest.fn() };
+      const client = new MarketDataHttpClient('test-provider', undefined, 'test-domain', metrics);
+
+      await expect(client.fetchJson('https://example.test/quote', { retries: 0 })).rejects.toBeInstanceOf(ProviderUnavailableError);
+
+      expect(metrics.recordFailure).toHaveBeenCalledWith('test-provider', 'test-domain', expect.any(Number), false);
+    });
+
+    it('records a retry via onRetry when a retryable failure is retried', async () => {
+      global.fetch = jest
+        .fn()
+        .mockResolvedValueOnce(jsonResponse(429, { message: 'rate limited' }))
+        .mockResolvedValueOnce(jsonResponse(200, { ok: true }));
+      const metrics = { recordCircuitState: jest.fn(), recordSuccess: jest.fn(), recordFailure: jest.fn(), recordRetry: jest.fn() };
+      const client = new MarketDataHttpClient('test-provider', undefined, 'test-domain', metrics);
+
+      await client.fetchJson('https://example.test/quote', { baseDelayMs: 1 });
+
+      expect(metrics.recordRetry).toHaveBeenCalledWith('test-provider', 'test-domain');
+    });
+
+    it('records circuit state as open once the circuit trips, without invoking recordSuccess/recordFailure again for the short-circuited call', async () => {
+      global.fetch = jest.fn().mockResolvedValue(jsonResponse(500, { message: 'down' }));
+      const metrics = { recordCircuitState: jest.fn(), recordSuccess: jest.fn(), recordFailure: jest.fn(), recordRetry: jest.fn() };
+      const client = new MarketDataHttpClient(
+        'test-provider',
+        { failureThreshold: 1, resetTimeoutMs: 60_000 },
+        'test-domain',
+        metrics,
+      );
+
+      await expect(client.fetchJson('https://example.test/quote', { retries: 0 })).rejects.toBeInstanceOf(ProviderUnavailableError);
+      await expect(client.fetchJson('https://example.test/quote', { retries: 0 })).rejects.toBeInstanceOf(ProviderUnavailableError);
+
+      expect(metrics.recordCircuitState).toHaveBeenLastCalledWith('test-provider', 'test-domain', true);
+    });
+
+    it('falls back to the providerId as the domain label when no domain is supplied', async () => {
+      global.fetch = jest.fn().mockResolvedValue(jsonResponse(200, { ok: true }));
+      const metrics = { recordCircuitState: jest.fn(), recordSuccess: jest.fn(), recordFailure: jest.fn(), recordRetry: jest.fn() };
+      const client = new MarketDataHttpClient('test-provider', undefined, undefined, metrics);
+
+      await client.fetchJson('https://example.test/quote');
+
+      expect(metrics.recordSuccess).toHaveBeenCalledWith('test-provider', 'test-provider', expect.any(Number));
+    });
+  });
 });

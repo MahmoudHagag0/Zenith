@@ -23,6 +23,8 @@ import { CotModule } from './cot/cot.module';
 import { WorkspaceModule } from './workspace/workspace.module';
 import { ReportsModule } from './reports/reports.module';
 import { CorporateActionsModule } from './corporate-actions/corporate-actions.module';
+import { MacroDataModule } from './macro-data/macro-data.module';
+import { MonitoringModule } from './monitoring/monitoring.module';
 
 @Module({
   imports: [
@@ -55,6 +57,8 @@ import { CorporateActionsModule } from './corporate-actions/corporate-actions.mo
     WorkspaceModule,
     ReportsModule,
     CorporateActionsModule,
+    MacroDataModule,
+    MonitoringModule,
   ],
 })
 export class AppModule {}

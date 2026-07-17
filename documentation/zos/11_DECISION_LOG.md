@@ -362,6 +362,126 @@ Sprint or milestone where the decision was applied.
 -   **Affected Components:** `apps/api/src/morning-brief/**`, `apps/api/src/dashboard/dashboard.module.ts`, `apps/api/src/app.module.ts`.
 -   **Implemented In:** S1-020.
 
+## DEC-2026-026
+
+-   **Date:** 2026-07-16
+-   **Title:** L1-001 (Live Market Data Provider) — Real Twelve Data Integration, Circuit-Breaker Reuse, and Fallback-Toggle Calibration
+-   **Status:** Approved
+-   **Decision Summary:** `TwelveDataMarketDataProvider` was implemented behind the existing `MARKET_DATA_PROVIDER` interface (ADR-003), the first real (non-Simulated) Live Data provider. Native `fetch`/`AbortController` was chosen over Twelve Data's own SDK or a new general-purpose HTTP client — no new runtime dependency was introduced. The existing Analysis Engine circuit breaker (`analysis-engine/providers/provider-circuit-breaker.ts`) was imported directly into the new `market-data/providers/http-client.ts` rather than promoted into a shared `packages/utils` module; promotion was judged disproportionate to this Sprint's own Affected Components, which explicitly excluded `analysis-engine`. A new `MARKET_DATA_MODE` (`live` | unset-or-anything-else → `simulated`) environment flag, gated together with `TWELVE_DATA_API_KEY`, controls provider selection in `createMarketDataProvider()`, defaulting safely to Simulated on misconfiguration. No separate historical-backfill job was built — `MarketDataService.getCandles()`'s existing lazy fetch-and-persist behavior already satisfies first-backfill needs.
+-   **Alternatives Considered:** Promoting the circuit breaker to a shared package (rejected as disproportionate to Sprint scope, disclosed rather than silently deferred); adopting Twelve Data's official SDK or a general-purpose HTTP client (rejected — no new dependency was necessary given native `fetch` sufficiency).
+-   **Rationale:** Minimizes new surface area and dependency footprint while establishing the provider-abstraction pattern every subsequent Live Data Sprint (L1-002 through L1-006) would repeat identically; reusing the existing circuit breaker avoids duplicating failure-isolation logic that already existed and was already tested.
+-   **Consequences:** A disclosed, carried-forward limitation: historical candles backfilled by this Sprint are not split/dividend-adjusted, since Corporate Actions (Phase 6) did not yet exist — this gap was later closed structurally, not retroactively, by L1-006's compute-on-read model. Live verification of the real `api.twelvedata.com` request could not be completed — blocked by this session's environment egress policy (`403`/`CONNECT tunnel failed`), a constraint later confirmed to recur identically for every subsequent external provider through L1-006.
+-   **Related Sprint:** L1-001.
+-   **Related Blueprint Section:** `28_LIVE_DATA_BLUEPRINT.md` §9 Implementation Roadmap, Phases 0–1 (merged into a single Sprint at the Architecture Team's direction).
+-   **Related ADR:** ADR-003 (Market Data Provider Abstraction), ADR-004 (Background Job Scheduling — existing sync cadence reused unchanged).
+-   **Affected Components:** `apps/api/src/market-data/**`.
+-   **Implemented In:** L1-001.
+
+## DEC-2026-027
+
+-   **Date:** 2026-07-16
+-   **Title:** L1-002 (Market Sessions & Trading Holidays) — Internal Table as Sole Source; Minimal Watchlist Integration
+-   **Status:** Approved
+-   **Decision Summary:** The Blueprint's own §3 (Provider Comparison Matrix, recommending a hybrid of provider + internal fallback table) and Addendum §A2 (Provider Priority Matrix, recommending the internal table outright) disagreed on approach. The Architecture Team resolved this by designating the **Internal Market Sessions Table as the sole primary source of truth** for both Market Sessions and Trading Holidays — `InternalMarketSessionProvider` is the only registered `MarketSessionProvider` implementation; no external Twelve Data/Finnhub session or holiday integration was built. Separately, no existing "market closed" UI hook was found in `apps/web` (confirmed by inspection); a minimal integration was added — a new `GET /market-data/assets/:assetId/market-status` endpoint mirroring the existing `.../quote` endpoint, and a single inline Watchlist annotation — rather than any broader frontend redesign.
+-   **Alternatives Considered:** The Blueprint §3 hybrid approach (provider + internal fallback), which would have required a second external HTTP integration (mirroring L1-001's Twelve Data work) purely to cover a data domain (exchange hours/holidays) that changes extremely rarely — rejected in favor of the Addendum §A2 internal-table-only recommendation.
+-   **Rationale:** Exchange hours and trading holidays change rarely enough that a maintained internal table is both cheaper and more robust than an external dependency for this specific domain, per the Blueprint's own Addendum §A2 rationale; this also avoids introducing a second external vendor relationship for a Sprint that did not require one.
+-   **Consequences:** The internal table requires a maintenance process (who updates it, how often) that does not yet exist and was not defined by this Sprint — a disclosed, open operational item, not a code gap. No external provider call was required or attempted for this domain, so this Sprint carried no live-verification dependency on the environment's egress policy.
+-   **Related Sprint:** L1-002.
+-   **Related Blueprint Section:** `28_LIVE_DATA_BLUEPRINT.md` §3, Addendum §A2, §9 Implementation Roadmap Phase 2.
+-   **Related ADR:** ADR-003 (Provider Abstraction, extended to a new `MarketSessionProvider` interface following the same pattern).
+-   **Affected Components:** `apps/api/src/market-data/**`, `apps/api/src/tracked-assets/**`, `apps/web/src/app/watchlist/page.tsx`, `apps/web/src/lib/api.ts`.
+-   **Implemented In:** L1-002.
+
+## DEC-2026-028
+
+-   **Date:** 2026-07-16
+-   **Title:** L1-003 (Economic Calendar & Financial News) — Dual-Provider News From Day One; Data Quality Layer Deferred
+-   **Status:** Approved
+-   **Decision Summary:** The Architecture Team decided both News providers ship together from day one: **Finnhub as primary, MarketAux as secondary** (fallback when Finnhub fails outright; best-effort enrichment when Finnhub succeeds, merging in MarketAux's non-duplicate items; a MarketAux failure never fails the overall call once Finnhub has already succeeded). Economic Calendar remains single-sourced from FMP, as originally scoped — no secondary source was approved or requested for Calendar. Separately, the shared `DataQualityService`, Confidence Engine, cross-provider scoring, and provider trust ranking (Addendum §A1) were explicitly excluded from this Sprint, deferred to their own dedicated future Sprint; this Sprint implements only provider integration, normalization, DTO validation, basic (non-scored) deduplication, timestamp validation, and the existing cache/sync flow.
+-   **Alternatives Considered:** Shipping Finnhub-only for News and deferring MarketAux (the single-primary-first precedent established by L1-001/L1-002) — rejected because the Roadmap's own stated Key Risk for this Phase (cross-source near-duplicate headlines) only exists if both News sources ship together; deferring MarketAux would have left that named risk permanently untested. Introducing `DataQualityService` now, given its own motivating example is near-duplicate news headlines — rejected in favor of continuing to defer it platform-wide until a second real consumer exists.
+-   **Rationale:** Shipping both News providers together is the only way to actually exercise and resolve the Phase's own named cross-source-duplicate risk; deferring the Data Quality Layer keeps every Live Data Sprint's scope bounded to provider integration only, consistent with the precedent every other domain Sprint has since followed.
+-   **Consequences:** "Basic deduplication" (normalized-headline-key merge, first occurrence wins) is explicitly not the Data Quality Layer's semantic/scored dedup — a disclosed simplification, not a silent gap. FMP's Economic Calendar endpoint returns a single global feed with no per-symbol filtering; this Sprint surfaces the same feed for every symbol, with no symbol/currency-specific relevance filtering. Live verification of FMP/Finnhub/MarketAux was blocked by this session's environment egress policy, identically to Twelve Data in L1-001.
+-   **Related Sprint:** L1-003.
+-   **Related Blueprint Section:** `28_LIVE_DATA_BLUEPRINT.md` §3, Addendum §A1 (Data Quality Layer), Addendum §A2, §9 Implementation Roadmap Phase 3.
+-   **Related ADR:** ADR-003 (Provider Abstraction).
+-   **Affected Components:** `apps/api/src/calendar-news/**`.
+-   **Implemented In:** L1-003.
+
+## DEC-2026-029
+
+-   **Date:** 2026-07-16
+-   **Title:** L1-004 (COT Live Provider) — CFTC Direct Integration as Sole Source
+-   **Status:** Approved
+-   **Decision Summary:** The CFTC Socrata API was implemented as the **sole** COT source behind the existing `CotProvider` interface. Unlike L1-002/L1-003, this domain had no dual-source tension to resolve — Blueprint §3 unambiguously designates CFTC as the sole COT source, and the existing `CotTraderCategory` enum already fixed the CFTC report type (Legacy) this Sprint had to use. A small, disclosed seed contract-mapping table (`GOLD`, `EUR/USD`, `WTI`) was used rather than attempting exhaustive symbol coverage upfront, mirroring L1-002's Internal Market Sessions Table precedent of starting narrow and extending over time.
+-   **Alternatives Considered:** None material — the Blueprint's own unambiguous single-source designation and the existing enum's fixed report-type left no open architectural question to escalate as a Missing Decision (unlike every other L1 Sprint to date).
+-   **Rationale:** Matching the Blueprint's own explicit provider designation avoided introducing any unnecessary provider-selection complexity for a domain that has none; starting with a small, disclosed symbol-mapping set avoided speculative upfront curation work not yet needed by the current catalog.
+-   **Consequences:** A symbol with no entry in the contract-mapping table returns an empty report list without calling the CFTC API at all — a deliberate, tested short-circuit, not an error path. The CFTC Socrata resource ID used (`6dca-aqww`) could not be validated against a live response given the environment constraint, and should be reconfirmed once live access is available. Live verification of `publicreporting.cftc.gov` was blocked by this session's environment egress policy, identically to every prior external provider.
+-   **Related Sprint:** L1-004.
+-   **Related Blueprint Section:** `28_LIVE_DATA_BLUEPRINT.md` §3, §9 Implementation Roadmap Phase 4.
+-   **Related ADR:** ADR-003 (Provider Abstraction).
+-   **Affected Components:** `apps/api/src/cot/**`.
+-   **Implemented In:** L1-004.
+
+## DEC-2026-030
+
+-   **Date:** 2026-07-16
+-   **Title:** L1-005 (Instrument Metadata, Symbol Search & Classification) — No Auto-Provisioning; Twelve-Data-Only; Existing Search Endpoint Internally Extended
+-   **Status:** Approved
+-   **Decision Summary:** Three decisions were made. **(1) Asset governance:** no automatic `Asset` creation — the existing, ADMIN-gated Asset Catalog (S1-003, DEC-2026-004) remains the sole source of truth; live search never mutates the catalog, verified live against a real PostgreSQL instance (a live-only search produced zero new `Asset` rows). **(2) Provider responsibility:** Twelve Data only, covering Symbol Search, Instrument Metadata, and Exchange Metadata this Sprint; Finnhub was not used and remains dedicated to Financial News (L1-003). **(3) Search endpoint:** the existing `GET /market-data/search` endpoint was kept, not replaced, and internally extended — catalog search first, live-provider fallback only when the catalog returns zero matches, results merged into a discriminated `AssetSearchResult[]` (`source: 'CATALOG' | 'LIVE'`) and never persisted.
+-   **Alternatives Considered:** Auto-provisioning `Asset` rows from live search results when a user adds a not-yet-seeded symbol — rejected, since it would have been the first time non-admin, non-human input created or modified rows in a table whose mutation has been ADMIN-gated since S1-003, a governance change materially larger than a routine provider swap. Introducing Finnhub for this domain (as it was for News) — rejected; Finnhub's role remains News-only. Replacing the existing search endpoint with a new, separate live-preview endpoint — rejected in favor of internally extending the existing one to avoid a breaking API change for existing Watchlist "add by symbol" consumers.
+-   **Rationale:** Preserving the ADMIN-only catalog-mutation model avoids a significant, unreviewed governance change riding along with what the Blueprint itself flagged as a correctness-critical reconciliation risk ("must join on symbol+exchange, never recreate existing Asset rows"); keeping the existing endpoint avoids any frontend/consumer breakage.
+-   **Consequences:** A `LIVE`-sourced search result has no real `id`; if a caller attempted to add it to a Watchlist via the existing `addItemAction`, it degrades gracefully to a clean 400 rather than corrupting data — verified by inspection, not modified. Live verification of `api.twelvedata.com` remained blocked by this session's environment egress policy.
+-   **Related Sprint:** L1-005.
+-   **Related Blueprint Section:** `28_LIVE_DATA_BLUEPRINT.md` §3, §4.1, §7, §9 Implementation Roadmap Phase 5.
+-   **Related ADR:** ADR-003 (Provider Abstraction); DEC-2026-004 (Asset Catalog ADMIN-gated mutation model — preserved, not superseded).
+-   **Affected Components:** `apps/api/src/market-data/**`.
+-   **Implemented In:** L1-005.
+
+## DEC-2026-031
+
+-   **Date:** 2026-07-17
+-   **Title:** L1-006 (Corporate Actions — Splits & Dividends) — Compute-on-Read Only; No Portfolio Cash Accounting; Finnhub as Sole Provider
+-   **Status:** Approved
+-   **Decision Summary:** Three decisions were made, the most consequential of any Live Data Sprint to date since this was the first Phase to touch domains adjacent to existing financial data. **(1) Data integrity:** Corporate Actions are stored exclusively in a new, independent `CorporateAction` table; adjustments are **compute-on-read only** — this Sprint never mutates `Candle`, `Position`, or `Transaction` rows, and no adjustment-consumer was built (explicitly deferred to a future Sprint). **(2) Portfolio cash:** no cash balance, wallet, or dividend-accounting concept was introduced into the `Portfolio`/`Position` model; dividend events are recorded as raw data (amount + currency) only. **(3) Provider responsibility:** Finnhub is the sole provider for Stock Splits, Reverse Splits, and Dividends; Twelve Data's existing responsibility (Quotes, Candles, Instrument Metadata) is unchanged.
+-   **Alternatives Considered:** Mutate-in-place — retroactively rewriting existing `Candle` OHLC rows and `Position.averageCost`/`quantity` when a split/dividend is detected — rejected as the higher-risk architecture (the Blueprint's own stated Key Risk: "wrong adjustment silently corrupts P/L history"). Introducing a new cash-tracking concept to Portfolio to handle dividend income — rejected as substantially larger in scope than "adjusted historical data," deferred to a future dedicated financial-accounting milestone. Using Twelve Data (already integrated for market data) for this domain — rejected in favor of Finnhub, to avoid mixing responsibilities across the two vendors.
+-   **Rationale:** Compute-on-read is safer to reason about and reverse than mutate-in-place, at the cost of a more significant future read-path change (Analysis Engine/Portfolio valuation) when an adjustment-consumer is eventually built; excluding cash accounting keeps this Sprint bounded to recording Corporate Actions only, consistent with every prior Sprint's scope discipline.
+-   **Consequences:** Any future adjustment consumer (Analysis Engine, Portfolio valuation) must compute the adjustment on read from the `CorporateAction` table — this is a real, currently-unbuilt dependency for any future Sprint that wants adjusted historical data or corrected Portfolio average-cost. Empirically verified via MD5 hash comparison that `Candle`/`Position` row sets are byte-identical before and after exercising the new endpoint. Live verification of `finnhub.io`'s split/dividend endpoints was blocked by this session's environment egress policy, identically to every prior external provider.
+-   **Related Sprint:** L1-006.
+-   **Related Blueprint Section:** `28_LIVE_DATA_BLUEPRINT.md` §9 Implementation Roadmap Phase 6, Addendum §A3 (SLA & Freshness Matrix — Corporate Actions row).
+-   **Related ADR:** ADR-003 (Provider Abstraction); ADR-004 (Background Job Scheduling — daily sync cadence).
+-   **Affected Components:** `packages/database/prisma/schema.prisma`, `apps/api/src/corporate-actions/**`, `apps/api/src/app.module.ts`.
+-   **Implemented In:** L1-006.
+
+## DEC-2026-032
+
+-   **Date:** 2026-07-17
+-   **Title:** L1-007 (Macro Context / FRED) — Live Data Layer Only, No Narrative Integration
+-   **Status:** Approved
+-   **Decision Summary:** A new `MacroDataProvider` interface was introduced (per Blueprint §4.1, this domain had no prior abstraction), sourced exclusively from FRED — the Blueprint's own sole-recommended source for this domain, with no dual-source tension to resolve. The Architecture Team resolved the Sprint's one Missing Decision (how far the integration reaches into Morning Brief/AI Workspace narrative generation) with **Scope Option A**: this Sprint is strictly limited to the Live Data layer — provider, normalization, persistence (`MacroSeriesValue`, natural key `(seriesId, observationDate)`), daily sync, and a read-only endpoint. `NarrativeComposerService`, `WorkspaceService`, and any AI-generated or consumer-side macro interpretation were explicitly kept out of scope and confirmed unmodified. A small, disclosed reference set (`TRACKED_MACRO_SERIES`: `FEDFUNDS`, `CPIAUCSL`, `UNRATE`, `GDP`) was used, mirroring L1-004's CFTC contract-mapping-table precedent, and `MacroDataSyncService` iterates that set directly rather than reusing `MarketDataSyncService.getTrackedAssetIds()`, since macro-economic series have no Asset/Watchlist/Portfolio scope to derive from — a disclosed, deliberate deviation from every other L1 Sprint's sync-service pattern.
+-   **Alternatives Considered:** Full narrative integration (extending `NarrativeComposerService`/`WorkspaceService` to reference macro values in generated text) — rejected for this Sprint; narrative generation belongs to the Zenith Intelligence Layer after Milestone M3 is fully completed, per the Architecture Team's own rationale.
+-   **Rationale:** Keeping this Sprint bounded to the Live Data layer preserved the same "new domain, existing consumers untouched" precedent every other L1 Sprint followed, and avoided prematurely building a narrative-template change whose actual shape depends on Intelligence Layer design decisions not yet made.
+-   **Consequences:** Any future Sprint that wants macro-aware Morning Brief/AI Workspace commentary must build the narrative-consumer integration as new, separate work — nothing in `apps/api/src/morning-brief/**` or `apps/api/src/workspace/**` references macro data today. Live verification of `api.stlouisfed.org` was blocked by this session's environment egress policy, identically to every prior external provider.
+-   **Related Sprint:** L1-007.
+-   **Related Blueprint Section:** `28_LIVE_DATA_BLUEPRINT.md` §1, §3, §4.1, §6, §9 Implementation Roadmap Phase 7, Addendum §A2, §A3.
+-   **Related ADR:** ADR-003 (Provider Abstraction).
+-   **Affected Components:** `packages/database/prisma/schema.prisma`, `apps/api/src/macro-data/**`, `apps/api/src/app.module.ts`.
+-   **Implemented In:** L1-007.
+
+## DEC-2026-033
+
+-   **Date:** 2026-07-17
+-   **Title:** L1-008 (Monitoring, Alerting & Cost Observability) — Operational Alerting Only; Passive Health Monitoring; Dedicated LiveDataObservabilityService
+-   **Status:** Approved
+-   **Decision Summary:** Three decisions were made. **(1) Alerting scope:** Operational Alerting only (provider availability, sync failures, provider degradation, high error rate, API usage/cost observability) — explicitly distinct from, and never integrated with, the existing user-facing `Alert`/`AlertsService` domain (per-user price-condition alerts). **(2) Provider health:** Passive Health Monitoring only — health is derived entirely from already-occurring runtime events (`MarketDataHttpClient` calls, `*SyncService` runs); no new periodic live-ping request was introduced anywhere. **(3) Observability ownership:** a new, dedicated `LiveDataObservabilityService` (`apps/api/src/monitoring/**`) was created rather than extending Analysis Engine's existing `ObservabilityService` (S1-007), keeping the two domains isolated since the Analysis Engine service's failure-detection is keyed to `ComputationRejectedError`, a type Live Data providers never throw. `MarketDataHttpClient`'s constructor was extended with optional trailing `domain`/`metrics` parameters (backward-compatible), and every live provider across all six existing Live Data domains was wired to record circuit state, success, failure, and retry events; every `*SyncService` now calls `recordSync()` once per cron run.
+-   **Alternatives Considered:** Extending the existing `/market-data/provider-health` endpoint/`ObservabilityService` to cover every domain — rejected, since it would have required `MarketDataModule` to import every other domain module (inverting the existing one-directional dependency flow and risking circular imports). Resolved instead by making `LiveDataObservabilityService` the single, centrally-written-to source of truth that every domain module already imports `MonitoringModule` to reach, so the read-side `MonitoringController` needs no cross-domain-module imports at all.
+-   **Rationale:** Keeping operational alerting and passive-only health monitoring separate from both the user-facing `Alert` domain and the Analysis Engine's `ObservabilityService` avoided conflating three genuinely different concerns (trading alerts, computation observability, live-provider operational health) under one service, at the cost of a small amount of duplicated plumbing (each domain's own module/service wiring) rather than a shared aggregator with a harder dependency-direction problem.
+-   **Consequences:** `LiveDataObservabilityService`'s metrics are in-memory only and reset on process restart — explicitly reviewed by the L1-009 Live Data Acceptance Review and confirmed appropriate for this project's current stage, not superseded here. The pre-existing `GET /market-data/provider-health` endpoint (L1-001, single Market Data provider) was left completely unchanged; the new `GET /monitoring/provider-health` and `GET /monitoring/alerts` endpoints are additive.
+-   **Related Sprint:** L1-008.
+-   **Related Blueprint Section:** `28_LIVE_DATA_BLUEPRINT.md` §9 Implementation Roadmap Phase 8.
+-   **Related ADR:** ADR-003 (Provider Abstraction); S1-007's `ObservabilityService` (Analysis Engine) — referenced, not extended, not superseded.
+-   **Affected Components:** `apps/api/src/monitoring/**`, `apps/api/src/market-data/providers/http-client.ts`, `apps/api/src/market-data/retry.util.ts`, and every provider/factory/module/sync-service file across `market-data`, `calendar-news`, `cot`, `corporate-actions`, `macro-data`.
+-   **Implemented In:** L1-008.
+
 # Rules
 
 -   Every architectural decision must have a Decision Log entry.

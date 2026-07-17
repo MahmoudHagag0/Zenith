@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { CalendarNewsProvider, ProviderCalendarEvent, ProviderNewsItem } from './calendar-news-provider.interface';
 import { MarketDataHttpClient } from '../../market-data/providers/http-client';
+import type { LiveDataMetricsRecorder } from '../../market-data/providers/live-data-metrics-recorder.interface';
 import { ProviderUnavailableError } from '../../market-data/providers/provider-errors';
 import { fmpEconomicCalendarResponseSchema, finnhubNewsResponseSchema, marketAuxNewsResponseSchema } from './calendar-news.schemas';
 import { dedupeNewsItems, normalizeFinnhubNewsItem, normalizeFmpEvent, normalizeMarketAuxNewsItem } from './calendar-news.normalize';
@@ -34,15 +35,20 @@ function toDateParam(date: Date): string {
 export class LiveCalendarNewsProvider implements CalendarNewsProvider {
   readonly name = 'fmp-finnhub-marketaux';
   private readonly logger = new Logger(LiveCalendarNewsProvider.name);
-  private readonly fmpClient = new MarketDataHttpClient('fmp-calendar');
-  private readonly finnhubClient = new MarketDataHttpClient('finnhub-news');
-  private readonly marketAuxClient = new MarketDataHttpClient('marketaux-news');
+  private readonly fmpClient: MarketDataHttpClient;
+  private readonly finnhubClient: MarketDataHttpClient;
+  private readonly marketAuxClient: MarketDataHttpClient;
 
   constructor(
     private readonly fmpApiKey: string,
     private readonly finnhubApiKey: string,
     private readonly marketAuxApiKey: string,
-  ) {}
+    metrics?: LiveDataMetricsRecorder,
+  ) {
+    this.fmpClient = new MarketDataHttpClient('fmp-calendar', undefined, 'calendar-news', metrics);
+    this.finnhubClient = new MarketDataHttpClient('finnhub-news', undefined, 'calendar-news', metrics);
+    this.marketAuxClient = new MarketDataHttpClient('marketaux-news', undefined, 'calendar-news', metrics);
+  }
 
   async getNews(symbol: string): Promise<ProviderNewsItem[]> {
     let finnhubItems: ProviderNewsItem[] = [];

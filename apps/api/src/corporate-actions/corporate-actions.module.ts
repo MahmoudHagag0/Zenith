@@ -3,6 +3,8 @@ import { DatabaseModule } from '../database/database.module';
 import { AuthModule } from '../auth/auth.module';
 import { AssetsModule } from '../assets/assets.module';
 import { MarketDataModule } from '../market-data/market-data.module';
+import { MonitoringModule } from '../monitoring/monitoring.module';
+import { LiveDataObservabilityService } from '../monitoring/live-data-observability.service';
 import { CorporateActionsController } from './corporate-actions.controller';
 import { CorporateActionsService } from './corporate-actions.service';
 import { CorporateActionsSyncService } from './corporate-actions-sync.service';
@@ -12,7 +14,7 @@ import { createCorporateActionsProvider } from './providers/corporate-actions-pr
 const moduleLogger = new Logger('CorporateActionsModule');
 
 @Module({
-  imports: [DatabaseModule, AuthModule, AssetsModule, MarketDataModule],
+  imports: [DatabaseModule, AuthModule, AssetsModule, MarketDataModule, MonitoringModule],
   controllers: [CorporateActionsController],
   providers: [
     CorporateActionsService,
@@ -21,11 +23,14 @@ const moduleLogger = new Logger('CorporateActionsModule');
     // 6, ADR-003 precedent) — a single one-line DI-registration swap, no
     // interface change, no consumer change. Gated behind
     // CORPORATE_ACTIONS_MODE so an environment without FINNHUB_API_KEY set
-    // falls back to SimulatedCorporateActionsProvider.
+    // falls back to SimulatedCorporateActionsProvider. As of L1-008,
+    // LiveDataObservabilityService is threaded through for passive
+    // provider-health/metrics recording.
     {
       provide: CORPORATE_ACTIONS_PROVIDER,
-      useFactory: () =>
-        createCorporateActionsProvider(process.env.CORPORATE_ACTIONS_MODE, process.env.FINNHUB_API_KEY, moduleLogger),
+      useFactory: (liveDataObservabilityService: LiveDataObservabilityService) =>
+        createCorporateActionsProvider(process.env.CORPORATE_ACTIONS_MODE, process.env.FINNHUB_API_KEY, moduleLogger, liveDataObservabilityService),
+      inject: [LiveDataObservabilityService],
     },
   ],
   exports: [CorporateActionsService],

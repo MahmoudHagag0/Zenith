@@ -1,4 +1,5 @@
 import type { CorporateActionsProvider } from './corporate-actions-provider.interface';
+import type { LiveDataMetricsRecorder } from '../../market-data/providers/live-data-metrics-recorder.interface';
 import { SimulatedCorporateActionsProvider } from './simulated-corporate-actions.provider';
 import { FinnhubCorporateActionsProvider } from './finnhub-corporate-actions.provider';
 
@@ -18,10 +19,11 @@ export function createCorporateActionsProvider(
   mode: string | undefined,
   finnhubApiKey: string | undefined,
   logger: CorporateActionsProviderFactoryLogger,
+  metrics?: LiveDataMetricsRecorder,
 ): CorporateActionsProvider {
   if (mode === 'live') {
     if (finnhubApiKey) {
-      return new FinnhubCorporateActionsProvider(finnhubApiKey);
+      return new FinnhubCorporateActionsProvider(finnhubApiKey, metrics);
     }
     logger.warn('CORPORATE_ACTIONS_MODE=live but FINNHUB_API_KEY is not set — falling back to SimulatedCorporateActionsProvider');
   }

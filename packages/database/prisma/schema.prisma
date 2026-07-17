@@ -367,6 +367,28 @@ model CorporateAction {
   @@index([assetId])
 }
 
+// Macro Context (FRED series observations) -- L1-007 (28_LIVE_DATA_BLUEPRINT.md
+// §9 Phase 7). Global economic time series, not tied to any Asset/Watchlist/
+// Portfolio -- unlike every prior Live Data domain, this table has no
+// foreign key into the trading catalog at all. Scope Option A (Architecture
+// Team, 2026-07-17): Live Data layer only -- no Morning Brief/AI Workspace
+// consumer reads from this table in this Sprint.
+model MacroSeriesValue {
+  id              String   @id @default(uuid())
+  seriesId        String // FRED series ID, e.g. "FEDFUNDS", "CPIAUCSL"
+  observationDate DateTime
+  value           Decimal  @db.Decimal(24, 8)
+  provider        String
+  retrievedAt     DateTime @default(now())
+  rawPayload      Json
+  createdAt       DateTime @default(now())
+
+  // Idempotency natural key -- mirrors CotReport/CorporateAction's existing
+  // upsert-against-a-real-natural-key convention.
+  @@unique([seriesId, observationDate])
+  @@index([seriesId])
+}
+
 model Candle {
   id        String   @id @default(uuid())
   assetId   String

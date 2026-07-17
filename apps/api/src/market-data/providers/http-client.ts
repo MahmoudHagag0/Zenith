@@ -1,6 +1,7 @@
 import { ProviderCircuitBreaker } from '../../analysis-engine/providers/provider-circuit-breaker';
 import { withRetry } from '../retry.util';
 import { ProviderRateLimitedError, ProviderUnavailableError } from './provider-errors';
+import type { LiveDataMetricsRecorder } from './live-data-metrics-recorder.interface';
 
 export interface MarketDataHttpClientOptions {
   readonly timeoutMs?: number;
@@ -33,27 +34,36 @@ export class MarketDataHttpClient {
   constructor(
     private readonly providerId: string,
     breakerConfig = { failureThreshold: 5, resetTimeoutMs: 60_000 },
+    private readonly domain?: string,
+    private readonly metrics?: LiveDataMetricsRecorder,
   ) {
     this.breaker = new ProviderCircuitBreaker(breakerConfig);
   }
 
   async fetchJson(url: string, options: MarketDataHttpClientOptions = {}): Promise<unknown> {
-    if (this.breaker.isOpen(this.providerId)) {
+    const domain = this.domain ?? this.providerId;
+    const circuitOpen = this.breaker.isOpen(this.providerId);
+    this.metrics?.recordCircuitState(this.providerId, domain, circuitOpen);
+    if (circuitOpen) {
       throw new ProviderUnavailableError(`${this.providerId} circuit is open`);
     }
 
     const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+    const start = performance.now();
 
     try {
       const result = await withRetry(() => this.performRequest(url, timeoutMs), {
         retries: options.retries ?? DEFAULT_RETRIES,
         baseDelayMs: options.baseDelayMs ?? DEFAULT_BASE_DELAY_MS,
         isRetryable: (error) => error instanceof ProviderRateLimitedError || error instanceof ProviderUnavailableError,
+        onRetry: () => this.metrics?.recordRetry(this.providerId, domain),
       });
       this.breaker.recordSuccess(this.providerId);
+      this.metrics?.recordSuccess(this.providerId, domain, performance.now() - start);
       return result;
     } catch (error) {
       this.breaker.recordFailure(this.providerId);
+      this.metrics?.recordFailure(this.providerId, domain, performance.now() - start, error instanceof ProviderRateLimitedError);
       throw error;
     }
   }

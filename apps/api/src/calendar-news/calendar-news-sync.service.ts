@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { AssetsService } from '../assets/assets.service';
 import { MarketDataSyncService } from '../market-data/market-data-sync.service';
+import { LiveDataObservabilityService } from '../monitoring/live-data-observability.service';
 import { CalendarNewsService } from './calendar-news.service';
 
 /**
@@ -19,6 +20,7 @@ export class CalendarNewsSyncService {
     private readonly calendarNewsService: CalendarNewsService,
     private readonly marketDataSyncService: MarketDataSyncService,
     private readonly assetsService: AssetsService,
+    private readonly liveDataObservabilityService: LiveDataObservabilityService,
   ) {}
 
   @Cron(CronExpression.EVERY_30_MINUTES)
@@ -38,6 +40,7 @@ export class CalendarNewsSyncService {
       }
     }
 
+    this.liveDataObservabilityService.recordSync('calendar-news', succeeded, failed);
     this.logger.log(`Calendar/News sync finished: ${succeeded} succeeded, ${failed} failed, ${assetIds.length} tracked`);
   }
 }

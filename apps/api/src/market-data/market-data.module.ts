@@ -3,6 +3,8 @@ import { DatabaseModule } from '../database/database.module';
 import { AuthModule } from '../auth/auth.module';
 import { AssetsModule } from '../assets/assets.module';
 import { TrackedAssetsModule } from '../tracked-assets/tracked-assets.module';
+import { MonitoringModule } from '../monitoring/monitoring.module';
+import { LiveDataObservabilityService } from '../monitoring/live-data-observability.service';
 import { MarketDataController } from './market-data.controller';
 import { MarketDataService } from './market-data.service';
 import { MarketDataSyncService } from './market-data-sync.service';
@@ -18,7 +20,7 @@ import { createInstrumentMetadataProvider } from './providers/instrument-metadat
 const moduleLogger = new Logger('MarketDataModule');
 
 @Module({
-  imports: [DatabaseModule, AuthModule, AssetsModule, TrackedAssetsModule],
+  imports: [DatabaseModule, AuthModule, AssetsModule, TrackedAssetsModule, MonitoringModule],
   controllers: [MarketDataController],
   providers: [
     MarketDataService,
@@ -30,10 +32,14 @@ const moduleLogger = new Logger('MarketDataModule');
     // interface change, no consumer change. Gated behind MARKET_DATA_MODE so
     // an environment without a configured TWELVE_DATA_API_KEY (or with the
     // flag unset entirely) falls back to SimulatedMarketDataProvider rather
-    // than crashing or attempting a keyless real API call.
+    // than crashing or attempting a keyless real API call. As of L1-008,
+    // LiveDataObservabilityService is threaded through for passive
+    // provider-health/metrics recording.
     {
       provide: MARKET_DATA_PROVIDER,
-      useFactory: () => createMarketDataProvider(process.env.TWELVE_DATA_API_KEY, process.env.MARKET_DATA_MODE, moduleLogger),
+      useFactory: (liveDataObservabilityService: LiveDataObservabilityService) =>
+        createMarketDataProvider(process.env.TWELVE_DATA_API_KEY, process.env.MARKET_DATA_MODE, moduleLogger, liveDataObservabilityService),
+      inject: [LiveDataObservabilityService],
     },
     // Market Sessions & Trading Holidays (L1-002, 28_LIVE_DATA_BLUEPRINT.md
     // §9 Phase 2). The Architecture Team designated the Internal Market
@@ -48,7 +54,9 @@ const moduleLogger = new Logger('MarketDataModule');
     // (Architecture Team decision: Twelve Data only, no new mode flag).
     {
       provide: INSTRUMENT_METADATA_PROVIDER,
-      useFactory: () => createInstrumentMetadataProvider(process.env.TWELVE_DATA_API_KEY, process.env.MARKET_DATA_MODE, moduleLogger),
+      useFactory: (liveDataObservabilityService: LiveDataObservabilityService) =>
+        createInstrumentMetadataProvider(process.env.TWELVE_DATA_API_KEY, process.env.MARKET_DATA_MODE, moduleLogger, liveDataObservabilityService),
+      inject: [LiveDataObservabilityService],
     },
   ],
   // MarketDataSyncService is additionally exported so later background sync
