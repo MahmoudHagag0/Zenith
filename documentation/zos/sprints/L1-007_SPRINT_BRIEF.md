@@ -1,8 +1,8 @@
 # L1-007 SPRINT BRIEF — Macro Context (FRED)
 
 **Document ID:** ZOS-L1-007
-**Version:** 1.0
-**Status:** Proposed
+**Version:** 1.1
+**Status:** Approved — Live External Verification Pending (Environment Constraint)
 **Owner:** Architecture Team
 **Template Reference:** SPRINT_BRIEF_TEMPLATE.md (ZOS-SBT)
 
@@ -138,8 +138,66 @@
 
 - [x] Proposed
 - [ ] Under Review
-- [ ] Approved
+- [x] Approved
 - [ ] Rejected
+
+**Final Status:** Approved — Live External Verification Pending (Environment Constraint)
+
+---
+
+# Implementation Notes
+
+**Date Implemented:** 2026-07-17
+**Approved By:** Architecture Team
+
+## Resolution of Missing Decision #1
+
+**Scope Option A — approved.** This Sprint is strictly limited to the Live Data layer: `MacroDataProvider` implementation, provider abstraction, normalization, persistence, cache, sync, and read-only APIs. `NarrativeComposerService`, `WorkspaceService`, any AI-generated narrative, and any consumer-side macro interpretation are explicitly out of scope — confirmed unmodified by this Sprint (no file under `apps/api/src/morning-brief/**` or `apps/api/src/workspace/**` was touched). Per the Architecture Team's rationale, narrative generation belongs to the Zenith Intelligence Layer after Live Data Milestone M3 is fully completed.
+
+## Work Completed
+
+- Added `MacroSeriesValue` Prisma model — global economic time series, no `Asset`/`Position`/`Portfolio` relation (unlike every prior Live Data domain, this table has no foreign key into the trading catalog at all). Natural key `@@unique([seriesId, observationDate])` for idempotency. Migration `20260717020819_add_macro_series_value` applied.
+- New `MacroDataProvider` interface (`ProviderMacroSeriesValue`) — a NEW abstraction per Blueprint §4.1, following the ADR-003 interface + token + Simulated-implementation pattern.
+- `SimulatedMacroDataProvider` — returns no observation for any series (disclosed: macro-economic series are precise, externally-verified official figures with no meaningful simulated equivalent, mirroring L1-006's Corporate Actions rationale).
+- `FredMacroDataProvider` — live implementation using `MarketDataHttpClient('fred')`, Zod raw-schema validation, and `normalize()` mapping. FRED's `"."` not-yet-published sentinel is normalized to `null` (filtered out), never fabricated as `0`.
+- `createMacroDataProvider()` factory — `MACRO_DATA_MODE=live` + `FRED_API_KEY` selects the live provider; otherwise falls back to Simulated with a logged warning.
+- `TRACKED_MACRO_SERIES` — a small, disclosed reference set (`FEDFUNDS`, `CPIAUCSL`, `UNRATE`, `GDP`), mirroring L1-004's CFTC contract-mapping-table precedent.
+- `MacroDataService` — idempotent `upsert()` against the `(seriesId, observationDate)` natural key, 24h cache-freshness window; reads/writes only the `MacroSeriesValue` Prisma model.
+- `MacroDataSyncService` — daily cron (`EVERY_DAY_AT_MIDNIGHT`, per Blueprint §6), iterating `TRACKED_MACRO_SERIES` directly. **Structural note, disclosed not silently deviated:** unlike every prior L1 Sprint's sync service, this one does not reuse `MarketDataSyncService.getTrackedAssetIds()` — Macro Context data has no Asset/Watchlist/Portfolio scope to derive from, so per-tracked-asset iteration does not apply to this domain.
+- `MacroDataController` — read-only `GET /macro-data` returning the latest stored value per tracked series, mirroring `CotController`'s pattern (`JwtAuthGuard`, Swagger tags).
+- `MacroDataModule` — registered in `AppModule`; imports only `DatabaseModule`/`AuthModule` (no `AssetsModule`/`MarketDataModule`, since this domain has no asset-scoping dependency).
+
+## Files Changed
+
+- `packages/database/prisma/schema.prisma` (+ generated migration `20260717020819_add_macro_series_value`)
+- `apps/api/src/macro-data/providers/macro-data-provider.interface.ts` (new)
+- `apps/api/src/macro-data/providers/simulated-macro-data.provider.ts` (new)
+- `apps/api/src/macro-data/providers/macro-data.schemas.ts` (new)
+- `apps/api/src/macro-data/providers/macro-data.normalize.ts` (new)
+- `apps/api/src/macro-data/providers/fred-macro-data.provider.ts` (new)
+- `apps/api/src/macro-data/providers/macro-data-provider.factory.ts` (new)
+- `apps/api/src/macro-data/tracked-macro-series.ts` (new)
+- `apps/api/src/macro-data/macro-data.service.ts` (new)
+- `apps/api/src/macro-data/macro-data-sync.service.ts` (new)
+- `apps/api/src/macro-data/macro-data.controller.ts` (new)
+- `apps/api/src/macro-data/macro-data.module.ts` (new)
+- `apps/api/src/app.module.ts` (registered `MacroDataModule`)
+- `apps/api/.env`, `apps/api/.env.example` (added `MACRO_DATA_MODE`, `FRED_API_KEY`)
+- Test spec files: `macro-data.normalize.spec.ts`, `macro-data-provider.factory.spec.ts`, `fred-macro-data.provider.spec.ts`, `macro-data.service.spec.ts`, `macro-data-sync.service.spec.ts`
+
+## Test Summary
+
+- 21 new tests across 5 new spec files, all passing: normalize mapping (value parsing, FRED's "." sentinel, unparseable dates/values), factory fallback (simulated/live/missing-credential warning), live FRED provider (URL construction incl. `sort_order=desc`/`limit=1`, normalization, empty-observations handling), service idempotency (repeated upsert against the same natural key produces no duplicate, and touches only the `macroSeriesValue` Prisma model), and sync-service batch tolerance across the full `TRACKED_MACRO_SERIES` set.
+- Full regression suite: `turbo run build lint test` for `@zenith/api`/`@zenith/database` — **171 test suites, 881 tests, all passing, zero regressions** (up from 166/860 at L1-006 close).
+
+## Live Verification Summary
+
+- Booted the API against real local PostgreSQL in `MACRO_DATA_MODE=simulated` (default): `MacroDataController` route registered cleanly, `GET /macro-data` returned `[]` as expected for the Simulated provider.
+- Captured `Candle`/`Position`/`CorporateAction` row-count and `md5` ID-set hash before and after exercising the new endpoint: **identical** — empirically confirms this Sprint touched only the new, independent `MacroSeriesValue` table (which correctly remained empty).
+- Booted with `MACRO_DATA_MODE=live` and `FRED_API_KEY` unset: confirmed the exact expected fallback warning log (`MACRO_DATA_MODE=live but FRED_API_KEY is not set — falling back to SimulatedMacroDataProvider`) and correct fallback behavior.
+- Attempted a real connectivity check against `api.stlouisfed.org`'s series-observations endpoint: blocked by this session's environment egress policy (`403`/`CONNECT tunnel failed`), consistent with every other provider host blocked to date (Twelve Data, FMP, Finnhub, MarketAux, CFTC). No workaround attempted, per standing instruction.
+
+**Sprint Status:** Approved — Live External Verification Pending (Environment Constraint)
 
 ---
 
