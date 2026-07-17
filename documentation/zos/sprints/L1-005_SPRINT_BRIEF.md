@@ -1,8 +1,8 @@
 # L1-005 SPRINT BRIEF — Instrument Metadata, Symbol Search & Classification
 
 **Document ID:** ZOS-L1-005
-**Version:** 1.0
-**Status:** Proposed
+**Version:** 1.1
+**Status:** Approved — Live External Verification Pending (Environment Constraint)
 **Owner:** Architecture Team
 **Template Reference:** SPRINT_BRIEF_TEMPLATE.md (ZOS-SBT)
 
@@ -15,7 +15,7 @@
 - **Milestone:** M3 — Live Data Platform (`08_ROADMAP.md`)
 - **Phase:** Phase 5 of `28_LIVE_DATA_BLUEPRINT.md` (ZOS-028) §9 Implementation Roadmap
 - **Date Drafted:** 2026-07-16
-- **Approved By:** *(pending — Status: Proposed)*
+- **Approved By:** Architecture Team (2026-07-16)
 - **Baseline Sprints:** L1-001, L1-002, L1-003, L1-004 — all Architecture-Team-approved and merged to `main`.
 
 ---
@@ -122,11 +122,30 @@
 
 ---
 
+# Implementation Notes (resolutions to the Missing Decisions above)
+
+Added after Architecture Team approval (2026-07-16). Implementation followed this Brief exactly.
+
+1. **Missing Decision #1 (catalog governance) — resolved:** No automatic Asset creation. The existing Asset Catalog remains the single source of truth; live search never mutates the catalog. `MarketDataService.searchAssets()` never calls `prisma.asset.create()`/`upsert()` for live-provider results — verified live against a real PostgreSQL instance (a live-only search produced zero new `Asset` rows).
+2. **Missing Decision #2 (provider role) — resolved:** Twelve Data only, covering Symbol Search, Instrument Metadata, and Exchange Metadata. Finnhub was not used; it remains dedicated to Financial News (L1-003).
+3. **Missing Decision #3 (search endpoint) — resolved:** `GET /market-data/search` was kept, not replaced. Internally extended: catalog search first; only when the catalog returns zero matches does it fall back to `InstrumentMetadataProvider.searchSymbols()`; results are merged into a discriminated `AssetSearchResult[]` (`source: 'CATALOG' | 'LIVE'`) and never persisted.
+
+**Files changed:**
+- New (`apps/api/src/market-data/providers/`): `instrument-metadata-provider.interface.ts`, `instrument-metadata.schemas.ts`, `instrument-metadata.normalize.ts` (+ spec), `simulated-instrument-metadata.provider.ts`, `twelve-data-instrument-metadata.provider.ts` (+ spec), `instrument-metadata-provider.factory.ts` (+ spec).
+- Modified: `market-data.service.ts` (+ spec) — `searchAssets()` merge logic, new `AssetSearchResult` type; `market-data.module.ts` — DI registration, reusing the existing `MARKET_DATA_MODE`/`TWELVE_DATA_API_KEY` flags (no new mode flag introduced).
+- No changes to `MarketDataController`, `AssetsService`, `Exchange`/`Market`/`Asset` Prisma models, or any Watchlist/Portfolio consumer.
+
+**Test summary:** 161/161 `apps/api` test suites passing, 837/837 tests (18 new tests); `apps/api` and `apps/web` build + lint clean.
+
+**Live verification (2026-07-16):** Booted the API against a live local PostgreSQL instance. Catalog-hit search (`ZENDEMO`) returned the unchanged `CATALOG`-sourced result. Catalog-miss search returned a `LIVE`-sourced, Simulated-mode result with zero DB writes (confirmed directly against Postgres). A direct connectivity check to `api.twelvedata.com` (the same host as L1-001) found it still blocked by this session's environment egress policy — the same documented environment constraint, not re-investigated further per Architecture Team instruction.
+
+---
+
 # Approval Status
 
 - [x] Proposed
 - [ ] Under Review
-- [ ] Approved
+- [x] Approved
 - [ ] Rejected
 
 ---

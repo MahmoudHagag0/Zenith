@@ -12,6 +12,8 @@ import { MARKET_DATA_PROVIDER } from './providers/market-data-provider.interface
 import { createMarketDataProvider } from './providers/market-data-provider.factory';
 import { MARKET_SESSION_PROVIDER } from './providers/market-session-provider.interface';
 import { InternalMarketSessionProvider } from './providers/internal-market-session.provider';
+import { INSTRUMENT_METADATA_PROVIDER } from './providers/instrument-metadata-provider.interface';
+import { createInstrumentMetadataProvider } from './providers/instrument-metadata-provider.factory';
 
 const moduleLogger = new Logger('MarketDataModule');
 
@@ -39,6 +41,15 @@ const moduleLogger = new Logger('MarketDataModule');
     // external providers are not queried for runtime lookups — so there is
     // exactly one implementation registered, no mode switch.
     { provide: MARKET_SESSION_PROVIDER, useClass: InternalMarketSessionProvider },
+    // Instrument Metadata, Symbol Search & Classification (L1-005,
+    // 28_LIVE_DATA_BLUEPRINT.md §9 Phase 5) — a NEW provider interface, no
+    // prior abstraction existed for this domain. Reuses the SAME
+    // MARKET_DATA_MODE/TWELVE_DATA_API_KEY flags as MARKET_DATA_PROVIDER
+    // (Architecture Team decision: Twelve Data only, no new mode flag).
+    {
+      provide: INSTRUMENT_METADATA_PROVIDER,
+      useFactory: () => createInstrumentMetadataProvider(process.env.TWELVE_DATA_API_KEY, process.env.MARKET_DATA_MODE, moduleLogger),
+    },
   ],
   // MarketDataSyncService is additionally exported so later background sync
   // jobs (Calendar/News, COT) can reuse its getTrackedAssetIds() rather than
