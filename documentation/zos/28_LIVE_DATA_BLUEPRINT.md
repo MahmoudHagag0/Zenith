@@ -557,3 +557,6 @@ Where the Data Quality Layer (§A1) assesses one provider's record in isolation,
 - sprints/L1-004_SPRINT_BRIEF.md (COT Live Provider — CFTC Direct Integration; §9 Phase 4; Approved — Live External Verification Pending (Environment Constraint))
 - sprints/L1-005_SPRINT_BRIEF.md (Instrument Metadata, Symbol Search & Classification; §9 Phase 5; Approved — Live External Verification Pending (Environment Constraint))
 - sprints/L1-006_SPRINT_BRIEF.md (Corporate Actions — Splits & Dividends; §9 Phase 6; Approved — Live External Verification Pending (Environment Constraint))
+- sprints/L1-007_SPRINT_BRIEF.md (Macro Context — FRED; §9 Phase 7; Approved — Live External Verification Pending (Environment Constraint))
+- sprints/L1-008_SPRINT_BRIEF.md (Monitoring, Alerting & Cost Observability; §9 Phase 8; Approved — Live External Verification Not Applicable (No New External Provider))
+- sprints/L1-009_SPRINT_BRIEF.md (Live Data Acceptance Review; §9 Phase 9; Approved — Accepted. Milestone M3 formally closed)
