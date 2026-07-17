@@ -16,11 +16,11 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  watchlists       Watchlist[]
-  favouriteAssets  FavouriteAsset[]
-  portfolios       Portfolio[]
-  journalEntries   JournalEntry[]
-  alerts           Alert[]
+  watchlists      Watchlist[]
+  favouriteAssets FavouriteAsset[]
+  portfolios      Portfolio[]
+  journalEntries  JournalEntry[]
+  alerts          Alert[]
 }
 
 enum Role {
@@ -68,16 +68,17 @@ model Asset {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  market          Market           @relation(fields: [marketId], references: [id], onDelete: Cascade)
-  watchlistItems  WatchlistItem[]
-  favouritedBy    FavouriteAsset[]
-  positions       Position[]
-  quote           MarketQuote?
-  candles         Candle[]
-  alerts          Alert[]
-  newsItems       NewsItem[]
-  calendarEvents  CalendarEvent[]
-  cotReports      CotReport[]
+  market           Market            @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  watchlistItems   WatchlistItem[]
+  favouritedBy     FavouriteAsset[]
+  positions        Position[]
+  quote            MarketQuote?
+  candles          Candle[]
+  alerts           Alert[]
+  newsItems        NewsItem[]
+  calendarEvents   CalendarEvent[]
+  cotReports       CotReport[]
+  corporateActions CorporateAction[]
 
   @@unique([marketId, symbol])
 }
@@ -186,7 +187,7 @@ model JournalEntry {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   // SetNull (not Cascade): deleting the underlying Transaction must not
   // destroy the trader's own written reflection -- it just becomes unlinked.
   transaction Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
@@ -326,6 +327,43 @@ model CotReport {
   asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
   @@unique([assetId, reportDate, category])
+  @@index([assetId])
+}
+
+// Corporate Actions (splits & dividends) — L1-006 (28_LIVE_DATA_BLUEPRINT.md
+// §9 Phase 6). Architecture Team decision (2026-07-16): stored fully
+// independently from Candle/Position/Transaction -- this table is never
+// joined into, and never mutates, any existing financial data. Any future
+// adjustment consumer must compute on read from this table; this Sprint
+// only ingests and stores the raw events. `rawPayload` preserves the
+// provider's original response for full audit/reproducibility, per the
+// same Architecture Team decision's traceability requirement.
+enum CorporateActionType {
+  SPLIT
+  DIVIDEND
+}
+
+model CorporateAction {
+  id              String              @id @default(uuid())
+  assetId         String
+  type            CorporateActionType
+  effectiveDate   DateTime
+  ratio           Decimal?            @db.Decimal(24, 8) // SPLIT only: toFactor / fromFactor (e.g. 2.0 for a 2-for-1 split, 0.5 for a 1-for-2 reverse split)
+  amount          Decimal?            @db.Decimal(24, 8) // DIVIDEND only: cash amount per share
+  currency        String? // DIVIDEND only
+  provider        String
+  providerEventId String?
+  retrievedAt     DateTime            @default(now())
+  rawPayload      Json
+  createdAt       DateTime            @default(now())
+
+  asset Asset @relation(fields: [assetId], references: [id], onDelete: Cascade)
+
+  // Idempotency natural key (Architecture Team requirement: reprocessing the
+  // same split/dividend must never create duplicates) -- mirrors the exact
+  // upsert-against-a-real-natural-key convention already used by
+  // NewsItem/CalendarEvent/CotReport.
+  @@unique([assetId, type, effectiveDate])
   @@index([assetId])
 }
 
