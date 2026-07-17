@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { LiveDataObservabilityService } from '../monitoring/live-data-observability.service';
 import { MacroDataService } from './macro-data.service';
 import { TRACKED_MACRO_SERIES } from './tracked-macro-series';
 
@@ -16,7 +17,10 @@ import { TRACKED_MACRO_SERIES } from './tracked-macro-series';
 export class MacroDataSyncService {
   private readonly logger = new Logger(MacroDataSyncService.name);
 
-  constructor(private readonly macroDataService: MacroDataService) {}
+  constructor(
+    private readonly macroDataService: MacroDataService,
+    private readonly liveDataObservabilityService: LiveDataObservabilityService,
+  ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async syncTrackedSeries(): Promise<void> {
@@ -33,6 +37,7 @@ export class MacroDataSyncService {
       }
     }
 
+    this.liveDataObservabilityService.recordSync('macro-data', succeeded, failed);
     this.logger.log(`Macro data sync finished: ${succeeded} succeeded, ${failed} failed, ${TRACKED_MACRO_SERIES.length} tracked`);
   }
 }

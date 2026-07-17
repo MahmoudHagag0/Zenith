@@ -1,6 +1,8 @@
 import { Logger, Module } from '@nestjs/common';
 import { DatabaseModule } from '../database/database.module';
 import { AuthModule } from '../auth/auth.module';
+import { MonitoringModule } from '../monitoring/monitoring.module';
+import { LiveDataObservabilityService } from '../monitoring/live-data-observability.service';
 import { MacroDataController } from './macro-data.controller';
 import { MacroDataService } from './macro-data.service';
 import { MacroDataSyncService } from './macro-data-sync.service';
@@ -10,7 +12,7 @@ import { createMacroDataProvider } from './providers/macro-data-provider.factory
 const moduleLogger = new Logger('MacroDataModule');
 
 @Module({
-  imports: [DatabaseModule, AuthModule],
+  imports: [DatabaseModule, AuthModule, MonitoringModule],
   controllers: [MacroDataController],
   providers: [
     MacroDataService,
@@ -19,10 +21,13 @@ const moduleLogger = new Logger('MacroDataModule');
     // 7, ADR-003 precedent) — a single one-line DI-registration swap, no
     // interface change, no consumer change. Gated behind MACRO_DATA_MODE
     // so an environment without FRED_API_KEY set falls back to
-    // SimulatedMacroDataProvider.
+    // SimulatedMacroDataProvider. As of L1-008, LiveDataObservabilityService
+    // is threaded through for passive provider-health/metrics recording.
     {
       provide: MACRO_DATA_PROVIDER,
-      useFactory: () => createMacroDataProvider(process.env.MACRO_DATA_MODE, process.env.FRED_API_KEY, moduleLogger),
+      useFactory: (liveDataObservabilityService: LiveDataObservabilityService) =>
+        createMacroDataProvider(process.env.MACRO_DATA_MODE, process.env.FRED_API_KEY, moduleLogger, liveDataObservabilityService),
+      inject: [LiveDataObservabilityService],
     },
   ],
   exports: [MacroDataService],

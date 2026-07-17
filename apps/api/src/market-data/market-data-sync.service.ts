@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { TrackedAssetsService } from '../tracked-assets/tracked-assets.service';
+import { LiveDataObservabilityService } from '../monitoring/live-data-observability.service';
 import { MarketDataService } from './market-data.service';
 import { MARKET_SESSION_PROVIDER, type MarketSessionProvider } from './providers/market-session-provider.interface';
 import type { MarketStatus } from './providers/market-session-provider.interface';
@@ -28,6 +29,7 @@ export class MarketDataSyncService {
     private readonly trackedAssetsService: TrackedAssetsService,
     private readonly marketDataService: MarketDataService,
     @Inject(MARKET_SESSION_PROVIDER) private readonly marketSessionProvider: MarketSessionProvider,
+    private readonly liveDataObservabilityService: LiveDataObservabilityService,
   ) {}
 
   @Cron(CronExpression.EVERY_5_MINUTES)
@@ -53,6 +55,7 @@ export class MarketDataSyncService {
       }
     }
 
+    this.liveDataObservabilityService.recordSync('market-data', succeeded, failed);
     this.logger.log(
       `Market data sync finished: ${succeeded} succeeded, ${failed} failed, ${skipped} skipped (market closed), ${assets.length} tracked`,
     );

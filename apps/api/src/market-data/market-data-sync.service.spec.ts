@@ -3,12 +3,14 @@ import { MarketDataSyncService } from './market-data-sync.service';
 import { TrackedAssetsService } from '../tracked-assets/tracked-assets.service';
 import { MarketDataService } from './market-data.service';
 import { MARKET_SESSION_PROVIDER } from './providers/market-session-provider.interface';
+import { LiveDataObservabilityService } from '../monitoring/live-data-observability.service';
 
 describe('MarketDataSyncService', () => {
   let service: MarketDataSyncService;
   let trackedAssetsService: { getAllTrackedAssetIds: jest.Mock; getAllTrackedAssetsWithExchange: jest.Mock };
   let marketDataService: { getQuote: jest.Mock };
   let marketSessionProvider: { getMarketStatus: jest.Mock };
+  let liveDataObservabilityService: { recordSync: jest.Mock };
 
   beforeEach(async () => {
     trackedAssetsService = {
@@ -20,6 +22,7 @@ describe('MarketDataSyncService', () => {
     };
     marketDataService = { getQuote: jest.fn().mockResolvedValue({}) };
     marketSessionProvider = { getMarketStatus: jest.fn().mockResolvedValue('OPEN') };
+    liveDataObservabilityService = { recordSync: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -27,10 +30,19 @@ describe('MarketDataSyncService', () => {
         { provide: TrackedAssetsService, useValue: trackedAssetsService },
         { provide: MarketDataService, useValue: marketDataService },
         { provide: MARKET_SESSION_PROVIDER, useValue: marketSessionProvider },
+        { provide: LiveDataObservabilityService, useValue: liveDataObservabilityService },
       ],
     }).compile();
 
     service = module.get<MarketDataSyncService>(MarketDataSyncService);
+  });
+
+  it('records sync results in LiveDataObservabilityService under the "market-data" domain', async () => {
+    marketDataService.getQuote.mockResolvedValueOnce({}).mockRejectedValueOnce(new Error('provider down'));
+
+    await service.syncTrackedAssets();
+
+    expect(liveDataObservabilityService.recordSync).toHaveBeenCalledWith('market-data', 1, 1);
   });
 
   it('delegates tracked-asset gathering to TrackedAssetsService.getAllTrackedAssetIds()', async () => {

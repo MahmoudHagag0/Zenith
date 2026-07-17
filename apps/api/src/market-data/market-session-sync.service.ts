@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { TrackedAssetsService } from '../tracked-assets/tracked-assets.service';
+import { LiveDataObservabilityService } from '../monitoring/live-data-observability.service';
 import { MARKET_SESSION_PROVIDER, type MarketSessionProvider } from './providers/market-session-provider.interface';
 
 /**
@@ -22,6 +23,7 @@ export class MarketSessionSyncService {
   constructor(
     private readonly trackedAssetsService: TrackedAssetsService,
     @Inject(MARKET_SESSION_PROVIDER) private readonly marketSessionProvider: MarketSessionProvider,
+    private readonly liveDataObservabilityService: LiveDataObservabilityService,
   ) {}
 
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -36,6 +38,8 @@ export class MarketSessionSyncService {
         uncovered.push(code);
       }
     }
+
+    this.liveDataObservabilityService.recordSync('market-sessions', exchangeCodes.length - uncovered.length, uncovered.length);
 
     if (uncovered.length > 0) {
       this.logger.warn(

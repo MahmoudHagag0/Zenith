@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { CotProvider, ProviderCotReport } from './cot-provider.interface';
 import { MarketDataHttpClient } from '../../market-data/providers/http-client';
+import type { LiveDataMetricsRecorder } from '../../market-data/providers/live-data-metrics-recorder.interface';
 import { CFTC_CONTRACT_MAPPING } from './cftc-contract-mapping';
 import { cftcLegacyReportResponseSchema } from './cot.schemas';
 import { normalizeCftcRow } from './cot.normalize';
@@ -34,9 +35,14 @@ const REPORT_WEEKS = 8;
 @Injectable()
 export class LiveCotProvider implements CotProvider {
   readonly name = 'cftc';
-  private readonly httpClient = new MarketDataHttpClient(this.name);
+  private readonly httpClient: MarketDataHttpClient;
 
-  constructor(private readonly appToken?: string) {}
+  constructor(
+    private readonly appToken?: string,
+    metrics?: LiveDataMetricsRecorder,
+  ) {
+    this.httpClient = new MarketDataHttpClient(this.name, undefined, 'cot', metrics);
+  }
 
   async getLatestReports(symbol: string): Promise<ProviderCotReport[]> {
     const contractCode = CFTC_CONTRACT_MAPPING[symbol];

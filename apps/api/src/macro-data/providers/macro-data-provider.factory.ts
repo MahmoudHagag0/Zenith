@@ -1,4 +1,5 @@
 import type { MacroDataProvider } from './macro-data-provider.interface';
+import type { LiveDataMetricsRecorder } from '../../market-data/providers/live-data-metrics-recorder.interface';
 import { SimulatedMacroDataProvider } from './simulated-macro-data.provider';
 import { FredMacroDataProvider } from './fred-macro-data.provider';
 
@@ -19,10 +20,11 @@ export function createMacroDataProvider(
   mode: string | undefined,
   fredApiKey: string | undefined,
   logger: MacroDataProviderFactoryLogger,
+  metrics?: LiveDataMetricsRecorder,
 ): MacroDataProvider {
   if (mode === 'live') {
     if (fredApiKey) {
-      return new FredMacroDataProvider(fredApiKey);
+      return new FredMacroDataProvider(fredApiKey, metrics);
     }
     logger.warn('MACRO_DATA_MODE=live but FRED_API_KEY is not set — falling back to SimulatedMacroDataProvider');
   }

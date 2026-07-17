@@ -34,4 +34,22 @@ describe('withRetry', () => {
     ).rejects.toThrow('invalid input');
     expect(fn).toHaveBeenCalledTimes(1);
   });
+
+  it('calls onRetry once per retry attempt, not on the initial try or on final exhaustion', async () => {
+    const fn = jest.fn().mockRejectedValueOnce(new Error('transient')).mockResolvedValue('ok');
+    const onRetry = jest.fn();
+
+    await withRetry(fn, { retries: 3, baseDelayMs: 1, onRetry });
+
+    expect(onRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not call onRetry when the error is non-retryable', async () => {
+    const fn = jest.fn().mockRejectedValue(new Error('invalid input'));
+    const onRetry = jest.fn();
+
+    await expect(withRetry(fn, { retries: 3, baseDelayMs: 1, isRetryable: () => false, onRetry })).rejects.toThrow('invalid input');
+
+    expect(onRetry).not.toHaveBeenCalled();
+  });
 });

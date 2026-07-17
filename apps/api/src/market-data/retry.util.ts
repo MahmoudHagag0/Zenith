@@ -5,6 +5,8 @@ export interface RetryOptions {
   baseDelayMs: number;
   /** Returns true if the error should be retried. Defaults to always retry. */
   isRetryable?: (error: unknown) => boolean;
+  /** Called once per retry attempt (not on the initial try) -- e.g. for observability counters (L1-008). */
+  onRetry?: () => void;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -28,6 +30,7 @@ export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions):
       if (!isRetryable(error) || attempt >= options.retries) {
         throw error;
       }
+      options.onRetry?.();
       await sleep(options.baseDelayMs * 2 ** attempt);
       attempt += 1;
     }

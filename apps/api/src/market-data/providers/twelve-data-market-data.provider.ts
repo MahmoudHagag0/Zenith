@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import type { MarketDataProvider, ProviderCandle, ProviderHealthStatus, ProviderQuote } from './market-data-provider.interface';
 import { MarketDataHttpClient } from './http-client';
+import type { LiveDataMetricsRecorder } from './live-data-metrics-recorder.interface';
 import { ProviderUnavailableError } from './provider-errors';
 import { twelveDataErrorSchema, twelveDataQuoteSchema, twelveDataTimeSeriesSchema } from './twelve-data.schemas';
 import { normalizeCandles, normalizeQuote } from './twelve-data.normalize';
@@ -25,8 +26,11 @@ export class TwelveDataMarketDataProvider implements MarketDataProvider {
   private readonly logger = new Logger(TwelveDataMarketDataProvider.name);
   private readonly httpClient: MarketDataHttpClient;
 
-  constructor(private readonly apiKey: string) {
-    this.httpClient = new MarketDataHttpClient(this.name);
+  constructor(
+    private readonly apiKey: string,
+    metrics?: LiveDataMetricsRecorder,
+  ) {
+    this.httpClient = new MarketDataHttpClient(this.name, undefined, 'market-data', metrics);
   }
 
   async getQuote(symbol: string): Promise<ProviderQuote> {

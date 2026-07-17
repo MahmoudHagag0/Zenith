@@ -1,8 +1,8 @@
 # L1-008 SPRINT BRIEF — Monitoring, Alerting & Cost Observability
 
 **Document ID:** ZOS-L1-008
-**Version:** 1.0
-**Status:** Proposed
+**Version:** 1.1
+**Status:** Approved — Live External Verification Not Applicable (No New External Provider)
 **Owner:** Architecture Team
 **Template Reference:** SPRINT_BRIEF_TEMPLATE.md (ZOS-SBT)
 
@@ -139,8 +139,65 @@ This Sprint is explicitly operational infrastructure, not a feature Sprint: no n
 
 - [x] Proposed
 - [ ] Under Review
-- [ ] Approved
+- [x] Approved
 - [ ] Rejected
+
+**Final Status:** Approved — Live External Verification Not Applicable (No New External Provider)
+
+---
+
+# Implementation Notes
+
+**Date Implemented:** 2026-07-17
+**Approved By:** Architecture Team
+
+## Resolution of Missing Decisions
+
+1. **Alerting scope (Missing Decision #1) — resolved as Operational Alerting only, scope (a).** Monitors provider availability, sync failures, provider degradation, high error rate, API usage, and cost observability — computed on read from already-tracked runtime state, surfaced as structured WARN/CRITICAL log lines and via `GET /monitoring/alerts`. No persisted incident record, no outbound notification channel. Explicitly does not touch the existing user-facing `Alert`/`AlertsService` domain (price/trading alerts) — confirmed unmodified.
+2. **Provider-health mechanism (Missing Decision #2) — resolved as Passive Health Monitoring.** No periodic live ping requests were introduced. Health status is derived entirely from runtime state already produced by existing calls: last successful/failed request, circuit-breaker state (read at the exact point `MarketDataHttpClient.fetchJson()` already checks it), and sync history. `TwelveDataMarketDataProvider`'s pre-existing live-ping `checkHealth()` (L1-001) was left untouched — it is a separate, already-existing mechanism this Sprint does not extend or replicate.
+3. **Observability isolation (Missing Decision #3) — resolved by creating a dedicated `LiveDataObservabilityService`.** Analysis Engine's `ObservabilityService` (S1-007) was not touched or extended. The new service is scoped to exactly the Architecture Team's named responsibilities: provider success/failure counts, latency, retry count, rate-limit events, last success/failure, last sync, per domain.
+
+## Work Completed
+
+- **`MarketDataHttpClient` extended** (`market-data/providers/http-client.ts`) with two new optional constructor parameters (`domain`, `metrics: LiveDataMetricsRecorder`), fully backward-compatible with every existing call site (defaulted, positional-append). Records circuit state, success/failure (with latency and rate-limit flag), and retries — all derived from calls it was already making, zero new network requests.
+- **`retry.util.ts`** extended with an optional `onRetry` callback on `RetryOptions`, invoked once per retry attempt (not on the initial try or final exhaustion) — additive, backward-compatible.
+- **New `market-data/providers/live-data-metrics-recorder.interface.ts`** — the `LiveDataMetricsRecorder` interface, co-located with its sole consumer (`http-client.ts`) so the shared HTTP client never depends on the concrete observability service or the `monitoring` module.
+- **New `monitoring` module** — `LiveDataObservabilityService` (implements `LiveDataMetricsRecorder`; tracks per-provider metrics and per-domain sync history; derives `UP`/`DEGRADED`/`DOWN`/`UNKNOWN` status and documented-threshold alerts entirely from already-tracked state), `MonitoringController` (`GET /monitoring/provider-health`, `GET /monitoring/alerts`), `MonitoringModule` (exports the service; imported by every Live Data domain module — a one-directional dependency, `MonitoringModule` imports nothing from any domain module, avoiding any circular-import risk).
+- **Every Live Data provider's live implementation** (`TwelveDataMarketDataProvider`, `TwelveDataInstrumentMetadataProvider`, `LiveCotProvider`, `LiveCalendarNewsProvider`, `FinnhubCorporateActionsProvider`, `FredMacroDataProvider`) now threads an optional `LiveDataMetricsRecorder` through to its `MarketDataHttpClient` instance(s), with a `domain` label. All six provider factories and their owning modules updated to inject `LiveDataObservabilityService` via `useFactory`/`inject`.
+- **Every `*SyncService`** (`MarketDataSyncService`, `MarketSessionSyncService`, `CalendarNewsSyncService`, `CotSyncService`, `CorporateActionsSyncService`, `MacroDataSyncService`) now calls `LiveDataObservabilityService.recordSync(domain, succeeded, failed)` once per cron run. `MarketSessionSyncService` (which has no succeeded/failed sync of its own) records covered/uncovered exchange counts as the sync-history signal for that domain.
+- **Existing `GET /market-data/provider-health` endpoint left completely unchanged** — verified byte-for-byte identical response, per Blueprint §4.9's own instruction to extend the pattern via a new endpoint rather than inventing competing ones for each domain.
+
+## Design Notes (disclosed, bounded implementation choices — not escalated)
+
+- **Alert thresholds** (documented per Decision 1): CRITICAL when a provider's circuit breaker is open; WARN when a provider's failure rate is ≥50% over at least 5 recorded calls; WARN on any recorded rate-limit event; WARN when a domain's last sync run had any failures.
+- **Status derivation**: DOWN if circuit open; UNKNOWN if no calls recorded yet; otherwise DEGRADED if the most recent call failed, else UP. Recency is tracked via an explicit `lastOutcomeWasFailure` flag rather than comparing `Date` timestamps — two events recorded within the same millisecond are otherwise indistinguishable by wall-clock comparison (caught and fixed during test-writing).
+- **Structured logging**: `provider`/`domain` context is included via message-string interpolation on the existing `nestjs-pino`-backed `Logger`, not via a switch to object-based structured fields — a disclosed simplification, since doing the latter would require touching every existing log call site across 6+ services for a Sprint whose own Key Risk is explicitly "purely operational, no functional risk."
+
+## Files Changed
+
+- `apps/api/src/market-data/retry.util.ts`, `retry.util.spec.ts`
+- `apps/api/src/market-data/providers/http-client.ts`, `http-client.spec.ts`
+- `apps/api/src/market-data/providers/live-data-metrics-recorder.interface.ts` (new)
+- `apps/api/src/monitoring/` (new): `live-data-observability.types.ts`, `live-data-observability.service.ts` (+spec), `monitoring.controller.ts` (+spec), `monitoring.module.ts`
+- `apps/api/src/market-data/providers/{twelve-data-market-data,twelve-data-instrument-metadata}.provider.ts`, `apps/api/src/cot/providers/live-cot.provider.ts`, `apps/api/src/calendar-news/providers/live-calendar-news.provider.ts`, `apps/api/src/corporate-actions/providers/finnhub-corporate-actions.provider.ts`, `apps/api/src/macro-data/providers/fred-macro-data.provider.ts`
+- `apps/api/src/market-data/providers/{market-data,instrument-metadata}-provider.factory.ts`, `apps/api/src/cot/providers/cot-provider.factory.ts`, `apps/api/src/calendar-news/providers/calendar-news-provider.factory.ts`, `apps/api/src/corporate-actions/providers/corporate-actions-provider.factory.ts`, `apps/api/src/macro-data/providers/macro-data-provider.factory.ts`
+- `apps/api/src/market-data/market-data.module.ts`, `apps/api/src/cot/cot.module.ts`, `apps/api/src/calendar-news/calendar-news.module.ts`, `apps/api/src/corporate-actions/corporate-actions.module.ts`, `apps/api/src/macro-data/macro-data.module.ts`
+- `apps/api/src/market-data/{market-data,market-session}-sync.service.ts` (+specs), `apps/api/src/cot/cot-sync.service.ts`, `apps/api/src/calendar-news/calendar-news-sync.service.ts` (+spec), `apps/api/src/corporate-actions/corporate-actions-sync.service.ts` (+spec), `apps/api/src/macro-data/macro-data-sync.service.ts` (+spec)
+- `apps/api/src/app.module.ts` (registered `MonitoringModule`)
+
+## Test Summary
+
+- New/extended tests: `retry.util.spec.ts` (+2), `http-client.spec.ts` (+6 metrics-recording tests), `live-data-observability.service.spec.ts` (new, 16 tests), `monitoring.controller.spec.ts` (new, 2 tests), plus one `recordSync` assertion added to each of the 5 existing sync-service spec files.
+- Full regression suite: `turbo run build lint test` for `@zenith/api`/`@zenith/database` — **173 test suites, 910 tests, all passing, zero regressions** (up from 171/881 at L1-007 close).
+
+## Live Verification Summary
+
+- This Sprint introduces **no new external vendor or endpoint** — it is a passive-only observability layer over Sprints already integrated (L1-001 through L1-007). Per the Verification Plan's own contingency for Missing Decision #2 resolving to passive monitoring, no new live network call is required or was attempted.
+- Booted the API against real local PostgreSQL in default (Simulated) mode: `MonitoringController` routes registered cleanly; `GET /monitoring/provider-health` and `GET /monitoring/alerts` returned empty arrays (correct — Simulated providers never call `MarketDataHttpClient`, so nothing is tracked); the existing `GET /market-data/provider-health` endpoint returned byte-for-byte the same response as before this Sprint.
+- Captured `Candle`/`Position`/`CorporateAction`/`MacroSeriesValue` row counts and `md5` ID-set hash before and after exercising every touched endpoint: **identical** — this Sprint introduces no new persistence at all (`LiveDataObservabilityService` is in-memory only) and mutates no existing table.
+- Booted with every domain's `*_MODE=live` set and every corresponding credential unset: confirmed all five expected fallback-warning logs still fire correctly (`MarketDataModule`, `MacroDataModule`, `CorporateActionsModule`, `CalendarNewsModule` — `CotModule` requires no credential, unaffected) — proves the constructor/factory threading introduced by this Sprint did not regress any prior Sprint's fallback behavior.
+
+**Sprint Status:** Approved — Live External Verification Not Applicable (No New External Provider)
 
 ---
 

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import type { CorporateActionsProvider, ProviderDividendEvent, ProviderSplitEvent } from './corporate-actions-provider.interface';
 import { MarketDataHttpClient } from '../../market-data/providers/http-client';
+import type { LiveDataMetricsRecorder } from '../../market-data/providers/live-data-metrics-recorder.interface';
 import { finnhubDividendResponseSchema, finnhubSplitResponseSchema } from './corporate-actions.schemas';
 import { normalizeFinnhubDividend, normalizeFinnhubSplit } from './corporate-actions.normalize';
 
@@ -27,10 +28,16 @@ function today(): string {
 @Injectable()
 export class FinnhubCorporateActionsProvider implements CorporateActionsProvider {
   readonly name = 'finnhub';
-  private readonly splitsClient = new MarketDataHttpClient('finnhub-splits');
-  private readonly dividendsClient = new MarketDataHttpClient('finnhub-dividends');
+  private readonly splitsClient: MarketDataHttpClient;
+  private readonly dividendsClient: MarketDataHttpClient;
 
-  constructor(private readonly apiKey: string) {}
+  constructor(
+    private readonly apiKey: string,
+    metrics?: LiveDataMetricsRecorder,
+  ) {
+    this.splitsClient = new MarketDataHttpClient('finnhub-splits', undefined, 'corporate-actions', metrics);
+    this.dividendsClient = new MarketDataHttpClient('finnhub-dividends', undefined, 'corporate-actions', metrics);
+  }
 
   async getSplits(symbol: string): Promise<ProviderSplitEvent[]> {
     const url = `${BASE_URL}/stock/split?symbol=${encodeURIComponent(symbol)}&from=${HISTORY_START_DATE}&to=${today()}&token=${this.apiKey}`;

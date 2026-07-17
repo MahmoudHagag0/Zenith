@@ -2,11 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { MarketSessionSyncService } from './market-session-sync.service';
 import { TrackedAssetsService } from '../tracked-assets/tracked-assets.service';
 import { MARKET_SESSION_PROVIDER } from './providers/market-session-provider.interface';
+import { LiveDataObservabilityService } from '../monitoring/live-data-observability.service';
 
 describe('MarketSessionSyncService', () => {
   let service: MarketSessionSyncService;
   let trackedAssetsService: { getAllTrackedAssetsWithExchange: jest.Mock };
   let marketSessionProvider: { getMarketStatus: jest.Mock };
+  let liveDataObservabilityService: { recordSync: jest.Mock };
 
   beforeEach(async () => {
     trackedAssetsService = {
@@ -16,16 +18,26 @@ describe('MarketSessionSyncService', () => {
       ]),
     };
     marketSessionProvider = { getMarketStatus: jest.fn() };
+    liveDataObservabilityService = { recordSync: jest.fn() };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         MarketSessionSyncService,
         { provide: TrackedAssetsService, useValue: trackedAssetsService },
         { provide: MARKET_SESSION_PROVIDER, useValue: marketSessionProvider },
+        { provide: LiveDataObservabilityService, useValue: liveDataObservabilityService },
       ],
     }).compile();
 
     service = module.get<MarketSessionSyncService>(MarketSessionSyncService);
+  });
+
+  it('records coverage results in LiveDataObservabilityService under the "market-sessions" domain', async () => {
+    marketSessionProvider.getMarketStatus.mockResolvedValueOnce('OPEN').mockResolvedValueOnce('UNKNOWN');
+
+    await service.checkSessionCoverage();
+
+    expect(liveDataObservabilityService.recordSync).toHaveBeenCalledWith('market-sessions', 1, 1);
   });
 
   it('checks each distinct tracked exchange code exactly once', async () => {

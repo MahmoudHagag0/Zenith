@@ -1,4 +1,5 @@
 import type { CotProvider } from './cot-provider.interface';
+import type { LiveDataMetricsRecorder } from '../../market-data/providers/live-data-metrics-recorder.interface';
 import { SimulatedCotProvider } from './simulated-cot.provider';
 import { LiveCotProvider } from './live-cot.provider';
 
@@ -12,9 +13,13 @@ import { LiveCotProvider } from './live-cot.provider';
  * missing-key check) gates the live/simulated choice; an optional
  * app token (Socrata's higher-rate-limit token) is passed through if set.
  */
-export function createCotProvider(mode: string | undefined, appToken: string | undefined): CotProvider {
+export function createCotProvider(
+  mode: string | undefined,
+  appToken: string | undefined,
+  metrics?: LiveDataMetricsRecorder,
+): CotProvider {
   if (mode === 'live') {
-    return new LiveCotProvider(appToken);
+    return new LiveCotProvider(appToken, metrics);
   }
   return new SimulatedCotProvider();
 }
