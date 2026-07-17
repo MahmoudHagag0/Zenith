@@ -39,6 +39,7 @@ This index serves as the central directory for the Zenith Operating System (ZOS)
 | D2-005 | D2-005_COMPONENT_FOUNDATIONS.md | Milestone M4 — architectural foundations (anatomy, states, governing constraints) for 18 reusable component families (buttons through toast). No visual mockups, no component library code. |
 | D2-006 | D2-006_DATA_VISUALIZATION_SYSTEM.md | Milestone M4 — visual language for charts, heatmaps, performance tables, KPIs, trade history, risk metrics, calendar/economic-event data, and portfolio metrics. States and enforces the no-saturated-red/green-candlestick decision. |
 | D2-007 | D2-007_ACCESSIBILITY_GUIDE.md | Milestone M4 — consolidated accessibility rules (contrast, keyboard navigation, reduced motion, focus indicators, color blindness, screen reader considerations, typography accessibility). |
+| M4-002 | M4-002_SCREEN_ARCHITECTURE_BLUEPRINT.md | Milestone M4 (Screen Architecture phase) — navigation philosophy, product map, navigation hierarchy, screen inventory (11 screens), major user flows, screen relationships/categories, Dashboard's architectural position, and navigation psychology. Architecture only: no wireframes, colors, typography, spacing, or components. |
 | -- | ZENITH_AI_SYSTEM_PROMPT.md | Core behavioral and operational constraints. |
 | -- | ZENITH_MASTER_CONTEXT.md | Global project background and architectural vision. |
 | -- | SPRINT_BRIEF_TEMPLATE.md | Standardized format for sprint planning. |
