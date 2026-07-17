@@ -1,0 +1,27 @@
+/*
+ * Skeleton (D2-005 §17). Slow, low-contrast pulse -- never a bright
+ * shimmer (Constitution §5.1). Matches the eventual content's own shape
+ * via `width`/`height` props, not a fixed size.
+ */
+@keyframes zenithSkeletonPulse {
+  0%,
+  100% {
+    opacity: var(--zenith-opacity-hover);
+  }
+  50% {
+    opacity: var(--zenith-opacity-pressed);
+  }
+}
+
+/*
+ * No local `prefers-reduced-motion` override here -- M5-001 §9's single
+ * global token override (`--zenith-duration-slow` -> 0ms) already
+ * collapses this animation to instant. Adding a second, per-component
+ * override here would reintroduce exactly the duplicated logic that
+ * architecture decision exists to avoid.
+ */
+.skeleton {
+  background: var(--zenith-surface-raised);
+  border-radius: var(--zenith-radius-md);
+  animation: zenithSkeletonPulse var(--zenith-duration-slow) var(--zenith-easing-standard) infinite;
+}

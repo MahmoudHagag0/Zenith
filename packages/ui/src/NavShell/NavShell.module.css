@@ -1,0 +1,115 @@
+/*
+ * Navigation Shell (M5-002 §1). Sidebar at wide/regular, Top Bar with a
+ * native <details> expandable menu at compact -- resolves D1-005 §6's
+ * own deferred Sidebar-vs-Top-Bar decision. Breakpoint literals below
+ * are the CSS-side half of M5-001 §12's synchronized-breakpoint pair
+ * (`packages/design-tokens/src/breakpoints.ts` is the JS-side source of
+ * truth; 640px here matches `breakpoints.regular`).
+ */
+
+.navItem {
+  display: block;
+  font-size: var(--zenith-text-caption-size);
+  line-height: var(--zenith-text-caption-line-height);
+  color: var(--zenith-text-secondary);
+  font-family: var(--zenith-font-family-text);
+  text-decoration: none;
+  padding: var(--zenith-space-8) var(--zenith-space-12);
+  border-radius: var(--zenith-radius-sm);
+}
+
+.navItem:hover {
+  color: var(--zenith-text-primary);
+}
+
+.navItem[data-active] {
+  color: var(--zenith-accent-default);
+  font-weight: 600;
+}
+
+.navItem:focus-visible {
+  outline: 2px solid var(--zenith-accent-focus);
+  outline-offset: 2px;
+}
+
+.sidebar {
+  display: none;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--zenith-space-16) var(--zenith-space-16);
+  border-bottom: 1px solid var(--zenith-border-default);
+}
+
+.brand {
+  font-size: var(--zenith-text-title-size);
+  font-weight: var(--zenith-text-title-weight);
+  color: var(--zenith-text-primary);
+  font-family: var(--zenith-font-family-text);
+  margin: 0;
+}
+
+.topbarMenu summary {
+  cursor: pointer;
+  font-size: var(--zenith-text-caption-size);
+  color: var(--zenith-text-secondary);
+  list-style: none;
+}
+
+.topbarMenu summary::-webkit-details-marker {
+  display: none;
+}
+
+.topbarMenuList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zenith-space-4);
+  margin-top: var(--zenith-space-8);
+}
+
+@media (min-width: 640px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--zenith-space-4);
+    position: sticky;
+    top: 0;
+    z-index: var(--zenith-layer-sticky);
+    align-self: flex-start;
+    width: 12rem;
+    padding: var(--zenith-space-24) var(--zenith-space-16);
+    border-right: 1px solid var(--zenith-border-default);
+  }
+
+  .topbar {
+    display: none;
+  }
+}
+
+/*
+ * Explicit token-driven background/text color on the root wrapper --
+ * `apps/web`'s shared `globals.css` still hardcodes `body { background:
+ * #fff; color: #1c1c1e }` for the nine not-yet-migrated screens (left
+ * untouched deliberately, M5-003 §3). Without this, this Shell's own
+ * dark-mode Cards/Panel would render correctly while the surrounding
+ * canvas stayed stuck in light mode -- caught during live dark-mode
+ * verification, fixed here rather than by editing the shared body rule.
+ */
+.root {
+  background: var(--zenith-surface-base);
+  color: var(--zenith-text-primary);
+  min-height: 100vh;
+}
+
+.layout {
+  display: flex;
+  align-items: flex-start;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}

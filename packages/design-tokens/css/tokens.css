@@ -1,0 +1,180 @@
+/* GENERATED FILE -- do not edit by hand. Source: packages/design-tokens/src/*.ts (M5-001). */
+
+:root {
+  --zenith-surface-base: #F7F6F4;
+  --zenith-surface-raised: #FFFFFF;
+  --zenith-surface-overlay: #FFFFFF;
+  --zenith-text-primary: #211F1B;
+  --zenith-text-secondary: #5B584F;
+  --zenith-text-muted: #8B877E;
+  --zenith-border-default: #EDEBE7;
+  --zenith-border-emphasis: #33435F;
+  --zenith-accent-default: #33435F;
+  --zenith-accent-emphasis: #26324A;
+  --zenith-accent-focus: #33435F;
+  --zenith-signal-critical: #8C4A3D;
+  --zenith-signal-warn: #8C6E3D;
+  --zenith-signal-info: #33435F;
+  --zenith-success: #3E8C5E;
+  --zenith-data-positive: #4F7D5E;
+  --zenith-data-negative: #A9695D;
+  --zenith-data-neutral: #5B584F;
+  --zenith-chart-series-1: #33435F;
+  --zenith-chart-series-2: #3E7C72;
+  --zenith-chart-series-3: #6B7C4A;
+  --zenith-chart-series-4: #6B5B7C;
+  --zenith-chart-series-5: #5B584F;
+  --zenith-font-family-text: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --zenith-font-family-numeric: "Inter", ui-monospace, monospace;
+  --zenith-text-display-size: 2.5rem;
+  --zenith-text-display-line-height: 1.2;
+  --zenith-text-display-letter-spacing: -0.01em;
+  --zenith-text-display-weight: 600;
+  --zenith-text-heading-size: 1.75rem;
+  --zenith-text-heading-line-height: 1.2;
+  --zenith-text-heading-letter-spacing: -0.01em;
+  --zenith-text-heading-weight: 600;
+  --zenith-text-title-size: 1.375rem;
+  --zenith-text-title-line-height: 1.2;
+  --zenith-text-title-letter-spacing: 0em;
+  --zenith-text-title-weight: 600;
+  --zenith-text-subtitle-size: 1.0625rem;
+  --zenith-text-subtitle-line-height: 1.5;
+  --zenith-text-subtitle-letter-spacing: 0em;
+  --zenith-text-subtitle-weight: 500;
+  --zenith-text-body-size: 1rem;
+  --zenith-text-body-line-height: 1.5;
+  --zenith-text-body-letter-spacing: 0em;
+  --zenith-text-body-weight: 400;
+  --zenith-text-caption-size: 0.875rem;
+  --zenith-text-caption-line-height: 1.6;
+  --zenith-text-caption-letter-spacing: 0em;
+  --zenith-text-caption-weight: 400;
+  --zenith-text-micro-size: 0.75rem;
+  --zenith-text-micro-line-height: 1.6;
+  --zenith-text-micro-letter-spacing: 0.02em;
+  --zenith-text-micro-weight: 400;
+  --zenith-numeric-variant: tabular-nums;
+  --zenith-space-4: 0.25rem;
+  --zenith-space-8: 0.5rem;
+  --zenith-space-12: 0.75rem;
+  --zenith-space-16: 1rem;
+  --zenith-space-24: 1.5rem;
+  --zenith-space-32: 2rem;
+  --zenith-space-48: 3rem;
+  --zenith-space-64: 4rem;
+  --zenith-space-96: 6rem;
+  --zenith-container-narrow: 40rem;
+  --zenith-container-default: 60rem;
+  --zenith-container-wide: 75rem;
+  --zenith-radius-none: 0px;
+  --zenith-radius-sm: 4px;
+  --zenith-radius-md: 8px;
+  --zenith-radius-lg: 12px;
+  --zenith-radius-full: 9999px;
+  --zenith-elevation-0: none;
+  --zenith-elevation-1: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --zenith-elevation-2: 0 4px 12px rgba(0, 0, 0, 0.10);
+  --zenith-duration-fast: 120ms;
+  --zenith-duration-default: 200ms;
+  --zenith-duration-slow: 320ms;
+  --zenith-easing-standard: cubic-bezier(0.2, 0, 0, 1);
+  --zenith-opacity-disabled: 0.4;
+  --zenith-opacity-hover: 0.06;
+  --zenith-opacity-pressed: 0.12;
+  --zenith-opacity-scrim: 0.5;
+  --zenith-layer-base: 0;
+  --zenith-layer-raised: 10;
+  --zenith-layer-sticky: 20;
+  --zenith-layer-overlay: 30;
+  --zenith-layer-modal: 40;
+  --zenith-layer-toast: 50;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+  --zenith-surface-base: #171613;
+  --zenith-surface-raised: #242320;
+  --zenith-surface-overlay: #242320;
+  --zenith-text-primary: #F7F6F4;
+  --zenith-text-secondary: #8B877E;
+  --zenith-text-muted: #5B584F;
+  --zenith-border-default: #332F2A;
+  --zenith-border-emphasis: #5B6B8C;
+  --zenith-accent-default: #33435F;
+  --zenith-accent-emphasis: #26324A;
+  --zenith-accent-focus: #5B6B8C;
+  --zenith-signal-critical: #8C4A3D;
+  --zenith-signal-warn: #8C6E3D;
+  --zenith-signal-info: #33435F;
+  --zenith-success: #3E8C5E;
+  --zenith-data-positive: #4F7D5E;
+  --zenith-data-negative: #A9695D;
+  --zenith-data-neutral: #8B877E;
+  --zenith-chart-series-1: #33435F;
+  --zenith-chart-series-2: #3E7C72;
+  --zenith-chart-series-3: #6B7C4A;
+  --zenith-chart-series-4: #6B5B7C;
+  --zenith-chart-series-5: #8B877E;
+  }
+}
+
+[data-theme='light'] {
+  --zenith-surface-base: #F7F6F4;
+  --zenith-surface-raised: #FFFFFF;
+  --zenith-surface-overlay: #FFFFFF;
+  --zenith-text-primary: #211F1B;
+  --zenith-text-secondary: #5B584F;
+  --zenith-text-muted: #8B877E;
+  --zenith-border-default: #EDEBE7;
+  --zenith-border-emphasis: #33435F;
+  --zenith-accent-default: #33435F;
+  --zenith-accent-emphasis: #26324A;
+  --zenith-accent-focus: #33435F;
+  --zenith-signal-critical: #8C4A3D;
+  --zenith-signal-warn: #8C6E3D;
+  --zenith-signal-info: #33435F;
+  --zenith-success: #3E8C5E;
+  --zenith-data-positive: #4F7D5E;
+  --zenith-data-negative: #A9695D;
+  --zenith-data-neutral: #5B584F;
+  --zenith-chart-series-1: #33435F;
+  --zenith-chart-series-2: #3E7C72;
+  --zenith-chart-series-3: #6B7C4A;
+  --zenith-chart-series-4: #6B5B7C;
+  --zenith-chart-series-5: #5B584F;
+}
+
+[data-theme='dark'] {
+  --zenith-surface-base: #171613;
+  --zenith-surface-raised: #242320;
+  --zenith-surface-overlay: #242320;
+  --zenith-text-primary: #F7F6F4;
+  --zenith-text-secondary: #8B877E;
+  --zenith-text-muted: #5B584F;
+  --zenith-border-default: #332F2A;
+  --zenith-border-emphasis: #5B6B8C;
+  --zenith-accent-default: #33435F;
+  --zenith-accent-emphasis: #26324A;
+  --zenith-accent-focus: #5B6B8C;
+  --zenith-signal-critical: #8C4A3D;
+  --zenith-signal-warn: #8C6E3D;
+  --zenith-signal-info: #33435F;
+  --zenith-success: #3E8C5E;
+  --zenith-data-positive: #4F7D5E;
+  --zenith-data-negative: #A9695D;
+  --zenith-data-neutral: #8B877E;
+  --zenith-chart-series-1: #33435F;
+  --zenith-chart-series-2: #3E7C72;
+  --zenith-chart-series-3: #6B7C4A;
+  --zenith-chart-series-4: #6B5B7C;
+  --zenith-chart-series-5: #8B877E;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --zenith-duration-fast: 0ms;
+    --zenith-duration-default: 0ms;
+    --zenith-duration-slow: 0ms;
+  }
+}

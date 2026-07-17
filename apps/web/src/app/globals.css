@@ -1,4 +1,15 @@
 /*
+ * M5/Dashboard implementation: the D2 design token layer (M5-001),
+ * imported once, globally. Every rule below this line predates the
+ * design system (S1-022's own header said so explicitly) and is left
+ * untouched -- it still serves every screen other than Dashboard,
+ * which now consumes @zenith/ui + these tokens exclusively instead of
+ * the rules below. Migrating another screen's own hardcoded styles is
+ * out of this task's scope.
+ */
+@import '@zenith/design-tokens/css/tokens.css';
+
+/*
  * S1-022 Dashboard Production UI V1 -- restrained, professional, calm.
  * No design system, no theme tokens, no CSS framework: plain rules
  * expressing one fixed hierarchy (hero > secondary > supporting) through
@@ -6,6 +17,11 @@
  * hierarchy, not decoration" instruction. Colors communicate state only
  * (direction), never decoration -- desaturated, and never the sole
  * carrier of meaning (every color-coded value is also a text label).
+ *
+ * NOTE: this block and everything below now styles every screen EXCEPT
+ * Dashboard (moved to `(authenticated)/page.tsx`, styled entirely via
+ * @zenith/ui). Left in place unmodified for the other, not-yet-migrated
+ * screens (`M5-003` §3's own "confirm, don't restructure" rule).
  */
 
 body {

@@ -1,0 +1,8 @@
+/* Empty State -- identical typographic tone to a populated Decision Card (D1-002 §14.3: only content differs, never the register). */
+.message {
+  font-size: var(--zenith-text-body-size);
+  line-height: var(--zenith-text-body-line-height);
+  color: var(--zenith-text-secondary);
+  font-family: var(--zenith-font-family-text);
+  margin: 0;
+}
