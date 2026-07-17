@@ -53,6 +53,9 @@ This index serves as the central directory for the Zenith Operating System (ZOS)
 | M4-009 | M4-009_CALENDAR_NEWS_SCREEN_DESIGN.md | Milestone M4 (Screen Design phase) — Calendar/News's full screen design as one combined screen with Calendar and News Secondary Navigation sub-views, matching the approved single product area and live implementation. |
 | M4-010 | M4-010_COT_SCREEN_DESIGN.md | Milestone M4 (Screen Design phase) — COT's full screen design; raw institutional-positioning evidence, deliberately never styled with gain/loss color tokens. |
 | M4-011 | M4-011_REPORTS_SCREEN_DESIGN.md | Milestone M4 (Screen Design phase) — Reports's full screen design; sibling to COT within the same approved area, distinct structured report content. |
+| M5-001 | M5-001_DESIGN_TOKENS_ARCHITECTURE.md | Milestone M5 (Implementation Architecture) — production-ready frontend token delivery mechanism (`packages/design-tokens`) implementing D2-001 through D2-004 exactly. No new value or visual language. |
+| M5-002 | M5-002_SHARED_COMPONENT_LIBRARY_ARCHITECTURE.md | Milestone M5 (Implementation Architecture) — the complete shared component architecture (`packages/ui`) implementing D2-005 through D2-007 and every M4-003 through M4-011 repeated pattern. Architecture specification only, no React code. |
+| M5-003 | M5-003_FRONTEND_FOUNDATION_ARCHITECTURE.md | Milestone M5 (Implementation Architecture) — the complete frontend architecture (Next.js App Router structure, layout/navigation shell, state/caching/auth strategy) grounded in the actual existing `apps/web` codebase. Includes the cross-phase self-review and fixes. |
 | -- | ZENITH_AI_SYSTEM_PROMPT.md | Core behavioral and operational constraints. |
 | -- | ZENITH_MASTER_CONTEXT.md | Global project background and architectural vision. |
 | -- | SPRINT_BRIEF_TEMPLATE.md | Standardized format for sprint planning. |
