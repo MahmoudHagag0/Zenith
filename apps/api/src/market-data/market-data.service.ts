@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@zenith/database';
 import { PrismaService } from '../database/prisma.service';
 import { AssetsService } from '../assets/assets.service';
@@ -7,6 +7,17 @@ import { withRetry } from './retry.util';
 import { ProviderRateLimitedError, ProviderUnavailableError } from './providers/provider-errors';
 import { MARKET_DATA_PROVIDER, type MarketDataProvider } from './providers/market-data-provider.interface';
 import { MARKET_SESSION_PROVIDER, type MarketSessionProvider } from './providers/market-session-provider.interface';
+import { INSTRUMENT_METADATA_PROVIDER, type InstrumentMetadataProvider } from './providers/instrument-metadata-provider.interface';
+
+/** Discriminated result of MarketDataService.searchAssets() -- CATALOG entries are real, addable Asset rows; LIVE entries are informational-only results from InstrumentMetadataProvider (L1-005) and are never persisted. */
+export interface AssetSearchResult {
+  readonly source: 'CATALOG' | 'LIVE';
+  readonly id?: string;
+  readonly marketId?: string;
+  readonly symbol: string;
+  readonly name: string;
+  readonly exchange?: string;
+}
 
 const QUOTE_TTL_MS = 15_000;
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -18,22 +29,52 @@ function startOfUtcDay(date: Date): Date {
 
 @Injectable()
 export class MarketDataService {
+  private readonly logger = new Logger(MarketDataService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly assetsService: AssetsService,
     private readonly rateLimiter: RateLimiterService,
     @Inject(MARKET_DATA_PROVIDER) private readonly provider: MarketDataProvider,
     @Inject(MARKET_SESSION_PROVIDER) private readonly marketSessionProvider: MarketSessionProvider,
+    @Inject(INSTRUMENT_METADATA_PROVIDER) private readonly instrumentMetadataProvider: InstrumentMetadataProvider,
   ) {}
 
-  searchAssets(query: string) {
-    return this.prisma.asset.findMany({
+  /**
+   * Search the trading catalog first (existing behavior, unchanged); only
+   * when the catalog has no match does this fall back to
+   * InstrumentMetadataProvider for a live, informational-only preview
+   * (L1-002 Sprint Brief architecture decision, 2026-07-16). Live results
+   * are never persisted and never create or mutate an Asset row -- the
+   * existing Asset Catalog (S1-003) remains the single source of truth;
+   * catalog management remains an intentional administrative operation.
+   * A live-provider failure degrades to the catalog-only result (empty),
+   * never breaking the search itself.
+   */
+  async searchAssets(query: string): Promise<AssetSearchResult[]> {
+    const catalogMatches = await this.prisma.asset.findMany({
       where: {
         OR: [{ symbol: { contains: query, mode: 'insensitive' } }, { name: { contains: query, mode: 'insensitive' } }],
       },
       orderBy: { symbol: 'asc' },
       take: 25,
     });
+
+    if (catalogMatches.length > 0) {
+      return catalogMatches.map((asset) => ({
+        source: 'CATALOG' as const,
+        id: asset.id,
+        marketId: asset.marketId,
+        symbol: asset.symbol,
+        name: asset.name,
+      }));
+    }
+
+    const liveMatches = await this.instrumentMetadataProvider.searchSymbols(query).catch((error: unknown) => {
+      this.logger.warn(`Live symbol search failed for query "${query}": ${(error as Error).message}`);
+      return [];
+    });
+    return liveMatches.map((match) => ({ source: 'LIVE' as const, symbol: match.symbol, name: match.name, exchange: match.exchange }));
   }
 
   async getAsset(assetId: string) {

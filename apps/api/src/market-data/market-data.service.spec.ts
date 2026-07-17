@@ -8,6 +8,7 @@ import { RateLimiterService } from './rate-limiter.service';
 import { ProviderRateLimitedError, ProviderUnavailableError } from './providers/provider-errors';
 import { MARKET_DATA_PROVIDER, type MarketDataProvider } from './providers/market-data-provider.interface';
 import { MARKET_SESSION_PROVIDER, type MarketSessionProvider } from './providers/market-session-provider.interface';
+import { INSTRUMENT_METADATA_PROVIDER, type InstrumentMetadataProvider } from './providers/instrument-metadata-provider.interface';
 
 describe('MarketDataService', () => {
   let service: MarketDataService;
@@ -20,6 +21,7 @@ describe('MarketDataService', () => {
   let rateLimiter: { acquire: jest.Mock };
   let provider: jest.Mocked<MarketDataProvider>;
   let marketSessionProvider: jest.Mocked<MarketSessionProvider>;
+  let instrumentMetadataProvider: jest.Mocked<InstrumentMetadataProvider>;
 
   const ASSET = { id: 'asset-1', symbol: 'AAPL', name: 'Apple Inc.' };
 
@@ -42,6 +44,12 @@ describe('MarketDataService', () => {
       getMarketStatus: jest.fn(),
       checkHealth: jest.fn(),
     };
+    instrumentMetadataProvider = {
+      name: 'test-instrument-metadata-provider',
+      searchSymbols: jest.fn(),
+      getInstrumentMetadata: jest.fn(),
+      getExchangeMetadata: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -51,6 +59,7 @@ describe('MarketDataService', () => {
         { provide: RateLimiterService, useValue: rateLimiter },
         { provide: MARKET_DATA_PROVIDER, useValue: provider },
         { provide: MARKET_SESSION_PROVIDER, useValue: marketSessionProvider },
+        { provide: INSTRUMENT_METADATA_PROVIDER, useValue: instrumentMetadataProvider },
       ],
     }).compile();
 
@@ -260,6 +269,34 @@ describe('MarketDataService', () => {
 
       await expect(service.getMarketStatus('missing')).rejects.toBeInstanceOf(NotFoundException);
       expect(marketSessionProvider.getMarketStatus).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('searchAssets (L1-005)', () => {
+    it('returns catalog matches only, without calling the live provider, when the catalog has results', async () => {
+      prisma.asset.findMany.mockResolvedValue([{ id: 'asset-1', marketId: 'market-1', symbol: 'AAPL', name: 'Apple Inc.' }]);
+
+      const results = await service.searchAssets('AAPL');
+
+      expect(results).toEqual([{ source: 'CATALOG', id: 'asset-1', marketId: 'market-1', symbol: 'AAPL', name: 'Apple Inc.' }]);
+      expect(instrumentMetadataProvider.searchSymbols).not.toHaveBeenCalled();
+    });
+
+    it('falls back to the live provider only when the catalog has no matches, and never persists the result', async () => {
+      prisma.asset.findMany.mockResolvedValue([]);
+      instrumentMetadataProvider.searchSymbols.mockResolvedValue([{ symbol: 'TSLA', name: 'Tesla Inc.', exchange: 'NASDAQ' }]);
+
+      const results = await service.searchAssets('TSLA');
+
+      expect(instrumentMetadataProvider.searchSymbols).toHaveBeenCalledWith('TSLA');
+      expect(results).toEqual([{ source: 'LIVE', symbol: 'TSLA', name: 'Tesla Inc.', exchange: 'NASDAQ' }]);
+    });
+
+    it('degrades to an empty result, not an error, when the live provider fails and the catalog had no matches', async () => {
+      prisma.asset.findMany.mockResolvedValue([]);
+      instrumentMetadataProvider.searchSymbols.mockRejectedValue(new Error('provider down'));
+
+      await expect(service.searchAssets('UNKNOWN')).resolves.toEqual([]);
     });
   });
 });
