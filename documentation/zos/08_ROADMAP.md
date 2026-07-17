@@ -81,7 +81,14 @@ Platform Blueprint v1.1 -- was approved 2026-07-16, and implementation
 proceeded via the Blueprint's own §9 Implementation Roadmap (Phases
 0-9), one Sprint Brief per Phase, per `10_AI_ENGINEER_GUIDE.md`'s
 Required Workflow. All ten phases are now complete and the Milestone is
-formally closed, tagged `v1.0-live-data`.
+formally closed. A `v1.0-live-data` annotated tag was created locally at
+the closing commit, mirroring the `v1.0-foundation` precedent; pushing
+it to `origin` was blocked by this session's own remote-push policy
+(tag refs are rejected — only `refs/heads/*` branch updates are
+permitted from this session), an environment/session constraint, not a
+project defect. The tag push remains outstanding and should be
+completed by whoever has full push access, or by a future session
+without this restriction.
 
 Completed: Phase 0 (Provider Access & Config Foundation) and Phase 1
 (Live Market Data Provider), merged into a single Sprint at the

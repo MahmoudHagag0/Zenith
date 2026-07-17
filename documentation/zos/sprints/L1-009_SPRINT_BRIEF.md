@@ -342,7 +342,7 @@ architecture is introduced. Concretely:
 
 ## Resolution of Missing Decisions
 
-- **Missing Decision #1 (release tag):** Approved conditionally — create and push `v1.0-live-data` only if the Acceptance Review concludes "Accepted," following the `v1.0-foundation` precedent. The review below concludes Accepted with no blocking defects, so the tag was created and pushed.
+- **Missing Decision #1 (release tag):** Approved conditionally — create and push `v1.0-live-data` only if the Acceptance Review concludes "Accepted," following the `v1.0-foundation` precedent. The review below concludes Accepted with no blocking defects. The tag was created locally as an annotated tag at the closing commit; **the push to `origin` was blocked** by this session's own remote-push policy (`ERR push contains a ref outside refs/heads/*; only branch updates are permitted` — confirmed via `GIT_TRACE_CURL`, a hard rejection, not a transient network failure, so not retried further). This is a session/environment-level constraint on which refs this session is permitted to push, distinct from the external-provider egress-policy constraint documented since L1-001. The tag push remains outstanding.
 - **Missing Decision #2 (Decision Log backfill):** Approved — backfill `DEC-2026-032` (L1-007) and `DEC-2026-033` (L1-008) using the established template; no additional entries.
 
 ## Review Summary
@@ -385,7 +385,7 @@ No other code was changed. No refactor was performed absent these three concrete
 - Booted the API against real local PostgreSQL in default (Simulated) mode: all routes across all eight Live Data domains registered cleanly, including `GET /monitoring/provider-health`, `GET /monitoring/alerts`, `GET /macro-data`, `GET /market-data/provider-health` (pre-existing, confirmed byte-for-byte behaviorally unchanged).
 - No new external provider was introduced by this Sprint, so no new live-connectivity attempt applies. The environment egress-policy constraint affecting `api.twelvedata.com`, `financialmodelingprep.com`, `finnhub.io`, `api.marketaux.com`, `publicreporting.cftc.gov`, and `api.stlouisfed.org` remains the standing, documented limitation carried forward from L1-001 through L1-007 — referenced, not re-investigated, per the Architecture Team's explicit instruction for this Sprint.
 
-**Sprint Status:** Approved — Accepted. Milestone M3 formally closed; `v1.0-live-data` tag created and pushed.
+**Sprint Status:** Approved — Accepted. Milestone M3 formally closed; `v1.0-live-data` tag created locally, push to `origin` blocked by this session's remote-push policy (tag push outstanding — see Resolution of Missing Decisions above).
 
 ---
 
