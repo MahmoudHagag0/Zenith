@@ -242,7 +242,39 @@ Constitution §6.2 already declines to depend on the contested mechanism
 
 ------------------------------------------------------------------------
 
-# 10. Consistency & Usability Heuristics
+# 10. Decision Velocity: Dual-Process Reasoning
+
+**Finding:** Human judgment operates through two distinct systems: a
+fast, automatic, intuitive mode (System 1) and a slower, deliberate,
+effortful mode (System 2) **[Established Evidence — Kahneman,
+dual-process theory, synthesized in "Thinking, Fast and Slow" (2011);
+the same source Constitution §7.1 already cites for Prospect Theory]**.
+System 1 is efficient but systematically biased; System 2 is
+slower but corrects many of those biases when actually engaged — the
+central practical problem is that System 2 is effortful and easily
+skipped under time pressure or a low-friction interface that invites a
+snap judgment.
+
+**Already governs (indirectly):** Constitution §9.3 (Decision is "the
+highest-stakes, most emotionally-loaded moment," demanding "maximal
+clarity... and zero design pressure toward any particular action");
+§9.4 (Execution's "friction-minimal *recording*, never friction-minimal
+*impulse* — the two are deliberately not the same design goal");
+Product Rule 5 (never reward overtrading).
+
+**New design implication for M4:** Zenith's own interface must not
+optimize every interaction for System-1 speed. A low-stakes, reversible
+action (filtering a list, expanding a section) may be frictionless. A
+consequential, evidence-weighing action (confirming a decision, dismissing
+a disclosed limitation) should engage System 2 deliberately — not through
+artificial delay or friction for its own sake, but by ensuring the
+relevant evidence (§1–§7 above) is genuinely visible and read, not
+skippable, before the action is available. See D1-002 §12 (Decision
+Velocity Rules) for the binding rule this produces.
+
+------------------------------------------------------------------------
+
+# 11. Consistency & Usability Heuristics
 
 **Finding:** Inconsistent presentation of the same underlying concept
 measurably erodes trust and increases cognitive load, since a user must
@@ -273,6 +305,7 @@ alone.
 | Trust & automation reliance | Lee & See 2004 | Constitution §5.3, §6.3, §11.4; ZXL §6 | Consistency treated as trust infrastructure |
 | Loss aversion / disposition effect | Kahneman & Tversky; Shefrin & Statman; Slovic et al. | Constitution §6.6, §7.3, §12.4; ZXL §4, §7.5 | Calm color/motion treatment regardless of favorability |
 | Habit formation / reinforcement | Lally et al.; Skinner | Constitution §6.7, §7.2, §7.5, §12.3 | Disciplined path = shortest IA path |
+| Decision velocity / dual-process reasoning | Kahneman, "Thinking, Fast and Slow" (2011) | Constitution §9.3, §9.4, Product Rule 5 | Consequential actions engage System 2 deliberately; low-stakes actions may stay System-1-fast |
 | Trading-specific biases | See ZXL §7 | ZXL §7 | No new claim; cite directly |
 | Consistency heuristics | Nielsen | Constitution §5.4, §14.1; ZXL Principle 12 | Design system as one closed rule set |
 

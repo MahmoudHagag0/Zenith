@@ -56,6 +56,35 @@ its own Constitution §10.1 four-field statement and leadership approval
 (Constitution §10.3) — this document does not expand the product
 surface.
 
+## 1.1 Emotional State Mapping
+
+Each approved area already has a Psychological Objective (Constitution
+§10.2); four also have an explicit "emotional state it should create"
+at ZXL §9 (Component Psychology). The table below compresses both into
+one scannable reference — it states no new psychology, only labels
+what is already approved:
+
+| Area | Target emotional state | Source |
+|---|---|---|
+| Dashboard / Home | Oriented, calm | Constitution §10.2 |
+| Morning Brief | Briefed, prepared | Constitution §10.2; ZXL §9.2 |
+| Watchlist | In control, focused | Constitution §10.2; ZXL §9.3 |
+| Portfolio | Steady, confident | Constitution §10.2; ZXL §9.4 |
+| Alerts | Trusting, unburdened | Constitution §10.2 |
+| Calendar / News | Informed, contextualized | Constitution §10.2 |
+| COT & Reports | Grounded, discerning | Constitution §10.2 |
+| AI Workspace | Engaged, assured | Constitution §10.2 |
+| Trading Journal | Reflective, non-judged | Constitution §10.2 |
+
+`Note:` Constitution §10.2 lists exactly these nine approved areas —
+no others. Two labels sometimes used informally elsewhere in
+discussion ("Analytics," "Settings") are not themselves approved
+top-level product areas and are deliberately not mapped here; per
+Constitution §10.3 and this document's own Rule 1.2, any such area
+would need its own leadership approval and Constitution §10.1
+four-field statement before it could receive an emotional-state
+mapping or appear in navigation.
+
 ------------------------------------------------------------------------
 
 # 2. Screen Archetypes
@@ -68,7 +97,9 @@ archetype below; a future per-screen specification (in the style of
 
 ## 2.1 Synthesis Archetype
 
-**Areas:** Dashboard, Morning Brief.
+**Areas:** Dashboard, Morning Brief. **Density tier:** Low (D1-002 §4.4)
+— by design, since this archetype's entire purpose is one synthesized
+conclusion.
 
 **Structure principle:** a single Primary Attention region occupies the
 highest-attention position (D1-001 §2) and states a synthesized
@@ -87,7 +118,8 @@ above the synthesis statement (Constitution §12.1, §12.5).
 
 ## 2.2 List/Tracking Archetype
 
-**Areas:** Watchlist, Calendar/News, COT & Reports.
+**Areas:** Watchlist, Calendar/News, COT & Reports. **Density tier:**
+Medium (D1-002 §4.4) — a bounded set of individually low-density items.
 
 **Structure principle:** a bounded, intentional set of items (never an
 open-ended feed), each item disclosing its own evidence state without
@@ -107,7 +139,9 @@ Attention only when a trader has drilled into it.
 
 ## 2.3 Record/Detail Archetype
 
-**Areas:** Portfolio, Trading Journal.
+**Areas:** Portfolio, Trading Journal. **Density tier:** Medium at the
+list level, High only within a single drilled-into record (D1-002
+§4.4) — never High at first render (D1-005 §3.1).
 
 **Structure principle:** a calm, neutral system of record (Constitution
 §10.2, Portfolio) — favorable and unfavorable states use identical
@@ -125,7 +159,9 @@ simultaneously (Cognitive Load ceiling, ZXL §3.1).
 
 ## 2.4 Conversational Archetype
 
-**Areas:** AI Workspace.
+**Areas:** AI Workspace. **Density tier:** Low per exchange (one
+question, one answer, D1-002 §4.4) — history (§2.4 above) is Peripheral
+and does not raise the tier of the current exchange.
 
 **Structure principle:** Primary Attention is the trader's own current
 question and the Assistant's direct answer (Constitution §11.2,
@@ -216,8 +252,9 @@ to reach them.
   §12 — frozen, cited, not modified)
 - `documentation/zos/27_ZENITH_EXPERIENCE_LANGUAGE.md` (ZOS-027 §1–§3 —
   frozen, cited, not modified)
-- `documentation/zos/D1-001_UX_PSYCHOLOGY_RESEARCH.md` (§1–§2)
-- `documentation/zos/D1-002_DESIGN_CONSTITUTION.md` (§1, §11)
+- `documentation/zos/D1-001_UX_PSYCHOLOGY_RESEARCH.md` (§1–§2, §10)
+- `documentation/zos/D1-002_DESIGN_CONSTITUTION.md` (§1, §4.4, §11,
+  §12–§14)
 - `documentation/zos/D1-004_DESIGN_SYSTEM_FOUNDATION.md` (§3, grid/
   breakpoints)
 - `documentation/zos/26_DASHBOARD_HOME_SPECIFICATION.md` (per-screen

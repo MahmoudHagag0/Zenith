@@ -18,8 +18,9 @@ document is the **operational elaboration** those eight rules
 anticipate needing: each of the eight is restated here as a family of
 concrete, testable sub-rules, cross-referenced back to its parent rule,
 plus additional binding rules for design decisions §14 did not
-enumerate (density, iconography, responsive behavior) but that follow
-directly from Constitution §5–§9 and ZXL.
+enumerate (density, iconography, responsive behavior, decision
+velocity, action hierarchy, empty/error states) but that follow
+directly from Constitution §5–§9, §9.3–§9.4, and ZXL.
 
 Every rule below is binding on every future screen, component, and
 visual design, per Constitution §15.2 ("Any implementation choice that
@@ -113,6 +114,30 @@ Peripheral (ZXL §1.3–1.4), consulted rather than held in mind at once.
 4.3. Deliberate visual silence (ZXL §5.3) is a valid, reviewable design
 choice — a screen is not required to fill every region with a weighted
 element.
+
+4.4. **Information density tiers.** Every screen belongs to exactly one
+of three density tiers, for consistency of expectation rather than a
+rigid element count:
+
+- **Low density** — a single synthesized conclusion dominates
+  (Synthesis Archetype, D1-005 §2.1). Appropriate where the screen's
+  entire purpose is answering one question.
+- **Medium density** — a bounded, scannable set of similar items
+  (List/Tracking and Record/Detail Archetypes, D1-005 §2.2–2.3). Each
+  item is individually low-density; the set as a whole is medium.
+- **High density** — a screen whose purpose is deliberate, sustained
+  review of detailed evidence, reached only via Progressive Disclosure
+  (§3.2 above; ZXL §3.2) from a lower-density entry point — never a
+  screen's own first-rendered state (D1-005 §3.1).
+
+4.5. **Stress Budget.** Rules 4.1–4.4 above are collectively Zenith's
+"stress budget" principle, stated plainly: attention is a limited
+resource (D1-001 §2), every additional on-screen element has a real
+cognitive cost (D1-001 §1, Constitution §12.2), and a design review must
+treat that cost as a debit against a limited budget, not a free
+addition. No numeric element-count ceiling is fixed by this rule — the
+budget is enforced by density tier (4.4) and the active-reasoning
+ceiling (4.2), not by counting elements.
 
 ------------------------------------------------------------------------
 
@@ -239,7 +264,112 @@ compressed into the Primary region.
 
 ------------------------------------------------------------------------
 
-# 12. Scope Boundary
+# 12. Decision Velocity Rules
+
+*(New category; grounded in D1-001 §10, Kahneman's dual-process theory,
+read together with Constitution §9.3–§9.4 and Product Rule 5.)*
+
+12.1. A **low-stakes, reversible** interaction (filtering, sorting,
+expanding a section, switching a view) may be optimized for System-1
+speed — frictionless is correct here.
+
+12.2. A **consequential, evidence-weighing** interaction (confirming a
+recorded decision, dismissing a disclosed limitation, acting on a
+reading) must not be designed to be completable without the relevant
+evidence (Constitution §4.1, §12.1, §12.5) having actually been made
+visible first — this is Progressive Disclosure (D1-005 §3) applied
+specifically to decision moments, not only to information depth.
+
+12.3. No interaction pattern makes a consequential action *faster* to
+complete than reading its own supporting evidence would take — this is
+not artificial friction for its own sake (which Constitution §9.4
+already distinguishes from legitimate anti-impulse design), it is
+ensuring System 2 is genuinely engaged before a consequential action is
+available, per D1-001 §10.
+
+12.4. This rule never applies to low-stakes interactions (12.1) — a
+design that adds friction to filtering a Watchlist to "feel more
+serious" has misapplied this rule and must be corrected.
+
+------------------------------------------------------------------------
+
+# 13. Action & Visual Priority Hierarchy
+
+*(New category, distinct from and complementary to §1's Information
+Attention Hierarchy — ZXL §1's own Primary/Secondary/Supporting/
+Peripheral vocabulary governs information and remains authoritative
+there; introducing a competing "Tertiary" label for information would
+itself violate §8 (Consistency Rules). This section instead defines the
+missing hierarchy for interactive **actions**, which ZXL and Constitution
+§14 do not separately name.)*
+
+13.1. Every screen's interactive elements resolve to exactly three
+tiers, analogous to but independent from Information Attention (§1):
+
+- **Primary action** — the one action, if any, most aligned with the
+  screen's own Purpose (Constitution §10.1). At most one Primary action
+  per screen or per decision context.
+- **Secondary action** — a visible, available alternative or
+  supporting action, lower emphasis than Primary.
+- **Tertiary action** — a minimal-emphasis action (e.g., "cancel,"
+  "dismiss," "view details"), styled with the least visual weight of
+  the three.
+
+13.2. Visual weight for each action tier is fixed and consistent
+system-wide (color/emphasis definitions in D1-003 §3.1) — a Tertiary
+action never borrows Primary's visual weight on one screen and its own
+tier's weight on another (§8, Consistency Rules).
+
+13.3. Action tier is independent of engineering build priority
+(P0/P1/P2) — mirroring ZXL §1's own disambiguation between Attention
+level and engineering priority for information, the same distinction
+applies to actions.
+
+------------------------------------------------------------------------
+
+# 14. Empty & Error State Rules
+
+*(New category; grounded in Constitution §5.2 (Calm Interface), §11.5
+(Warnings), ZXL §4.2, §7.5, §8 (Language Philosophy).)*
+
+**Empty states:**
+
+14.1. An empty state always answers two questions: *why is this empty*
+and *what is a legitimate next action, if any* — never a bare "no data"
+message with neither.
+
+14.2. An empty state uses the same calm, factual tone as every other
+state (ZXL §8) — never gamified ("Nothing here yet — get started!"),
+never implying the trader is behind or has done something wrong.
+
+14.3. An empty state resulting from a genuine absence of evidence (e.g.,
+"no clear opportunity," Constitution §12.4) is visually and verbally
+indistinguishable in *tone* from a populated state — only the content
+differs, never the register.
+
+**Error / unavailable-data states:**
+
+14.4. A validation error, provider failure, or unavailable/stale data
+condition is disclosed factually, using the existing signal vocabulary
+(D1-003 §4) at the severity the condition actually warrants —
+`signal.warn` for degraded-but-usable, `signal.critical` only for a
+genuinely blocking condition. No fourth, more alarming visual register
+exists outside this vocabulary.
+
+14.5. An error never uses language or motion that manufactures panic
+disproportionate to the actual condition (Constitution §11.5, §5.2) —
+"a provider is temporarily unavailable; showing last-known data from
+[time]" is correct; dramatized language or an alarm-styled animation
+(§5.3) is not, regardless of how the engineering team internally
+classifies the underlying failure's severity.
+
+14.6. Stale or degraded data is disclosed as a fact with a timestamp or
+equivalent, never hidden and never presented as if it were current
+(Constitution §4.1, trust-through-transparency, §5.3).
+
+------------------------------------------------------------------------
+
+# 15. Scope Boundary
 
 This document, like ZXL, carries **no wireframe, no mockup, no final
 component definition, and no new feature.** It states binding rules a
@@ -250,7 +380,7 @@ checked against this document; this document does not itself constitute
 either.
 
 Rules above that reference a specific token, scale, or palette (§2, §3,
-§4, §10) point to D1-003/D1-004 as the authoritative source of the
+§4, §10, §13) point to D1-003/D1-004 as the authoritative source of the
 actual values — this document states the *rule the values must satisfy*,
 not the values themselves.
 

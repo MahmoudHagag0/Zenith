@@ -89,6 +89,26 @@ number is good or bad."
 | Interactive element, active/pressed | `accent.emphasis` |
 | Focus indicator | `accent.focus` |
 
+## 3.1 Action Hierarchy (Primary / Secondary / Tertiary)
+
+Implements Design Constitution §13's three action tiers. Each tier is a
+distinct, fixed visual treatment — not three shades of the accent hue,
+since a design system with "one restrained accent" (§3 above) does not
+introduce new accent variants to express hierarchy:
+
+| Action tier | Visual treatment | Token(s) |
+|---|---|---|
+| Primary | Filled, using the accent hue | `accent.default` (§3 above) |
+| Secondary | Outlined or low-fill, accent-bordered only | `accent.default` used as border/text color only, `surface.raised` or `surface.base` as fill |
+| Tertiary | Text-only, no fill or border, neutral color | `text.secondary` (§2 above) — never the accent hue |
+
+This keeps the accent hue's own meaning ("you can act here," §3)
+intact at every tier while still giving each tier a fixed, distinct,
+system-wide visual weight (Design Constitution 13.2) — a Tertiary
+action is recognizable as lowest-emphasis specifically because it does
+*not* use the accent hue at all, not because it uses a fainter version
+of it.
+
 ------------------------------------------------------------------------
 
 # 4. Signal Colors (Attention Vocabulary)
@@ -191,7 +211,7 @@ mode is not assumed to pass in dark mode.
 - `documentation/zos/27_ZENITH_EXPERIENCE_LANGUAGE.md` (ZOS-027 §7.5,
   Experience Principle 10 — frozen, cited, not modified)
 - `documentation/zos/D1-001_UX_PSYCHOLOGY_RESEARCH.md` (§4, §7)
-- `documentation/zos/D1-002_DESIGN_CONSTITUTION.md` (§2, §9)
+- `documentation/zos/D1-002_DESIGN_CONSTITUTION.md` (§2, §9, §13, §14)
 - `documentation/zos/D1-004_DESIGN_SYSTEM_FOUNDATION.md`
 - `apps/api/src/monitoring/live-data-observability.types.ts` (existing
   `AlertSeverity` vocabulary this system's signal-token naming aligns
