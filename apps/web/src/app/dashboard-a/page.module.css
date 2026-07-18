@@ -40,20 +40,34 @@
 
 @media (prefers-color-scheme: light) {
   .root {
-    /* Light mode was reading as neutral white/grey, not warm -- the
-       canvas itself is cream, but the previous single top-only glow at
-       low alpha meant most of a tall viewport had almost no warmth
-       left in it. Two overlapping washes at higher alpha keep the
-       amber presence going further down the page. */
-    background: #f6f1e6;
+    /* Round 2 warmed the glow; it still read as "dark mode inverted to
+       white" because the base tone itself was a pale, low-saturation
+       beige and every glass border was neutral black-alpha, which
+       reads as generic-SaaS-neutral regardless of what's glowing on
+       top of it. This round deepens the base cream itself and moves
+       every border in the light palette (nav, primary, card, below)
+       from neutral black-alpha to copper-tinted alpha, so warmth is in
+       the material, not just the lighting. */
+    background: #f1e7d4;
     background-image:
-      radial-gradient(ellipse 1300px 850px at 50% -10%, rgba(200, 118, 58, 0.16), transparent 62%),
-      radial-gradient(ellipse 1600px 1000px at 85% 70%, rgba(200, 118, 58, 0.09), transparent 68%);
+      radial-gradient(ellipse 1300px 850px at 50% -10%, rgba(200, 118, 58, 0.2), transparent 62%),
+      radial-gradient(ellipse 1600px 1000px at 85% 70%, rgba(200, 118, 58, 0.13), transparent 68%);
     color: #16130f;
   }
 }
 
+/*
+ * The nav bar used to be a plain full-radius pill -- the single most
+ * generic shape in SaaS chrome (Linear, Vercel, Stripe dashboards all
+ * reach for it). It now carries the same faceted-convergence cut as
+ * every other surface, scaled down for a short wide bar. This is the
+ * first thing a user sees on every page load, so it is the highest-
+ * leverage place to make "everything belongs to the same product"
+ * true rather than aspirational.
+ */
 .navBar {
+  --fm: 15px;
+  --fn: 5px;
   position: sticky;
   top: 0.75rem;
   z-index: 50;
@@ -63,18 +77,25 @@
   align-items: center;
   gap: 1.5rem;
   padding: 0.75rem 1.25rem;
-  border-radius: 9999px;
   background: rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  clip-path: polygon(
+    var(--fm) 0, calc(100% - var(--fn)) 0, 100% var(--fn),
+    100% calc(100% - var(--fm)), calc(100% - var(--fm)) 100%, var(--fn) 100%,
+    0 calc(100% - var(--fn)), 0 var(--fm)
+  );
 }
 
 @media (prefers-color-scheme: light) {
   .navBar {
-    background: rgba(250, 243, 231, 0.7);
-    border: 1px solid rgba(20, 16, 10, 0.11);
+    /* Copper-tinted border, not neutral black-alpha -- a warm-toned
+       border is one of the smallest, cheapest ways to keep light mode
+       from reading as "dark mode with the values inverted." */
+    background: rgba(247, 237, 220, 0.74);
+    border: 1px solid rgba(150, 90, 45, 0.18);
     box-shadow: 0 20px 50px rgba(30, 20, 10, 0.12);
   }
 }
@@ -137,11 +158,12 @@
 .navLinks::-webkit-scrollbar { display: none; }
 
 .navLink {
+  --fm: 8px;
+  --fn: 3px;
   display: flex;
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 0.7rem;
-  border-radius: 9999px;
   color: inherit;
   text-decoration: none;
   opacity: 0.6;
@@ -149,6 +171,11 @@
   font-weight: 600;
   white-space: nowrap;
   transition: opacity 120ms ease, background-color 120ms ease;
+  clip-path: polygon(
+    var(--fm) 0, calc(100% - var(--fn)) 0, 100% var(--fn),
+    100% calc(100% - var(--fm)), calc(100% - var(--fm)) 100%, var(--fn) 100%,
+    0 calc(100% - var(--fn)), 0 var(--fm)
+  );
 }
 
 .navLink:hover {
@@ -246,8 +273,8 @@
 
 @media (prefers-color-scheme: light) {
   .primary {
-    background: rgba(251, 244, 232, 0.82);
-    border: 1px solid rgba(20, 16, 10, 0.12);
+    background: rgba(251, 243, 228, 0.85);
+    border: 1px solid rgba(150, 90, 45, 0.2);
     box-shadow: 0 26px 50px rgba(30, 20, 10, 0.14);
   }
 }
@@ -353,6 +380,8 @@
 .errorText,
 .emptyText {
   position: relative;
+  display: flex;
+  align-items: center;
   font-size: 1.125rem;
   opacity: 0.8;
 }
@@ -394,6 +423,7 @@
 .card {
   --fm: 20px;
   --fn: 6px;
+  position: relative;
   display: block;
   padding: 1.7rem;
   /* Deliberately quieter than .primary -- lower background/border
@@ -410,21 +440,49 @@
     100% calc(100% - var(--fm)), calc(100% - var(--fm)) 100%, var(--fn) 100%,
     0 calc(100% - var(--fn)), 0 var(--fm)
   );
-  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1), filter 160ms cubic-bezier(0.2, 0, 0, 1), border-color 160ms ease;
+  transition: border-color 160ms ease;
 }
 
 @media (prefers-color-scheme: light) {
   .card {
-    background: rgba(250, 242, 229, 0.6);
-    border: 1px solid rgba(20, 16, 10, 0.08);
+    background: rgba(247, 237, 219, 0.66);
+    border: 1px solid rgba(150, 90, 45, 0.15);
   }
 }
 
+/*
+ * "Facet ignite" replaces the generic lift+glow hover (translateY +
+ * box-shadow) that every dashboard card in every product uses. Instead
+ * the exact corner that is already cut lights up -- the interaction
+ * belongs to this geometry specifically and would mean nothing on a
+ * plain rectangular card. Border warms at the same time; nothing
+ * moves, nothing lifts.
+ */
+.card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: var(--fm);
+  height: var(--fm);
+  background: linear-gradient(135deg, rgba(200, 118, 58, 0.85), transparent 70%);
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
 .card:hover {
-  transform: translateY(-4px);
-  border-color: rgba(200, 118, 58, 0.5);
-  /* box-shadow, not filter:drop-shadow -- see .primary for why. */
-  box-shadow: 0 16px 32px rgba(200, 118, 58, 0.22);
+  border-color: rgba(200, 118, 58, 0.45);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card::before {
+    transition: none;
+  }
 }
 
 .cardLabel {
@@ -445,15 +503,25 @@
   margin: 0;
 }
 
+/*
+ * Typographic voice, decided rather than defaulted: every figure that
+ * is data (a count, a P/L number) sets in a monospace face; every
+ * label narrating that figure stays in the humanist display sans.
+ * The pairing itself is the identity move -- "instrument reading" next
+ * to "human sentence" -- and it does not require licensing or loading
+ * a new font, only deciding that Zenith's numbers and Zenith's prose
+ * are not the same voice.
+ */
 .cardNumeral {
   position: relative;
   padding-left: 0.9rem;
-  font-size: 2.125rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Roboto Mono', Menlo, Consolas, monospace;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   margin: 0;
-  line-height: 1.28;
+  line-height: 1.3;
 }
 
 /* Signature metric tick: every headline figure on the page gets a
@@ -479,6 +547,25 @@
   letter-spacing: 0.06em;
 }
 
+/* Peripheral areas previously had zero geometric treatment -- plain
+   text links with only an opacity change, the one part of the page
+   that still looked like "normal UI around the beautiful panel." An
+   eyebrow label (matching .eyebrow's grammar) gives the row a module
+   identity of its own, and each link picks up the same skewed tick
+   used on card numerals so the accent vocabulary is consistent even
+   here, not just on the two showcase surfaces. */
+.peripheralLabel {
+  display: flex;
+  align-items: center;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.4;
+  margin: 0 0 0.9rem;
+  padding: 0 0.5rem;
+}
+
 .peripheralRow {
   display: flex;
   flex-wrap: wrap;
@@ -487,13 +574,35 @@
 }
 
 .peripheralLink {
+  position: relative;
+  padding-left: 0.85rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: inherit;
   opacity: 0.48;
   text-decoration: none;
 }
-.peripheralLink:hover { opacity: 0.85; }
+
+.peripheralLink::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.15em;
+  width: 3px;
+  height: 0.75em;
+  background: #c8763a;
+  transform: skewX(-18deg) scaleY(0);
+  transform-origin: bottom;
+  transition: transform 160ms ease;
+}
+
+.peripheralLink:hover {
+  opacity: 0.9;
+}
+
+.peripheralLink:hover::before {
+  transform: skewX(-18deg) scaleY(1);
+}
 
 /* -- Entrance: the decision-readiness panel is the single most important
    moment on the page. It should arrive, not just appear. -- */
@@ -574,7 +683,7 @@
     grid-template-columns: 1fr;
   }
 
-  .peripheralRow {
+  .peripheralGroup {
     grid-area: peripheral;
     margin-top: 0.5rem;
   }
@@ -589,12 +698,47 @@
     gap: 1.5rem 3.5rem;
   }
 
+  .peripheralGroup {
+    padding-left: 2rem;
+    border-left: 1px solid rgba(200, 160, 120, 0.18);
+  }
+
   .peripheralRow {
     flex-direction: column;
     align-items: flex-start;
     gap: 1.15rem;
-    padding: 0 0 0 2rem;
+    padding: 0;
     margin-top: 0;
-    border-left: 1px solid rgba(200, 160, 120, 0.18);
   }
+}
+
+/*
+ * Large-screen frame: at 21:9/32"+ widths the workspace grid above
+ * already turns extra width into a third column rather than empty
+ * margin, but past that third column there is still real unclaimed
+ * space at the far edges of the viewport. Rather than leave it inert,
+ * two hairline copper guides mark it as a deliberate boundary of the
+ * workspace -- closer to a drafting table's margin lines than a
+ * decorative flourish. Fixed to the viewport, not the content column,
+ * so they read as a property of the whole screen, not the page.
+ */
+@media (min-width: 2200px) {
+  .root {
+    position: relative;
+  }
+
+  .root::before,
+  .root::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: linear-gradient(180deg, transparent, rgba(200, 118, 58, 0.16) 12%, rgba(200, 118, 58, 0.16) 88%, transparent);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .root::before { left: 2.5rem; }
+  .root::after { right: 2.5rem; }
 }

@@ -147,9 +147,9 @@ export default async function DashboardAPage() {
           <div className={styles.primaryGlow} aria-hidden="true" />
           <div className={styles.entrance}>
             {!decisionCenter ? (
-              <p className={styles.errorText}>The Confluence Engine did not respond. Decision readiness could not be computed this session.</p>
+              <p className={styles.errorText}><DividerMark />The Confluence Engine did not respond. Decision readiness could not be computed this session.</p>
             ) : decisionCenter.readiness === 'DEGRADED' ? (
-              <p className={styles.errorText}>Decision readiness is degraded -- one or more instruments could not be fully evaluated this session.</p>
+              <p className={styles.errorText}><DividerMark />Decision readiness is degraded -- one or more instruments could not be fully evaluated this session.</p>
             ) : decisionCenter.readiness === 'OPPORTUNITIES_AVAILABLE' && topOpportunity && topEntry ? (
               <>
                 <p className={styles.eyebrow}><DividerMark /> Decision Readiness</p>
@@ -165,7 +165,7 @@ export default async function DashboardAPage() {
                 </details>
               </>
             ) : (
-              <p className={styles.emptyText}>{morningBrief?.noTradeNarrative ?? 'No clear opportunity.'}</p>
+              <p className={styles.emptyText}><DividerMark />{morningBrief?.noTradeNarrative ?? 'No clear opportunity.'}</p>
             )}
           </div>
         </section>
@@ -205,13 +205,16 @@ export default async function DashboardAPage() {
           </Link>
         </div>
 
-        <nav className={styles.peripheralRow} aria-label="More areas">
-          {PERIPHERAL_ITEMS.map((item) => (
-            <Link key={item.href} href={item.href} className={styles.peripheralLink}>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
+        <div className={styles.peripheralGroup}>
+          <p className={styles.peripheralLabel}><DividerMark />More Areas</p>
+          <nav className={styles.peripheralRow} aria-label="More areas">
+            {PERIPHERAL_ITEMS.map((item) => (
+              <Link key={item.href} href={item.href} className={styles.peripheralLink}>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        </div>
       </main>
     </div>
   );
