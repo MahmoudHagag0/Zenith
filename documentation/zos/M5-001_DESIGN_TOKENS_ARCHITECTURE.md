@@ -1,8 +1,8 @@
 # M5-001_DESIGN_TOKENS_ARCHITECTURE
 
 **Document ID:** ZOS-M5-001
-**Version:** 1.0.0
-**Status:** Proposed — Awaiting Product Leadership Review
+**Version:** 1.1.0
+**Status:** Implemented — Documentation Synchronized 2026-07-18 (see note before Related Documents)
 **Owner:** Architecture Team (engineering-authored implementation architecture)
 **Milestone:** M5 — Implementation Architecture
 
@@ -243,6 +243,23 @@ Values verbatim D2-004 §3 (`<640px / 640–1023px / ≥1024px`).
   beyond §8's explicit non-introduction of a second shadow vocabulary.
 - Naming is 1:1 traceable both directions (D2 token ↔ CSS variable ↔ TS
   export).
+
+------------------------------------------------------------------------
+
+# Documentation Synchronization Note (2026-07-18)
+
+This document's Status previously read "Proposed — Awaiting Product
+Leadership Review," which no longer reflected reality: the token
+delivery mechanism specified here (`packages/design-tokens`) already
+exists in the monorepo, is consumed by `apps/web` via `workspace:*`,
+and was the foundation Milestone M6 (Visual Identity Package, all four
+phases Approved — `M6-004_OFFICIAL_DESIGN_SYSTEM.md`) built on to
+produce the live, shipped Dashboard A, whose own visual identity work
+is now frozen (Dashboard A Design Freeze, merged to `main`). This
+entry corrects the Status field to match that already-implemented,
+already-in-production state. It is a documentation synchronization,
+not a new architectural review, decision, or re-implementation — no
+content in this specification changed.
 
 ------------------------------------------------------------------------
 

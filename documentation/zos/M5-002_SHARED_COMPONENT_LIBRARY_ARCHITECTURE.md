@@ -1,8 +1,8 @@
 # M5-002_SHARED_COMPONENT_LIBRARY_ARCHITECTURE
 
 **Document ID:** ZOS-M5-002
-**Version:** 1.0.0
-**Status:** Proposed — Awaiting Product Leadership Review
+**Version:** 1.1.0
+**Status:** Implemented — Documentation Synchronized 2026-07-18 (see note before Related Documents)
 **Owner:** Architecture Team (engineering-authored implementation architecture)
 **Milestone:** M5 — Implementation Architecture
 
@@ -497,6 +497,23 @@ Top Bar → one shell; Status Indicator → Status Chip; all D2-005
 families reused verbatim; every composite Card traced to an existing,
 already-specified pattern). No new color, spacing, or interaction
 vocabulary was introduced; every token reference points to `M5-001`.
+
+------------------------------------------------------------------------
+
+# Documentation Synchronization Note (2026-07-18)
+
+This document's Status previously read "Proposed — Awaiting Product
+Leadership Review," which no longer reflected reality: the component
+library specified here (`packages/ui`) already exists in the
+monorepo, is consumed by `apps/web` via `workspace:*`, and was part of
+the foundation Milestone M6 (Visual Identity Package, all four phases
+Approved — `M6-004_OFFICIAL_DESIGN_SYSTEM.md`) built on to produce the
+live, shipped Dashboard A, whose own visual identity work is now
+frozen (Dashboard A Design Freeze, merged to `main`). This entry
+corrects the Status field to match that already-implemented,
+already-in-production state. It is a documentation synchronization,
+not a new architectural review, decision, or re-implementation — no
+content in this specification changed.
 
 ------------------------------------------------------------------------
 

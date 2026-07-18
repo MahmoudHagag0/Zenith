@@ -1,8 +1,8 @@
 # M5-003_FRONTEND_FOUNDATION_ARCHITECTURE
 
 **Document ID:** ZOS-M5-003
-**Version:** 1.0.0
-**Status:** Proposed — Awaiting Product Leadership Review
+**Version:** 1.1.0
+**Status:** Implemented — Documentation Synchronized 2026-07-18 (see note before Related Documents)
 **Owner:** Architecture Team (engineering-authored implementation architecture)
 **Milestone:** M5 — Implementation Architecture
 
@@ -390,6 +390,27 @@ Performed against the complete M5-001/002/003 architecture as a whole.
 | **Future implementation readiness** | Confirmed — Dashboard implementation (next milestone) has a concrete package structure, route group, and component set to build against; no open architectural question blocks it except the explicitly-scoped-out charting-library `TODO` (§8, `M5-002`), which does not block any screen's own non-chart components. |
 
 No further issue identified after applying the two fixes above.
+
+------------------------------------------------------------------------
+
+# Documentation Synchronization Note (2026-07-18)
+
+This document's Status previously read "Proposed — Awaiting Product
+Leadership Review," which no longer reflected reality: the frontend
+architecture specified here (Next.js App Router structure, layout/
+navigation shell, `(authenticated)` route group) is already in place
+in `apps/web`, running on `packages/design-tokens` (`M5-001`) and
+`packages/ui` (`M5-002`), and was the foundation Milestone M6 (Visual
+Identity Package, all four phases Approved —
+`M6-004_OFFICIAL_DESIGN_SYSTEM.md`) built on to produce the live,
+shipped Dashboard A, whose own visual identity work is now frozen
+(Dashboard A Design Freeze, merged to `main`). §24's own "Future
+implementation readiness" finding above described Dashboard
+implementation as "next milestone" — it has since happened. This
+entry corrects the Status field to match that already-implemented,
+already-in-production state. It is a documentation synchronization,
+not a new architectural review, decision, or re-implementation — no
+content in this specification changed.
 
 ------------------------------------------------------------------------
 

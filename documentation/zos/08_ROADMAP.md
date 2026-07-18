@@ -1,7 +1,7 @@
 # 08_ROADMAP
 
 **Document ID:** ZOS-008\
-**Version:** 1.5.0\
+**Version:** 1.6.0\
 **Status:** Approved\
 **Owner:** Architecture Team
 
@@ -113,6 +113,30 @@ production-ready with no blocking defects; see
 
 Progress: 10 of 10 Blueprint phases complete (100%).
 
+# Milestone M5 --- Implementation Architecture
+
+Planned focus: - Design token delivery mechanism (`packages/design-tokens`)
+- Shared component library architecture (`packages/ui`) - Frontend
+foundation architecture (Next.js App Router structure, layout/
+navigation shell, state/caching/auth strategy)
+
+Status: **Complete.** `M5-001_DESIGN_TOKENS_ARCHITECTURE.md`,
+`M5-002_SHARED_COMPONENT_LIBRARY_ARCHITECTURE.md`, and
+`M5-003_FRONTEND_FOUNDATION_ARCHITECTURE.md` specify
+`packages/design-tokens` and `packages/ui`; both packages exist in the
+monorepo, are consumed by `apps/web` via `workspace:*`, and were the
+foundation Milestone M6 (Visual Identity Package, all four phases
+Approved -- `M6-004_OFFICIAL_DESIGN_SYSTEM.md`) built on to produce
+the live, shipped Dashboard A, whose own visual identity work is now
+frozen (Dashboard A Design Freeze, merged to `main`). All three M5
+documents previously carried a stale Status ("Proposed -- Awaiting
+Product Leadership Review") that did not reflect this
+already-implemented, already-in-production state; corrected
+2026-07-18 as a documentation synchronization -- see each document's
+own Documentation Synchronization Note. No new architectural review,
+decision, or re-implementation was performed as part of this
+correction.
+
 # Planning Rules
 
 -   Only the Architecture Team approves milestones and sprint
@@ -127,3 +151,7 @@ Progress: 10 of 10 Blueprint phases complete (100%).
 -   09_PROJECT_BRAIN.md
 -   11_DECISION_LOG.md
 -   28_LIVE_DATA_BLUEPRINT.md
+-   M5-001_DESIGN_TOKENS_ARCHITECTURE.md
+-   M5-002_SHARED_COMPONENT_LIBRARY_ARCHITECTURE.md
+-   M5-003_FRONTEND_FOUNDATION_ARCHITECTURE.md
+-   M6-004_OFFICIAL_DESIGN_SYSTEM.md
