@@ -30,31 +30,50 @@
 }
 
 /*
- * Background: a single light source, not a texture. Visual Language
- * law (Light) -- light indicates where the instrument is currently
+ * Color system, rebuilt from psychology rather than preference. The
+ * previous warm-black + brass-orange pairing is close enough to the
+ * amber-on-black terminal convention (Bloomberg's own palette) that it
+ * risked reading as an homage rather than something Zenith owns. Petrol
+ * -- a deep, heavily desaturated blue-teal -- replaces warm-black as
+ * the base neutral in both modes. Blue is the single most consistently
+ * trust-coded hue across finance and cognition research; petrol
+ * specifically (near-black, almost no chroma) gets that association
+ * without reading as "corporate SaaS blue," which is bright and
+ * saturated where this is deep and quiet. Brass narrows to a more
+ * muted, browner bronze -- warmth resolving out of a cool room, not a
+ * second amber signal. Light and dark mode now share one hue family
+ * (petrol neutrals + bronze accent) rather than two unrelated stories,
+ * which is a stronger cross-mode identity signal than either mode
+ * being independently "nice." Acid test applied against Stripe
+ * (violet/white), Linear (near-black/violet), Apple (neutral gray/
+ * blue), Notion (warm-neutral/near-none), Arc (saturated multicolor),
+ * Bloomberg (black/amber), and TradingView (blue-black/green-red) --
+ * a desaturated petrol base with a muted bronze accent sits in none of
+ * those exact positions.
+ *
+ * Background: a single light source, not a texture (Visual Language,
+ * Light law) -- light indicates where the instrument is currently
  * reading, has one honest source, and creates depth as an epistemic
- * signal, not decoration. The source is anchored roughly where the
- * primary panel sits, because that is where the current reading
- * actually is. Dark and light modes are independently designed, not
- * mirrored: dark mode's light is warm and low-alpha, like a focused
- * work lamp over an instrument at night; light mode's light is a
- * diffuse, cool, near-white lift, like daylight through an observatory
- * slit -- a softening of the surface, not an added color. Neither mode
- * was produced by brightening or inverting the other.
+ * signal, not decoration. Anchored near the primary panel, because
+ * that is where the current reading actually is. Dark mode's light is
+ * warm and low-alpha, like a lamp over an instrument at night in a
+ * cool room; light mode's is a diffuse, cool, near-white lift, like
+ * daylight through an observatory slit. Neither mode was produced by
+ * brightening or inverting the other.
  */
 .root {
   min-height: 100vh;
-  background: #0a0908;
-  background-image: radial-gradient(ellipse 1100px 750px at 26% 6%, rgba(224, 176, 128, 0.1), transparent 60%);
-  color: #f3efe9;
+  background: #070a0b;
+  background-image: radial-gradient(ellipse 1100px 750px at 26% 6%, rgba(191, 134, 84, 0.08), transparent 60%);
+  color: #eef1ef;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: light) {
   .root {
-    background: #e7e4dd;
+    background: #e9edec;
     background-image: radial-gradient(ellipse 1300px 850px at 26% 6%, rgba(255, 255, 255, 0.55), transparent 65%);
-    color: #100d0a;
+    color: #0d1113;
   }
 }
 
@@ -78,9 +97,15 @@
 
 @media (prefers-color-scheme: light) {
   .navBar {
+    /* Border tinted petrol (the base neutral), not bronze -- the
+       accent stays reserved for the spine and the confluence scale.
+       A prior round tinted light-mode borders with the accent to fix
+       "reads as generic"; the petrol base itself now carries that
+       distinctiveness, so the accent no longer needs to bleed into
+       every edge to do it. */
     background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(16, 13, 10, 0.12);
-    box-shadow: 0 20px 50px rgba(30, 20, 10, 0.1);
+    border: 1px solid rgba(13, 17, 19, 0.12);
+    box-shadow: 0 20px 50px rgba(8, 12, 13, 0.1);
   }
 }
 
@@ -103,7 +128,7 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  color: #c8763a;
+  color: #bf8654;
 }
 
 .brand {
@@ -155,14 +180,14 @@
  */
 .navLink[data-active] {
   opacity: 1;
-  background: rgba(243, 239, 233, 0.95);
-  color: #12100d;
+  background: rgba(238, 241, 239, 0.95);
+  color: #0a0d0e;
 }
 
 @media (prefers-color-scheme: light) {
   .navLink[data-active] {
-    background: rgba(16, 13, 10, 0.9);
-    color: #f3efe9;
+    background: rgba(13, 17, 19, 0.9);
+    color: #eef1ef;
   }
 }
 
@@ -172,14 +197,17 @@
   flex-shrink: 0;
 }
 
+/*
+ * Labels stay in the DOM (each Link also carries a `title` for a
+ * tooltip and the accessible name) but are visually hidden at every
+ * width now, not just below 640px. Ten captioned links reads as a
+ * website's nav; ten icons reads as a row of instrument controls --
+ * quieter, less text for the eye to process before it reaches the one
+ * thing that matters, which is what "focus" and "reduced cognitive
+ * load" actually cost in a real layout, not just in principle.
+ */
 .navLabel {
   display: none;
-}
-
-@media (min-width: 640px) {
-  .navLabel {
-    display: inline;
-  }
 }
 
 .signOut {
@@ -205,59 +233,55 @@
 }
 
 /*
- * The primary panel's single geometric cut: one truncated corner, not
- * four. It marks the aperture the current reading is admitted
- * through (the observatory-slit metaphor from the DNA document) --
- * a boundary, not a repeated brand shape. No other surface on the
- * page repeats this cut; a mark repeated purely for recognizability,
- * with no boundary it actually marks, is the geometry law's definition
- * of a gimmick.
+ * The primary panel's corner cut (a single truncated corner,
+ * introduced when this round's predecessor removed the repeated four-
+ * corner facet) is gone as of this pass. It was disclosed honestly in
+ * the prior round's own self-critique as the one remaining geometric
+ * element justified by metaphor -- "the aperture the reading is
+ * admitted through" -- rather than by an actual measured value the
+ * way the spine and confluence scale are. Held to the same law applied
+ * to everything else this round, it did not survive. What remains is a
+ * plain rectangle: the spine and the confluence scale are now the
+ * system's entire geometric vocabulary, and both measure something
+ * real.
  */
 .primary {
-  --corner: 28px;
   container-type: inline-size;
   position: relative;
   padding: 3.25rem 3.25rem 3.25rem 3.75rem;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.065);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  clip-path: polygon(var(--corner) 0, 100% 0, 100% 100%, 0 100%, 0 var(--corner));
-  /* box-shadow, not filter:drop-shadow -- drop-shadow forces the browser
-     to rasterize this element (backdrop-filter blur + clip-path + large
-     ultrawide size) into an offscreen buffer, which reproducibly
-     corrupted the compositor in dark mode at >=2200px viewports during
-     testing. box-shadow is compositor-safe. */
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
 }
 
 @media (prefers-color-scheme: light) {
   .primary {
     background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(16, 13, 10, 0.14);
-    box-shadow: 0 26px 50px rgba(30, 20, 10, 0.1);
+    border: 1px solid rgba(13, 17, 19, 0.14);
+    box-shadow: 0 26px 50px rgba(8, 12, 13, 0.1);
   }
 }
 
 @media (min-width: 1600px) {
-  .primary { --corner: 40px; padding: 4rem 4rem 4rem 4.5rem; }
+  .primary { padding: 4rem 4rem 4rem 4.5rem; }
 }
 
 /*
- * The spine: the one place the copper accent marks location -- this is
- * where the current reading lives on the page. Starts exactly where
- * the corner cut above ends, so it reads as part of the same aperture,
- * not a stripe glued beside it. Runs to the panel's own bottom edge,
- * which is a plain right angle now that only one corner is cut.
+ * The spine: the one place the accent marks location -- this is where
+ * the current reading lives on the page. Runs the panel's full height
+ * now that there is no corner cut to align with.
  */
 .primary::after {
   content: '';
   position: absolute;
   left: 0;
-  top: var(--corner);
+  top: 0;
   bottom: 0;
   width: 5px;
-  background: linear-gradient(180deg, #c8763a, #a8582a 55%, #7a3f1f);
+  background: linear-gradient(180deg, #bf8654, #96693c 55%, #6b4a29);
 }
 
 /*
@@ -273,7 +297,7 @@
   right: -15%;
   width: 55%;
   height: 130%;
-  background: radial-gradient(circle, rgba(220, 190, 160, 0.14), transparent 72%);
+  background: radial-gradient(circle, rgba(191, 134, 84, 0.13), transparent 72%);
   pointer-events: none;
 }
 
@@ -312,12 +336,12 @@
   max-width: min(94cqi, 46rem);
   /* Explicit, undiluted ink -- must always be the single darkest/lightest
      text on screen, never left to inherit through the translucent panel. */
-  color: #100d0a;
+  color: #0d1113;
 }
 
 @media (prefers-color-scheme: dark) {
   .headline {
-    color: #faf7f1;
+    color: #f4f6f5;
   }
 }
 
@@ -352,13 +376,13 @@
 
 @media (prefers-color-scheme: light) {
   .confluenceTick {
-    background: rgba(16, 13, 10, 0.14);
+    background: rgba(13, 17, 19, 0.14);
   }
 }
 
 .confluenceTick[data-lit] {
   height: 15px;
-  background: #c8763a;
+  background: #bf8654;
 }
 
 /*
@@ -440,11 +464,10 @@
 }
 
 /*
- * Cards: a plain rectangle with a minimal radius, not a repeated cut
- * corner. The corner cut belongs to the primary panel alone, where it
- * marks a real boundary (see above) -- repeating it here would be
- * exactly the "recognizable silhouette with no informational job"
- * the geometry law forbids.
+ * Cards: a plain rectangle with a minimal radius. No cut corner --
+ * neither this surface nor the primary panel carries one anymore (see
+ * above); a shape repeated purely for a recognizable silhouette, with
+ * no boundary it actually marks, is what the geometry law forbids.
  */
 .card {
   display: block;
@@ -462,7 +485,7 @@
 @media (prefers-color-scheme: light) {
   .card {
     background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(16, 13, 10, 0.1);
+    border: 1px solid rgba(13, 17, 19, 0.1);
   }
 }
 
@@ -479,7 +502,7 @@
 
 @media (prefers-color-scheme: light) {
   .card:hover {
-    border-color: rgba(16, 13, 10, 0.22);
+    border-color: rgba(13, 17, 19, 0.22);
     background: rgba(255, 255, 255, 0.55);
   }
 }
@@ -525,12 +548,20 @@
   letter-spacing: 0.06em;
 }
 
+/*
+ * Peripheral areas quieted further this round -- not a redesign, a
+ * weight reduction. Ten confidently-styled destinations competing for
+ * attention beside the one reading works against "focus," one of the
+ * six target emotional states directly: the less visual presence
+ * everything that isn't the current decision has, the more
+ * unambiguous the one thing that does matter becomes.
+ */
 .peripheralLabel {
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.4;
+  opacity: 0.32;
   margin: 0 0 0.9rem;
   padding: 0 0.5rem;
 }
@@ -546,7 +577,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: inherit;
-  opacity: 0.5;
+  opacity: 0.42;
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: opacity 160ms ease, border-color 160ms ease;
@@ -662,7 +693,7 @@
 
   .peripheralGroup {
     padding-left: 2rem;
-    border-left: 1px solid rgba(150, 130, 110, 0.16);
+    border-left: 1px solid rgba(160, 170, 168, 0.14);
   }
 
   .peripheralRow {
