@@ -27,25 +27,38 @@
 .root {
   min-height: 100vh;
   background: #0b0a09;
-  background-image: radial-gradient(ellipse 1200px 800px at 50% -10%, rgba(200, 118, 58, 0.16), transparent 60%);
+  /* Two warm washes, not one -- a tighter glow at the top plus a much
+     softer, wider one lower down, so the canvas has atmosphere across
+     the whole scroll length instead of a single hotspot near the nav
+     and flat dark for the rest of a tall page. */
+  background-image:
+    radial-gradient(ellipse 1300px 850px at 50% -10%, rgba(200, 118, 58, 0.18), transparent 60%),
+    radial-gradient(ellipse 1600px 1000px at 85% 65%, rgba(200, 118, 58, 0.07), transparent 65%);
   color: #f3efe9;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: light) {
   .root {
-    background: #f4f1ea;
-    background-image: radial-gradient(ellipse 1200px 800px at 50% -10%, rgba(200, 118, 58, 0.10), transparent 60%);
+    /* Light mode was reading as neutral white/grey, not warm -- the
+       canvas itself is cream, but the previous single top-only glow at
+       low alpha meant most of a tall viewport had almost no warmth
+       left in it. Two overlapping washes at higher alpha keep the
+       amber presence going further down the page. */
+    background: #f6f1e6;
+    background-image:
+      radial-gradient(ellipse 1300px 850px at 50% -10%, rgba(200, 118, 58, 0.16), transparent 62%),
+      radial-gradient(ellipse 1600px 1000px at 85% 70%, rgba(200, 118, 58, 0.09), transparent 68%);
     color: #16130f;
   }
 }
 
 .navBar {
   position: sticky;
-  top: 1.25rem;
+  top: 0.75rem;
   z-index: 50;
-  max-width: 72rem;
-  margin: 1.25rem auto 0;
+  max-width: 80rem;
+  margin: 0.75rem auto 0;
   display: flex;
   align-items: center;
   gap: 1.5rem;
@@ -60,18 +73,18 @@
 
 @media (prefers-color-scheme: light) {
   .navBar {
-    background: rgba(255, 255, 255, 0.68);
+    background: rgba(250, 243, 231, 0.7);
     border: 1px solid rgba(20, 16, 10, 0.11);
     box-shadow: 0 20px 50px rgba(30, 20, 10, 0.12);
   }
 }
 
 @media (min-width: 1600px) {
-  .navBar { max-width: 96rem; }
+  .navBar { max-width: 104rem; }
 }
 
 @media (min-width: 2200px) {
-  .navBar { max-width: 116rem; }
+  .navBar { max-width: 128rem; }
 }
 
 .brandGroup {
@@ -184,9 +197,14 @@
 .signOut:hover { opacity: 1; }
 
 .content {
-  max-width: 72rem;
+  /* Wider base column and a tighter top gutter than before -- the
+     previous 72rem/4rem-top combination read as an article's centered
+     column with page-like margins around it. This is software chrome,
+     not a page: less runway before content starts, more of the
+     viewport actually doing work. */
+  max-width: 80rem;
   margin: 0 auto;
-  padding: 4rem 1.5rem 5rem;
+  padding: 2.5rem 1.5rem 4rem;
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
@@ -206,7 +224,7 @@
   --fm: 34px;
   --fn: 8px;
   position: relative;
-  padding: 3.25rem;
+  padding: 3.25rem 3.25rem 3.25rem 3.75rem;
   background: rgba(255, 255, 255, 0.065);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
@@ -228,14 +246,38 @@
 
 @media (prefers-color-scheme: light) {
   .primary {
-    background: rgba(255, 255, 255, 0.74);
-    border: 1px solid rgba(20, 16, 10, 0.11);
+    background: rgba(251, 244, 232, 0.82);
+    border: 1px solid rgba(20, 16, 10, 0.12);
     box-shadow: 0 26px 50px rgba(30, 20, 10, 0.14);
   }
 }
 
 @media (min-width: 1600px) {
-  .primary { --fm: 44px; padding: 3.75rem; }
+  .primary { --fm: 48px; padding: 4rem 4rem 4rem 4.5rem; }
+}
+
+/*
+ * The spine: a persistent copper bar on the panel that carries the
+ * single most important reading on the page. This is the one mark
+ * meant to be recognizable at a glance, cropped, at thumbnail size,
+ * with no text legible -- the corner cut and divider glyph reward
+ * close attention, this one doesn't require it. Clipped by the
+ * parent's own clip-path, so it respects the facet cut rather than
+ * overlapping it.
+ */
+.primary::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  /* Left edge is only cut by the large facet at the top (--fm); the
+     bottom-left corner gets the small chamfer (--fn) instead, since
+     the large cut is reserved for the opposite corner (bottom-right).
+     Insetting the spine by exactly those two values means it hugs the
+     real clipped edge with no dead gap and no overflow into the cut. */
+  top: var(--fm);
+  bottom: var(--fn);
+  width: 5px;
+  background: linear-gradient(180deg, #c8763a, #a8582a 55%, #7a3f1f);
 }
 
 .primaryGlow {
@@ -262,12 +304,15 @@
 
 .headline {
   position: relative;
-  /* Confident, not timid: scales from 2.75rem to a hard 4.5rem cap as
+  /* Confident, not timid: scales from 2.75rem to a hard 5.25rem cap as
      the viewport widens, instead of sitting at one fixed size that
      looks proportionally small once the workspace grid gives it more
-     room on a wide monitor. */
-  font-size: clamp(2.75rem, 2.05rem + 2.35vw, 4.5rem);
-  line-height: 1.04;
+     room on a wide monitor. This is the one sentence on the page that
+     must be read and understood in under a second -- everything else
+     (cards, peripheral links) is deliberately quieter so there's no
+     competition for the first look. */
+  font-size: clamp(2.75rem, 1.85rem + 3vw, 5.25rem);
+  line-height: 1.02;
   font-weight: 800;
   letter-spacing: -0.03em;
   margin: 0 0 1.25rem;
@@ -276,6 +321,10 @@
      text on screen. Not left to `inherit` through the translucent glass
      panel, where it measurably lost contrast against its own body copy. */
   color: #100d0a;
+  /* A hairline stroke gives the system sans a heavier, more deliberate
+     presence at this size than font-weight alone provides -- there is
+     no true black/900 cut of the system font stack to reach for. */
+  -webkit-text-stroke: 0.4px currentColor;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -346,11 +395,14 @@
   --fm: 20px;
   --fn: 6px;
   display: block;
-  padding: 1.85rem;
-  background: rgba(255, 255, 255, 0.045);
+  padding: 1.7rem;
+  /* Deliberately quieter than .primary -- lower background/border
+     alpha, smaller type (below), no spine. The secondary modules
+     should read as "orbiting the decision," not competing with it. */
+  background: rgba(255, 255, 255, 0.035);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   color: inherit;
   text-decoration: none;
   clip-path: polygon(
@@ -363,8 +415,8 @@
 
 @media (prefers-color-scheme: light) {
   .card {
-    background: rgba(255, 255, 255, 0.68);
-    border: 1px solid rgba(20, 16, 10, 0.09);
+    background: rgba(250, 242, 229, 0.6);
+    border: 1px solid rgba(20, 16, 10, 0.08);
   }
 }
 
@@ -389,7 +441,7 @@
 .cardBody {
   font-size: 0.9375rem;
   line-height: 1.55;
-  opacity: 0.85;
+  opacity: 0.78;
   margin: 0;
 }
 
@@ -504,8 +556,8 @@
  */
 @media (min-width: 1600px) {
   .content {
-    max-width: 96rem;
-    padding: 5rem 3rem 6rem;
+    max-width: 104rem;
+    padding: 3rem 2.5rem 4.5rem;
     display: grid;
     grid-template-columns: 1.7fr 1fr;
     grid-template-areas:
@@ -530,8 +582,8 @@
 
 @media (min-width: 2200px) {
   .content {
-    max-width: 116rem;
-    padding: 6rem 4rem 7rem;
+    max-width: 128rem;
+    padding: 3.5rem 3rem 5rem;
     grid-template-columns: 1.6fr 0.9fr 0.62fr;
     grid-template-areas: 'primary secondary peripheral';
     gap: 1.5rem 3.5rem;
