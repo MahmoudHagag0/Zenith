@@ -4,6 +4,26 @@
  * @zenith/ui. Every value is hardcoded and local to this file/route.
  */
 
+/*
+ * globals.css sets a route-agnostic `body { max-width: 720px; margin:
+ * 3rem auto; background: #ffffff }` for every screen that predates the
+ * M5 design system and never opted out (its own comment says so). This
+ * route never opted out either -- .root, as body's child, was silently
+ * being clamped to that 720px column at every viewport, with body's
+ * white background showing on both sides. Invisible at narrow widths
+ * and in light mode (white body vs. pale cream .root is a subtle
+ * seam); unmissable once the workspace grid pushed content past 720px
+ * in dark mode (near-black .root against a stark white body). Reset
+ * scoped to this route only via :global -- not a change to the shared
+ * legacy stylesheet or the other experimental directions.
+ */
+:global(body):has(.root) {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+
 .root {
   min-height: 100vh;
   background: #0b0a09;
@@ -31,19 +51,27 @@
   gap: 1.5rem;
   padding: 0.75rem 1.25rem;
   border-radius: 9999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
 
 @media (prefers-color-scheme: light) {
   .navBar {
-    background: rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(20, 16, 10, 0.08);
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(20, 16, 10, 0.11);
     box-shadow: 0 20px 50px rgba(30, 20, 10, 0.12);
   }
+}
+
+@media (min-width: 1600px) {
+  .navBar { max-width: 96rem; }
+}
+
+@media (min-width: 2200px) {
+  .navBar { max-width: 116rem; }
 }
 
 .brandGroup {
@@ -62,8 +90,21 @@
 
 .brand {
   font-weight: 800;
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
   letter-spacing: -0.015em;
+  flex-shrink: 0;
+}
+
+/* Signature convergence mark -- repeats the brand mark's three-lines-
+   to-a-point motif in miniature everywhere a section or disclosure
+   needs a label prefix, so the identity recurs at every scale on the
+   page, not once in the header and never again. */
+.dividerMark {
+  width: 11px;
+  height: 11px;
+  margin-right: 0.5em;
+  vertical-align: -1px;
+  opacity: 0.75;
   flex-shrink: 0;
 }
 
@@ -90,8 +131,8 @@
   border-radius: 9999px;
   color: inherit;
   text-decoration: none;
-  opacity: 0.55;
-  font-size: 0.8125rem;
+  opacity: 0.6;
+  font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
   transition: opacity 120ms ease, background-color 120ms ease;
@@ -151,24 +192,50 @@
   gap: 2.5rem;
 }
 
+/*
+ * Signature "faceted convergence" corner treatment: two opposite
+ * corners (top-left, bottom-right) are cut at a hard 45deg facet --
+ * the same move as the brand mark's converging lines -- while the
+ * other two get a small chamfer rather than a sharp default corner.
+ * Repeated on .card and .navLink[data-active] at smaller scale so the
+ * same geometric rule reads consistently across every surface.
+ * A single screenshot with the logo cropped out should still be
+ * identifiable as Zenith from this corner language alone.
+ */
 .primary {
+  --fm: 34px;
+  --fn: 8px;
   position: relative;
-  padding: 3rem;
-  border-radius: 32px;
-  background: rgba(255, 255, 255, 0.04);
+  padding: 3.25rem;
+  background: rgba(255, 255, 255, 0.065);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  clip-path: polygon(
+    var(--fm) 0, calc(100% - var(--fn)) 0, 100% var(--fn),
+    100% calc(100% - var(--fm)), calc(100% - var(--fm)) 100%, var(--fn) 100%,
+    0 calc(100% - var(--fn)), 0 var(--fm)
+  );
+  /* box-shadow, not filter:drop-shadow -- drop-shadow forces the browser
+     to rasterize this element (backdrop-filter blur + clip-path + large
+     ultrawide size) into an offscreen buffer, which reproducibly
+     corrupted the compositor in dark mode at >=2200px viewports during
+     testing (the entire region to the right of this panel rendered as a
+     flat white overlay instead of the page background). box-shadow is
+     not clipped by the faceted corners, but it is compositor-safe. */
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
 }
 
 @media (prefers-color-scheme: light) {
   .primary {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(20, 16, 10, 0.06);
-    box-shadow: 0 30px 70px rgba(30, 20, 10, 0.10);
+    background: rgba(255, 255, 255, 0.74);
+    border: 1px solid rgba(20, 16, 10, 0.11);
+    box-shadow: 0 26px 50px rgba(30, 20, 10, 0.14);
   }
+}
+
+@media (min-width: 1600px) {
+  .primary { --fm: 44px; padding: 3.75rem; }
 }
 
 .primaryGlow {
@@ -183,22 +250,28 @@
 
 .eyebrow {
   position: relative;
+  display: flex;
+  align-items: center;
   font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  font-weight: 800;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: #c8763a;
-  margin: 0 0 1rem;
+  margin: 0 0 1.1rem;
 }
 
 .headline {
   position: relative;
-  font-size: 3.25rem;
-  line-height: 1.05;
+  /* Confident, not timid: scales from 2.75rem to a hard 4.5rem cap as
+     the viewport widens, instead of sitting at one fixed size that
+     looks proportionally small once the workspace grid gives it more
+     room on a wide monitor. */
+  font-size: clamp(2.75rem, 2.05rem + 2.35vw, 4.5rem);
+  line-height: 1.04;
   font-weight: 800;
   letter-spacing: -0.03em;
   margin: 0 0 1.25rem;
-  max-width: 44rem;
+  max-width: 46rem;
   /* Explicit, undiluted ink -- must always be the single darkest/lightest
      text on screen. Not left to `inherit` through the translucent glass
      panel, where it measurably lost contrast against its own body copy. */
@@ -215,11 +288,15 @@
   .headline { font-size: 2.25rem; }
 }
 
+@media (min-width: 1600px) {
+  .headline { max-width: 38rem; }
+}
+
 .reasoning {
   position: relative;
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
   line-height: 1.65;
-  opacity: 0.75;
+  opacity: 0.78;
   max-width: 42rem;
   margin: 0 0 1.5rem;
 }
@@ -237,13 +314,19 @@
   font-size: 0.9375rem;
 }
 .disclosure summary {
+  display: flex;
+  align-items: center;
   cursor: pointer;
   font-weight: 700;
   opacity: 0.85;
+  list-style: none;
+}
+.disclosure summary::-webkit-details-marker {
+  display: none;
 }
 .disclosure p {
   opacity: 0.7;
-  margin: 0.5rem 0 0;
+  margin: 0.5rem 0 0 1.5rem;
   line-height: 1.6;
 }
 
@@ -260,38 +343,47 @@
 }
 
 .card {
+  --fm: 20px;
+  --fn: 6px;
   display: block;
-  padding: 1.75rem;
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.04);
+  padding: 1.85rem;
+  background: rgba(255, 255, 255, 0.045);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: inherit;
   text-decoration: none;
-  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1), box-shadow 160ms cubic-bezier(0.2, 0, 0, 1), border-color 160ms ease;
+  clip-path: polygon(
+    var(--fm) 0, calc(100% - var(--fn)) 0, 100% var(--fn),
+    100% calc(100% - var(--fm)), calc(100% - var(--fm)) 100%, var(--fn) 100%,
+    0 calc(100% - var(--fn)), 0 var(--fm)
+  );
+  transition: transform 160ms cubic-bezier(0.2, 0, 0, 1), filter 160ms cubic-bezier(0.2, 0, 0, 1), border-color 160ms ease;
 }
 
 @media (prefers-color-scheme: light) {
   .card {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid rgba(20, 16, 10, 0.06);
+    background: rgba(255, 255, 255, 0.68);
+    border: 1px solid rgba(20, 16, 10, 0.09);
   }
 }
 
 .card:hover {
   transform: translateY(-4px);
   border-color: rgba(200, 118, 58, 0.5);
-  box-shadow: 0 20px 50px rgba(200, 118, 58, 0.18);
+  /* box-shadow, not filter:drop-shadow -- see .primary for why. */
+  box-shadow: 0 16px 32px rgba(200, 118, 58, 0.22);
 }
 
 .cardLabel {
+  display: flex;
+  align-items: center;
   font-size: 0.75rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  opacity: 0.5;
-  margin: 0 0 0.75rem;
+  opacity: 0.55;
+  margin: 0 0 0.85rem;
 }
 
 .cardBody {
@@ -302,12 +394,29 @@
 }
 
 .cardNumeral {
-  font-size: 1.75rem;
+  position: relative;
+  padding-left: 0.9rem;
+  font-size: 2.125rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
   margin: 0;
-  line-height: 1.3;
+  line-height: 1.28;
+}
+
+/* Signature metric tick: every headline figure on the page gets a
+   small angled copper facet at its left edge, echoing the same cut
+   used on card/panel corners -- a number in this product should be
+   recognizable as "a Zenith metric" even cropped out of context. */
+.cardNumeral::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.2em;
+  width: 4px;
+  height: 0.8em;
+  background: #c8763a;
+  transform: skewX(-18deg);
 }
 
 .cardUnit {
@@ -326,13 +435,13 @@
 }
 
 .peripheralLink {
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-weight: 600;
   color: inherit;
-  opacity: 0.45;
+  opacity: 0.48;
   text-decoration: none;
 }
-.peripheralLink:hover { opacity: 0.8; }
+.peripheralLink:hover { opacity: 0.85; }
 
 /* -- Entrance: the decision-readiness panel is the single most important
    moment on the page. It should arrive, not just appear. -- */
@@ -375,4 +484,65 @@
 
 .card:focus-visible {
   outline-offset: -2px;
+}
+
+/*
+ * Workspace tiers -- placed last in the file on purpose: several rules
+ * here override unconditional base declarations (.secondaryRow's row
+ * layout, .peripheralRow's flex properties) further up, and CSS gives
+ * source order the final say between two rules of equal specificity
+ * regardless of which one sits inside an @media block. Below 1600px
+ * this stays the single-column reading layout defined above. From
+ * 1600px (a 27"+/1440p monitor) the page becomes an actual
+ * multi-surface workspace: the decision panel keeps authority on the
+ * left, the three module cards move into a vertical sidebar beside it
+ * instead of a row underneath it. From 2200px (21:9 ultrawide, 32" 4K)
+ * a third rail appears for the peripheral links, so the extra width
+ * becomes more workspace, not more empty margin. DOM order is
+ * unchanged at every tier -- this is CSS Grid re-flowing the same
+ * three children, not a restructure.
+ */
+@media (min-width: 1600px) {
+  .content {
+    max-width: 96rem;
+    padding: 5rem 3rem 6rem;
+    display: grid;
+    grid-template-columns: 1.7fr 1fr;
+    grid-template-areas:
+      'primary secondary'
+      'peripheral peripheral';
+    align-items: start;
+    gap: 1.5rem 3rem;
+  }
+
+  .primary { grid-area: primary; }
+
+  .secondaryRow {
+    grid-area: secondary;
+    grid-template-columns: 1fr;
+  }
+
+  .peripheralRow {
+    grid-area: peripheral;
+    margin-top: 0.5rem;
+  }
+}
+
+@media (min-width: 2200px) {
+  .content {
+    max-width: 116rem;
+    padding: 6rem 4rem 7rem;
+    grid-template-columns: 1.6fr 0.9fr 0.62fr;
+    grid-template-areas: 'primary secondary peripheral';
+    gap: 1.5rem 3.5rem;
+  }
+
+  .peripheralRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.15rem;
+    padding: 0 0 0 2rem;
+    margin-top: 0;
+    border-left: 1px solid rgba(200, 160, 120, 0.18);
+  }
 }

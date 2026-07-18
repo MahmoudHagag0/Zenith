@@ -19,8 +19,25 @@ import {
   IconReports,
   IconAiWorkspace,
   IconJournal,
-} from '@/components/experimental-icons';
+} from './icons';
 import styles from './page.module.css';
+
+/**
+ * Signature convergence mark -- the same three-lines-into-a-point motif
+ * as the nav brand mark, reused as the section/disclosure divider so
+ * the identity repeats at a much smaller scale throughout the page,
+ * not just once in the header.
+ */
+function DividerMark() {
+  return (
+    <svg className={styles.dividerMark} viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M3 4L11 11.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M3 19L11 11.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <path d="M21 11.5H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="11" cy="11.5" r="2.4" fill="currentColor" />
+    </svg>
+  );
+}
 
 /**
  * EXPERIMENTAL VISUAL IDENTITY -- Direction A, "Monolith".
@@ -35,8 +52,18 @@ import styles from './page.module.css';
  *
  * Philosophy: spatial, dark, confident -- a single floating glass
  * navigation bar (not a sidebar) hovering over a deep charcoal canvas,
- * oversized numerals, deep-radius glass cards, one warm copper glow as
- * the entire accent vocabulary.
+ * oversized numerals, one warm copper glow as the entire accent
+ * vocabulary.
+ *
+ * Identity pass: "Faceted convergence" -- every panel/card has two
+ * opposite corners cut at a hard 45deg facet (echoing the brand mark's
+ * three lines converging to a point), the same convergence mark repeats
+ * as a small divider glyph before every section label and disclosure
+ * summary, and the icon language (./icons.tsx, exclusive to this route)
+ * carries a matching single-corner facet cut on every glyph. Workspace
+ * container widens in two tiers (1600px, 2200px) into an asymmetric
+ * grid so wide/ultra-wide monitors get a real multi-column workspace
+ * instead of one centered column stretching into empty margin.
  */
 
 const NAV_ITEMS = [
@@ -100,12 +127,15 @@ export default async function DashboardAPage() {
           <span className={styles.brand}>Zenith</span>
         </span>
         <nav className={styles.navLinks} aria-label="Primary">
-          {NAV_ITEMS.map(({ href, label, Icon }) => (
-            <Link key={href} href={href} className={styles.navLink} data-active={href === '/dashboard-a' ? '' : undefined} title={label}>
-              <Icon className={styles.navIcon} strokeWidth={1.5} />
-              <span className={styles.navLabel}>{label}</span>
-            </Link>
-          ))}
+          {NAV_ITEMS.map(({ href, label, Icon }) => {
+            const isActive = href === '/dashboard-a';
+            return (
+              <Link key={href} href={href} className={styles.navLink} data-active={isActive ? '' : undefined} title={label}>
+                <Icon className={styles.navIcon} strokeWidth={1.5} active={isActive} />
+                <span className={styles.navLabel}>{label}</span>
+              </Link>
+            );
+          })}
         </nav>
         <form action="/api/logout" method="post">
           <button type="submit" className={styles.signOut}>Sign out</button>
@@ -122,15 +152,15 @@ export default async function DashboardAPage() {
               <p className={styles.errorText}>Decision readiness is degraded -- one or more instruments could not be fully evaluated this session.</p>
             ) : decisionCenter.readiness === 'OPPORTUNITIES_AVAILABLE' && topOpportunity && topEntry ? (
               <>
-                <p className={styles.eyebrow}>Decision Readiness</p>
+                <p className={styles.eyebrow}><DividerMark /> Decision Readiness</p>
                 <h1 className={styles.headline}>{topEntry.story}</h1>
                 <p className={styles.reasoning}>{topEntry.why}</p>
                 <details className={styles.disclosure}>
-                  <summary>Confidence</summary>
+                  <summary><DividerMark />Confidence</summary>
                   <p>{topEntry.confidenceExplanation}</p>
                 </details>
                 <details className={styles.disclosure}>
-                  <summary>Uncertainty</summary>
+                  <summary><DividerMark />Uncertainty</summary>
                   <p>{topEntry.uncertaintyExplanation}</p>
                 </details>
               </>
@@ -142,13 +172,13 @@ export default async function DashboardAPage() {
 
         <div className={styles.secondaryRow}>
           <Link href="/morning-brief" className={styles.card}>
-            <p className={styles.cardLabel}>Morning Brief</p>
+            <p className={styles.cardLabel}><DividerMark />Morning Brief</p>
             <p className={styles.cardBody}>
               {morningBriefResult.status === 'fulfilled' ? morningBriefResult.value.headline : 'Morning Brief could not be loaded.'}
             </p>
           </Link>
           <Link href="/portfolio" className={styles.card}>
-            <p className={styles.cardLabel}>Portfolio</p>
+            <p className={styles.cardLabel}><DividerMark />Portfolio</p>
             {portfolioResult.status === 'rejected' ? (
               <p className={styles.cardBody}>Portfolio could not be loaded.</p>
             ) : portfolioData === null ? (
@@ -162,7 +192,7 @@ export default async function DashboardAPage() {
             )}
           </Link>
           <Link href="/watchlist" className={styles.card}>
-            <p className={styles.cardLabel}>Watchlist</p>
+            <p className={styles.cardLabel}><DividerMark />Watchlist</p>
             {watchlistResult.status === 'rejected' ? (
               <p className={styles.cardBody}>Watchlist could not be loaded.</p>
             ) : !watchlistData?.watchlist ? (
