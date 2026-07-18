@@ -1,7 +1,7 @@
 # 08_ROADMAP
 
 **Document ID:** ZOS-008\
-**Version:** 1.6.0\
+**Version:** 1.7.0\
 **Status:** Approved\
 **Owner:** Architecture Team
 
@@ -50,22 +50,34 @@ Questions).
 Planned focus: - Advanced features - Integrations - Performance -
 Monitoring - Operational tooling
 
-Status: In Progress. Phase 2 (leadership-driven, non-Sprint product
-definition — `24_ZENITH_PRODUCT_CONSTITUTION.md`,
+Status: **Substantially complete; updated 2026-07-18 per the Final
+Project State Audit, which compared the repository directly against
+this Roadmap and found this entry stale.** Phase 2 (leadership-driven,
+non-Sprint product definition — `24_ZENITH_PRODUCT_CONSTITUTION.md`,
 `25_PRODUCT_BLUEPRINT.md`, `26_DASHBOARD_HOME_SPECIFICATION.md`,
 `27_ZENITH_EXPERIENCE_LANGUAGE.md`, all frozen) resolved the Open
 Question left by M1's own closure: the Analysis Engine's first Consumer
-is the Dashboard. Sprint S1-019 (Dashboard Backend Foundation) — a
-Confluence Engine Consumer and the Decision Center backend powering
-Dashboard's own `DASH-002` — is complete, per
-`documentation/zos/sprints/S1-019_SPRINT_BRIEF.md`. Sprint S1-020
-(Morning Brief Backend / Narrative Composer) — Implementation Order
-step 2, a deterministic template layer over S1-019's own output — is
-also complete, per `documentation/zos/sprints/S1-020_SPRINT_BRIEF.md`.
-Per `25_PRODUCT_BLUEPRINT.md` §10, Watchlist/Portfolio annotation
-enrichment (steps 4-5) and Morning Brief's own full screen assembly
-(step 6) are the next candidate work; no further Sprint has been
-authorized by this update.
+is the Dashboard. Sprint S1-019 (Dashboard Backend Foundation) and
+Sprint S1-020 (Morning Brief Backend / Narrative Composer) are complete,
+each with a filed Sprint Brief. Per `25_PRODUCT_BLUEPRINT.md` §10,
+Watchlist/Portfolio annotation enrichment (steps 4-5) and Morning
+Brief's own full screen assembly (step 6) were completed at S1-024
+(2026-07-14). Beyond the Blueprint's original 4-area MVP scope, the
+Product Constitution's full nine-area surface (§10.2) is now
+implemented and live: Alerts (S1-030), Trading Journal (S1-029),
+Calendar/News (S1-031 screen, live backend at L1-003), COT (S1-032
+screen, live backend at L1-004), and AI Workspace (S1-033) join the
+already-complete Dashboard/Home, Morning Brief, Watchlist, and
+Portfolio; Reports (S1-034) and Foundation Hardening (S1-035) were
+also delivered. **None of S1-021 through S1-035 (excepting S1-022/023/
+024's own already-disclosed "execution over architecture" exception)
+has a filed Sprint Brief, Task Breakdown, Completion Report, or
+Decision Log entry**, and the Constitution §10.3 leadership approval
+required for expanding beyond the original four-area MVP was never
+filed either — see `09_PROJECT_BRAIN.md`'s Known Risks and Open
+Questions for the full disclosure. This Milestone's remaining
+originally-planned scope (further Business Services work, full
+authorization refinement, generic Core APIs) has not been started.
 
 # Milestone M3 --- Live Data Platform
 
