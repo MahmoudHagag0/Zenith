@@ -631,19 +631,22 @@
 }
 
 /*
- * Peripheral areas quieted further this round -- not a redesign, a
- * weight reduction. Ten confidently-styled destinations competing for
- * attention beside the one reading works against "focus," one of the
- * six target emotional states directly: the less visual presence
- * everything that isn't the current decision has, the more
- * unambiguous the one thing that does matter becomes.
+ * Peripheral areas kept quiet relative to the primary panel, but no
+ * longer quiet enough to fail contrast: the prior opacities (label
+ * 0.32, link 0.42) fell below WCAG AA's 4.5:1 for normal text in both
+ * modes -- 2.04:1 / 2.66:1 in light mode. Raised to the lowest values
+ * that clear 4.5:1 in both modes with a small margin (label 0.62 ->
+ * 4.84:1 light / 6.93:1 dark; link 0.68 -> 5.89:1 light / 8.18:1
+ * dark), verified via computed contrast, not eyeballed. Luminance only
+ * -- the label/link weight relationship, hierarchy, and every other
+ * rule here is unchanged.
  */
 .peripheralLabel {
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.32;
+  opacity: 0.62;
   margin: 0 0 0.9rem;
   padding: 0 0.5rem;
 }
@@ -659,7 +662,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   color: inherit;
-  opacity: 0.42;
+  opacity: 0.68;
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: opacity 160ms ease, border-color 160ms ease;
