@@ -7,6 +7,7 @@ import {
   getPortfolios,
   getPortfolioAnalytics,
 } from '@/lib/api';
+import type { DimensionConfluenceView, NormalizedDimension } from '@/lib/api';
 import { requireToken } from '@/lib/auth';
 import {
   IconDashboard,
@@ -22,25 +23,85 @@ import {
 } from './icons';
 import styles from './page.module.css';
 
+const CONFLUENCE_DIMENSION_ORDER: readonly NormalizedDimension[] = [
+  'TREND',
+  'MOMENTUM',
+  'LIQUIDITY',
+  'STRUCTURE',
+  'VOLATILITY',
+  'VOLUME',
+  'CONFIRMATION',
+];
+
+const CONFLUENCE_DIMENSION_LABEL: Record<NormalizedDimension, string> = {
+  TREND: 'Trend',
+  MOMENTUM: 'Momentum',
+  LIQUIDITY: 'Liquidity',
+  STRUCTURE: 'Structure',
+  VOLATILITY: 'Volatility',
+  VOLUME: 'Volume',
+  CONFIRMATION: 'Confirmation',
+};
+
+function readingPosition(reading: DimensionConfluenceView['aggregateReading']): 'up' | 'down' | 'flat' {
+  if (reading === 'BULLISH') return 'up';
+  if (reading === 'BEARISH') return 'down';
+  return 'flat';
+}
+
+function tickTitle(label: string, dim: DimensionConfluenceView | undefined, netDirection: 'BULLISH' | 'BEARISH'): string {
+  if (!dim || dim.aggregateReading === 'NOT_APPLICABLE') return `${label}: no reading this session`;
+  if (dim.aggregateReading === 'NEUTRAL') return `${label}: neutral`;
+  const agrees = dim.aggregateReading === netDirection;
+  return `${label}: ${dim.aggregateReading.toLowerCase()}, ${agrees ? 'agrees with' : 'differs from'} the ${netDirection.toLowerCase()} reading`;
+}
+
 /**
- * Confluence Scale -- the recognition mark named in
- * ZENITH_VISUAL_LANGUAGE_v1.0 section 2. Not decoration: `agreeing` and
- * `total` are the actual `agreeingDimensions` count and the seven
- * ratified normalized dimensions the Confluence Engine votes across
- * (see api.ts RankedOpportunity, normalized-vocabulary.types.ts). Each
- * tick is a real vote, lit or unlit. This replaces the previous
- * `.headline::after` decorative gradient rule, which measured nothing.
- * Renders only where a real reading exists to measure -- there is no
- * fallback/default state, because a mark with nothing to measure must
- * not appear (Visual Language law: "a mark exists only if it measures
- * something").
+ * The Confluence Instrument -- Zenith's signature mark. Not a progress bar
+ * standing in for a count: each of the seven slots is bound to one real,
+ * named Confluence dimension's own `aggregateReading` (see api.ts
+ * DimensionConfluenceView, already on the wire from S1-019 but previously
+ * unmodeled by this app). Position (top/center/bottom) is that dimension's
+ * own direction; color is whether it agrees with the instrument's resolved
+ * `netDirection` -- the same job the accent already does everywhere else,
+ * never a second meaning. The eighth mark, set apart by a divider, is the
+ * resolved reading itself: the point every dimension's own vote converges
+ * toward. This is the sextant made literal -- several independent
+ * instruments, one measured position against a common baseline -- not a
+ * metaphor in a document anymore. Delete this and Dashboard A is an AI
+ * summary card; no other product has these seven named dimensions to draw
+ * it from, so it cannot be copied without the engine behind it.
  */
-function ConfluenceScale({ agreeing, total }: { agreeing: number; total: number }) {
+function ConfluenceScale({ dimensions, netDirection }: { dimensions: readonly DimensionConfluenceView[]; netDirection: 'BULLISH' | 'BEARISH' }) {
+  const byDimension = new Map(dimensions.map((d) => [d.dimension, d]));
+  const summary = CONFLUENCE_DIMENSION_ORDER.map((dim) => {
+    const view = byDimension.get(dim);
+    const reading = view?.aggregateReading ?? 'NOT_APPLICABLE';
+    const agrees = reading === netDirection;
+    return `${CONFLUENCE_DIMENSION_LABEL[dim]} ${reading.toLowerCase()}${reading === 'BULLISH' || reading === 'BEARISH' ? (agrees ? ' (agrees)' : ' (differs)') : ''}`;
+  }).join(', ');
+
   return (
-    <div className={styles.confluenceScale} role="img" aria-label={`${agreeing} of ${total} Confluence dimensions agree`}>
-      {Array.from({ length: total }, (_, i) => (
-        <span key={i} className={styles.confluenceTick} data-lit={i < agreeing ? '' : undefined} />
-      ))}
+    <div className={styles.confluenceScale} aria-label={`Confluence instrument: ${summary}. Resolved reading: ${netDirection.toLowerCase()}.`}>
+      <div className={styles.confluenceTrack} aria-hidden="true">
+        <span className={styles.confluenceBaseline} />
+        {CONFLUENCE_DIMENSION_ORDER.map((dim) => {
+          const view = byDimension.get(dim);
+          const reading = view?.aggregateReading ?? 'NOT_APPLICABLE';
+          const agrees = reading === netDirection;
+          return (
+            <span key={dim} className={styles.confluenceSlot} data-position={readingPosition(reading)} title={tickTitle(CONFLUENCE_DIMENSION_LABEL[dim], view, netDirection)}>
+              <span className={styles.confluenceMark} data-reading={reading} data-agrees={agrees ? '' : undefined} />
+            </span>
+          );
+        })}
+      </div>
+      <span className={styles.confluenceDivider} aria-hidden="true" />
+      <div className={styles.confluenceTrack} aria-hidden="true">
+        <span className={styles.confluenceSlot} data-position={readingPosition(netDirection)} title={`Resolved reading: ${netDirection.toLowerCase()}`}>
+          <span className={styles.confluenceResolved} />
+        </span>
+      </div>
     </div>
   );
 }
@@ -163,7 +224,7 @@ export default async function DashboardAPage() {
               <>
                 <p className={styles.eyebrow}>Decision Readiness</p>
                 <h1 className={styles.headline}>{topEntry.story}</h1>
-                <ConfluenceScale agreeing={topOpportunity.agreeingDimensions} total={7} />
+                <ConfluenceScale dimensions={topOpportunity.reading.dimensions} netDirection={topOpportunity.netDirection} />
                 <p className={styles.reasoning}>{topEntry.why}</p>
                 <details className={styles.disclosure}>
                   <summary>Confidence</summary>

@@ -347,43 +347,121 @@
 }
 
 /*
- * Confluence Scale -- recognition signal #1 from the Visual Language
- * document. Ticks are real votes (see ConfluenceScale in page.tsx):
- * `data-lit` ticks are agreeing dimensions, unlit ticks are the
- * remaining dimensions of the seven the Confluence Engine evaluates.
- * The one accent color appears here for the second and only other
- * reason it is allowed to: this is, together with the spine, the live
- * reading. Lit ticks stand taller than unlit ones -- an actual
- * graduated scale, not a uniform decorative row.
+ * The Confluence Instrument -- Zenith's signature mark (see ConfluenceScale
+ * in page.tsx for the data binding: each slot is one real, named Confluence
+ * dimension's own aggregateReading, not a count rendered as a generic bar).
+ * A slot's position against the baseline is that dimension's own direction;
+ * color is whether it agrees with the resolved reading -- the accent's one
+ * meaning, unchanged. The eighth mark past the divider is the resolved
+ * reading itself: the point the seven independent readings converge
+ * toward. The baseline is not decoration -- it is the reference the marks
+ * are plotted against, the same relationship a sextant has to the horizon.
  */
 .confluenceScale {
   display: flex;
-  align-items: flex-end;
-  gap: 4px;
-  height: 15px;
-  margin: 1.1rem 0 1.6rem;
+  align-items: center;
+  gap: 10px;
+  margin: 1.2rem 0 1.7rem;
 }
 
-.confluenceTick {
-  width: 3px;
-  height: 9px;
-  border-radius: 1px;
-  background: rgba(238, 243, 243, 0.14);
+.confluenceTrack {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+  height: 22px;
+}
+
+.confluenceBaseline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(238, 243, 243, 0.09);
 }
 
 @media (prefers-color-scheme: light) {
-  .confluenceTick {
-    background: rgba(16, 23, 26, 0.14);
+  .confluenceBaseline {
+    background: rgba(16, 23, 26, 0.1);
   }
 }
 
-.confluenceTick[data-lit] {
-  height: 15px;
+.confluenceSlot {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 4px;
+  height: 100%;
+}
+
+.confluenceSlot[data-position='up'] { justify-content: flex-start; }
+.confluenceSlot[data-position='down'] { justify-content: flex-end; }
+.confluenceSlot[data-position='flat'] { justify-content: center; }
+
+.confluenceMark {
+  width: 100%;
+  height: 7px;
+  border-radius: 1px;
+  background: rgba(238, 243, 243, 0.52);
+}
+
+@media (prefers-color-scheme: light) {
+  .confluenceMark {
+    background: rgba(16, 23, 26, 0.52);
+  }
+}
+
+.confluenceMark[data-reading='NEUTRAL'] {
+  background: rgba(238, 243, 243, 0.28);
+  height: 3px;
+}
+
+.confluenceMark[data-reading='NOT_APPLICABLE'] {
+  background: rgba(238, 243, 243, 0.12);
+  height: 3px;
+}
+
+@media (prefers-color-scheme: light) {
+  .confluenceMark[data-reading='NEUTRAL'] {
+    background: rgba(16, 23, 26, 0.28);
+  }
+  .confluenceMark[data-reading='NOT_APPLICABLE'] {
+    background: rgba(16, 23, 26, 0.12);
+  }
+}
+
+.confluenceMark[data-agrees] {
   background: #bd6440;
 }
 
 @media (prefers-color-scheme: light) {
-  .confluenceTick[data-lit] {
+  .confluenceMark[data-agrees] {
+    background: #b25a36;
+  }
+}
+
+.confluenceDivider {
+  align-self: stretch;
+  width: 1px;
+  background: rgba(238, 243, 243, 0.09);
+}
+
+@media (prefers-color-scheme: light) {
+  .confluenceDivider {
+    background: rgba(16, 23, 26, 0.1);
+  }
+}
+
+.confluenceResolved {
+  width: 4px;
+  height: 10px;
+  border-radius: 1px;
+  background: #bd6440;
+}
+
+@media (prefers-color-scheme: light) {
+  .confluenceResolved {
     background: #b25a36;
   }
 }
