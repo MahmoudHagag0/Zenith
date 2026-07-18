@@ -1,23 +1,22 @@
 /*
- * Card -- M6-004 §10 ("Executive Intelligence"). Uniform visual weight
- * regardless of the favorability of its own content (Constitution
- * §7.3, M4-006 §6 binding constraint) -- this rule is enforced
- * structurally: no variant prop exists that would let a consumer color
- * the Card shell itself by outcome.
+ * Card -- "Ivory Editorial" (Zenith's official visual identity).
+ * Uniform visual weight regardless of the favorability of its own
+ * content (Constitution §7.3, M4-006 §6 binding constraint) -- this
+ * rule is enforced structurally: no variant prop exists that would let
+ * a consumer color the Card shell itself by outcome.
  *
- * Elevation is expressed as a hairline border, not a shadow (M6-002 §3,
- * M6-004 §10) -- Direction A's "hairline borders more often than
- * shadow" personality, and one fewer shadow-tuning surface to maintain
- * across light/dark.
+ * Flat, sharp-cornered, separated by a thick 2px print-style rule --
+ * no shadow, no radius. Chosen over a soft floating shadow and a thin
+ * hairline specifically because it reads as an edited, structured
+ * "report," matching the serif type's own editorial register.
  */
 .card {
   display: block;
   background: var(--zenith-surface-raised);
-  border: 1px solid var(--zenith-border-emphasis);
-  box-shadow: var(--zenith-elevation-1);
+  border: 2px solid var(--zenith-border-emphasis);
   border-radius: var(--zenith-radius-md);
-  padding: var(--zenith-space-16);
-  transition: border-color var(--zenith-duration-fast) var(--zenith-easing-standard);
+  padding: var(--zenith-space-24);
+  transition: background-color var(--zenith-duration-fast) var(--zenith-easing-standard);
   /*
    * Reset the browser default anchor styling (blue, underlined) when
    * this Card is rendered as a Link (`href` supplied, Card.tsx) --
@@ -31,23 +30,16 @@
 
 .selectable {
   cursor: pointer;
-  transition:
-    background-color var(--zenith-duration-fast) var(--zenith-easing-standard),
-    border-color var(--zenith-duration-fast) var(--zenith-easing-standard);
+  transition: background-color var(--zenith-duration-fast) var(--zenith-easing-standard);
 }
 
-/*
- * M6-002 §17 fix: a prior review found color-only hover too faint to
- * notice at a glance. Hover now combines the existing background tint
- * with a visible border-color shift to the accent, so the affordance
- * survives a quick glance, not just close inspection.
- */
+/* Hover inverts to the accent as a solid block -- a bold, graphic, unmistakable "editor's mark," not a subtle tint. */
 .selectable:hover {
-  background: color-mix(in srgb, var(--zenith-surface-raised) calc((1 - var(--zenith-opacity-hover)) * 100%), var(--zenith-text-primary) calc(var(--zenith-opacity-hover) * 100%));
-  border-color: var(--zenith-accent-default);
+  background: var(--zenith-accent-default);
+  color: var(--zenith-surface-base);
 }
 
 .selectable:focus-visible {
-  outline: var(--zenith-radius-sm) solid var(--zenith-accent-focus);
+  outline: 2px solid var(--zenith-accent-focus);
   outline-offset: 2px;
 }

@@ -1,49 +1,41 @@
 /**
- * Color tokens -- values verbatim from M6-004_OFFICIAL_DESIGN_SYSTEM.md
- * (Direction A, "Executive Intelligence"), superseding D2-002's first-
- * draft values inside the unchanged three-tier structure (D1-003 §1):
- * primitives (private, below) -> semantic tokens (exported) -> theme
- * mapping (light/dark). No value here may be changed without an M6
- * amendment -- this file is the single source `generate-css.ts` reads
- * from. Every pairing below is WCAG 2.1 AA-verified against the
- * surface it is actually used on (M6-004 self-review corrections).
+ * Color tokens -- "Ivory Editorial" (Zenith's official visual identity,
+ * selected after a live three-direction comparison against "Obsidian
+ * Premium" and "Graphite Precision"). Three-tier structure unchanged
+ * (D1-003 §1): primitives (private, below) -> semantic tokens
+ * (exported) -> theme mapping (light/dark).
  */
 
-// ---- Primitive tokens (M6-004 §1-7) -- never referenced outside this file ----
-
 const paper = {
-  light: '#F8F6F0',
-  raisedLight: '#FFFFFF',
-  darkBase: '#17150F',
-  darkRaised: '#211E17',
-  darkOverlay: '#262319',
+  light: '#FDFCF7',
+  raisedLight: '#FDFCF7',
+  darkBase: '#141311',
+  darkRaised: '#141311',
+  darkOverlay: '#1C1A17',
 } as const;
 
 const ink = {
-  textPrimaryLight: '#1C1A16',
-  textSecondaryLight: '#5B564C',
-  textMutedLight: '#6A6455',
-  textPrimaryDark: '#F1EDE4',
-  textSecondaryDark: '#B8B2A2',
-  textMutedDark: '#9C9580',
+  textPrimaryLight: '#111110',
+  textSecondaryLight: '#403D38',
+  textMutedLight: '#726C62',
+  textPrimaryDark: '#F5F2EA',
+  textSecondaryDark: '#C9C3B6',
+  textMutedDark: '#928C7E',
 } as const;
 
-const border = {
-  defaultLight: '#E4E0D6',
-  emphasisLight: '#C9C3B4',
-  defaultDark: '#343026',
-  emphasisDark: '#4A4536',
+const rule = {
+  defaultLight: '#111110',
+  emphasisLight: '#111110',
+  defaultDark: '#F5F2EA',
+  emphasisDark: '#F5F2EA',
 } as const;
 
-const tealAccent = {
-  defaultLight: '#1F5E56',
-  emphasisLight: '#163F3A',
-  defaultDark: '#4FA79A',
-  emphasisDark: '#6BC2B4',
-  focusDark: '#5CB6A8',
+const brick = {
+  defaultLight: '#A63A24',
+  emphasisLight: '#7A2A1A',
+  defaultDark: '#D4643F',
+  emphasisDark: '#E38660',
 } as const;
-
-// ---- Semantic tokens, per theme (M6-004 §1-7) ----
 
 export interface ThemeColorTokens {
   readonly surfaceBase: string;
@@ -71,7 +63,6 @@ export interface ThemeColorTokens {
   readonly chartSeries5: string;
 }
 
-/** M6-004 §1-7: light-mode theme mapping ("Executive Intelligence"). */
 export const lightColorTokens: ThemeColorTokens = {
   surfaceBase: paper.light,
   surfaceRaised: paper.raisedLight,
@@ -79,26 +70,34 @@ export const lightColorTokens: ThemeColorTokens = {
   textPrimary: ink.textPrimaryLight,
   textSecondary: ink.textSecondaryLight,
   textMuted: ink.textMutedLight,
-  borderDefault: border.defaultLight,
-  borderEmphasis: border.emphasisLight,
-  accentDefault: tealAccent.defaultLight,
-  accentEmphasis: tealAccent.emphasisLight,
-  accentFocus: tealAccent.defaultLight,
-  signalCritical: '#8C4A3D',
+  borderDefault: rule.defaultLight,
+  borderEmphasis: rule.emphasisLight,
+  accentDefault: brick.defaultLight,
+  accentEmphasis: brick.emphasisLight,
+  accentFocus: brick.defaultLight,
+  /*
+   * Stress-test fix: the first draft set `signalCritical` to the exact
+   * same hex as `accentEmphasis` (`#7A2A1A`) in both themes -- the
+   * brand mark and "something is critically wrong" were visually
+   * identical, violating the closed single-meaning-per-color rule.
+   * `signalCritical` is now a distinct maroon, clearly a different hue
+   * from the brick-orange accent (magenta-leaning vs. orange-leaning
+   * red), verified >5:1 against `surface.raised` in both modes.
+   */
+  signalCritical: '#6B2C3D',
   signalWarn: '#8A6E33',
-  signalInfo: '#4B6478',
-  success: '#4F7358',
-  dataPositive: '#4F7358',
+  signalInfo: '#3D4E5C',
+  success: '#3E6B4C',
+  dataPositive: '#3E6B4C',
   dataNegative: '#8F5349',
   dataNeutral: ink.textMutedLight,
-  chartSeries1: tealAccent.defaultLight,
-  chartSeries2: '#A9695D',
+  chartSeries1: brick.defaultLight,
+  chartSeries2: '#3D4E5C',
   chartSeries3: '#8A6E33',
-  chartSeries4: '#4B6478',
-  chartSeries5: '#6B5670',
+  chartSeries4: '#3E6B4C',
+  chartSeries5: '#5B4C63',
 } as const;
 
-/** M6-004 §1-7: dark-mode theme mapping ("Executive Intelligence"). */
 export const darkColorTokens: ThemeColorTokens = {
   surfaceBase: paper.darkBase,
   surfaceRaised: paper.darkRaised,
@@ -106,27 +105,27 @@ export const darkColorTokens: ThemeColorTokens = {
   textPrimary: ink.textPrimaryDark,
   textSecondary: ink.textSecondaryDark,
   textMuted: ink.textMutedDark,
-  borderDefault: border.defaultDark,
-  borderEmphasis: border.emphasisDark,
-  accentDefault: tealAccent.defaultDark,
-  accentEmphasis: tealAccent.emphasisDark,
-  accentFocus: tealAccent.focusDark,
-  signalCritical: '#C2897B',
+  borderDefault: rule.defaultDark,
+  borderEmphasis: rule.emphasisDark,
+  accentDefault: brick.defaultDark,
+  accentEmphasis: brick.emphasisDark,
+  accentFocus: brick.defaultDark,
+  /** See light-mode comment above -- same collision fix, dark values. */
+  signalCritical: '#C97B93',
   signalWarn: '#C9A968',
   signalInfo: '#8CA6B8',
   success: '#8CAE8F',
   dataPositive: '#8CAE8F',
   dataNegative: '#C2897B',
   dataNeutral: ink.textMutedDark,
-  chartSeries1: tealAccent.defaultDark,
-  chartSeries2: '#C2897B',
+  chartSeries1: brick.defaultDark,
+  chartSeries2: '#8CA6B8',
   chartSeries3: '#C9A968',
-  chartSeries4: '#8CA6B8',
-  chartSeries5: '#A68CAE',
+  chartSeries4: '#8CAE8F',
+  chartSeries5: '#AE9BB4',
 } as const;
 
-/** Non-themed reference values (subtle tints, rarely consumed directly). */
 export const referenceTints = {
-  accentTintLight: '#E4EEEC',
-  accentTintDark: '#1C3733',
+  accentTintLight: '#F3E2DB',
+  accentTintDark: '#3A2418',
 } as const;

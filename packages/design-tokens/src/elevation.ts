@@ -1,17 +1,12 @@
 /**
- * Elevation tokens -- values verbatim from
- * M6-004_OFFICIAL_DESIGN_SYSTEM.md §10. Direction A resolves elevation
- * via hairline border as the primary technique, not shadow (M6-002
- * §3): `elevation.1` (Card) now carries no shadow at all -- its
- * separation comes from `border.emphasis`, applied directly in each
- * component's own CSS. `elevation.2` (modal/overlay) is the one
- * exception, since it must separate from page content behind a scrim,
- * not merely from a sibling on the same surface.
+ * "Ivory Editorial": completely flat -- no shadow anywhere, even for
+ * overlays. Separation comes entirely from thick print-style rules
+ * (`Card.module.css`), never depth.
  */
 export const elevation = {
   0: 'none',
   1: 'none',
-  2: '0 8px 24px rgba(0, 0, 0, 0.24)',
+  2: 'none',
 } as const;
 
 /**
