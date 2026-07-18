@@ -1,21 +1,26 @@
 /*
- * EXPERIMENTAL VISUAL IDENTITY -- Direction A, "Monolith".
+ * ZENITH IDENTITY REBUILD -- Direction A, "Monolith".
  * Fully self-contained: no dependency on @zenith/design-tokens or
  * @zenith/ui. Every value is hardcoded and local to this file/route.
+ *
+ * This file is not an iteration of the prior "faceted convergence"
+ * pass -- it is built directly from ZENITH_VISUAL_DNA_v1.0 and
+ * ZENITH_VISUAL_LANGUAGE_v1.0, both ratified before this rewrite. The
+ * governing law: "a mark exists only if it measures something." Every
+ * rule below that uses the copper accent, a geometric cut, or motion is
+ * commented with what it measures. Anything that could not clear that
+ * bar from the prior implementation (the repeated corner-cut motif on
+ * every surface, the DividerMark glyph, copper used for hover/active/
+ * focus states, the ledger-ruled/diagonal-grain background, the
+ * ultrawide frame hairlines) was removed, not tuned.
  */
 
 /*
  * globals.css sets a route-agnostic `body { max-width: 720px; margin:
  * 3rem auto; background: #ffffff }` for every screen that predates the
- * M5 design system and never opted out (its own comment says so). This
- * route never opted out either -- .root, as body's child, was silently
- * being clamped to that 720px column at every viewport, with body's
- * white background showing on both sides. Invisible at narrow widths
- * and in light mode (white body vs. pale cream .root is a subtle
- * seam); unmissable once the workspace grid pushed content past 720px
- * in dark mode (near-black .root against a stark white body). Reset
- * scoped to this route only via :global -- not a change to the shared
- * legacy stylesheet or the other experimental directions.
+ * M5 design system and never opted out. This route never opted out
+ * either -- reset scoped here via :global, not a change to the shared
+ * legacy stylesheet.
  */
 :global(body):has(.root) {
   max-width: none;
@@ -25,63 +30,35 @@
 }
 
 /*
- * Background identity system -- round 5, replacing the round-3/4
- * diagonal-grain treatment entirely rather than tuning it further. The
- * grain was tied to the facet-cut corners, which is a real geometric
- * decision but not one a viewer registers without already looking
- * closely at an edge. This canvas is instead ruled -- fine horizontal
- * lines running the width of the page, the way ledger paper and every
- * price chart a trader has ever looked at are ruled. It is a texture
- * with a reason to exist in this specific product, not an abstract
- * pattern, and it is legible as "a page," not just "a gradient," even
- * with every panel removed.
- *
- * The rule spacing (32px) is not arbitrary: it is the same rhythm as
- * .reasoning's own line-height (1.125rem * 1.72 ~= 31px), so the
- * canvas's ruling and the report's own text baseline share one grid --
- * a detail nobody consciously measures, but one more thing tying the
- * environment to what's written on it instead of sitting behind it.
+ * Background: a single light source, not a texture. Visual Language
+ * law (Light) -- light indicates where the instrument is currently
+ * reading, has one honest source, and creates depth as an epistemic
+ * signal, not decoration. The source is anchored roughly where the
+ * primary panel sits, because that is where the current reading
+ * actually is. Dark and light modes are independently designed, not
+ * mirrored: dark mode's light is warm and low-alpha, like a focused
+ * work lamp over an instrument at night; light mode's light is a
+ * diffuse, cool, near-white lift, like daylight through an observatory
+ * slit -- a softening of the surface, not an added color. Neither mode
+ * was produced by brightening or inverting the other.
  */
 .root {
   min-height: 100vh;
   background: #0a0908;
-  background-image:
-    radial-gradient(ellipse 1400px 900px at 30% -10%, rgba(200, 118, 58, 0.16), transparent 58%),
-    repeating-linear-gradient(180deg, transparent, transparent 31px, rgba(216, 140, 80, 0.05) 31px, rgba(216, 140, 80, 0.05) 32px),
-    radial-gradient(ellipse 130% 110% at 50% 45%, transparent 60%, rgba(0, 0, 0, 0.3) 100%);
+  background-image: radial-gradient(ellipse 1100px 750px at 26% 6%, rgba(224, 176, 128, 0.1), transparent 60%);
   color: #f3efe9;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: light) {
   .root {
-    /* Not a brightened dark mode -- a paper. Warm parchment base, the
-       same ledger ruling at slightly higher contrast (paper needs more
-       than glass does to read as ruled), no attempt to reproduce dark
-       mode's drama by the same means. A trader should want to stay in
-       this the way they'd want to stay with a well-printed report, not
-       tolerate it as the "off" theme. */
-    background: #f2e8d3;
-    background-image:
-      radial-gradient(ellipse 1400px 900px at 30% -10%, rgba(200, 118, 58, 0.16), transparent 60%),
-      repeating-linear-gradient(180deg, transparent, transparent 31px, rgba(150, 90, 45, 0.07) 31px, rgba(150, 90, 45, 0.07) 32px),
-      radial-gradient(ellipse 130% 110% at 50% 45%, transparent 62%, rgba(70, 45, 20, 0.05) 100%);
-    color: #16130f;
+    background: #e7e4dd;
+    background-image: radial-gradient(ellipse 1300px 850px at 26% 6%, rgba(255, 255, 255, 0.55), transparent 65%);
+    color: #100d0a;
   }
 }
 
-/*
- * The nav bar used to be a plain full-radius pill -- the single most
- * generic shape in SaaS chrome (Linear, Vercel, Stripe dashboards all
- * reach for it). It now carries the same faceted-convergence cut as
- * every other surface, scaled down for a short wide bar. This is the
- * first thing a user sees on every page load, so it is the highest-
- * leverage place to make "everything belongs to the same product"
- * true rather than aspirational.
- */
 .navBar {
-  --fm: 15px;
-  --fn: 5px;
   position: sticky;
   top: 0.75rem;
   z-index: 50;
@@ -91,26 +68,19 @@
   align-items: center;
   gap: 1.5rem;
   padding: 0.75rem 1.25rem;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid rgba(255, 255, 255, 0.14);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-  clip-path: polygon(
-    var(--fm) 0, calc(100% - var(--fn)) 0, 100% var(--fn),
-    100% calc(100% - var(--fm)), calc(100% - var(--fm)) 100%, var(--fn) 100%,
-    0 calc(100% - var(--fn)), 0 var(--fm)
-  );
 }
 
 @media (prefers-color-scheme: light) {
   .navBar {
-    /* Copper-tinted border, not neutral black-alpha -- a warm-toned
-       border is one of the smallest, cheapest ways to keep light mode
-       from reading as "dark mode with the values inverted." */
-    background: rgba(247, 237, 220, 0.74);
-    border: 1px solid rgba(150, 90, 45, 0.18);
-    box-shadow: 0 20px 50px rgba(30, 20, 10, 0.12);
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(16, 13, 10, 0.12);
+    box-shadow: 0 20px 50px rgba(30, 20, 10, 0.1);
   }
 }
 
@@ -143,19 +113,6 @@
   flex-shrink: 0;
 }
 
-/* Signature convergence mark -- repeats the brand mark's three-lines-
-   to-a-point motif in miniature everywhere a section or disclosure
-   needs a label prefix, so the identity recurs at every scale on the
-   page, not once in the header and never again. */
-.dividerMark {
-  width: 11px;
-  height: 11px;
-  margin-right: 0.5em;
-  vertical-align: -1px;
-  opacity: 0.75;
-  flex-shrink: 0;
-}
-
 .navLinks {
   display: flex;
   align-items: center;
@@ -163,21 +120,17 @@
   overflow-x: auto;
   scrollbar-width: none;
   min-width: 0;
-  /* Fade both scroll edges -- a visible cue that there is more nav to
-     reach, on a control that has no other affordance indicating it
-     scrolls at all. */
   mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
 }
 .navLinks::-webkit-scrollbar { display: none; }
 
 .navLink {
-  --fm: 8px;
-  --fn: 3px;
   display: flex;
   align-items: center;
   gap: 0.4rem;
   padding: 0.5rem 0.7rem;
+  border-radius: 6px;
   color: inherit;
   text-decoration: none;
   opacity: 0.6;
@@ -185,11 +138,6 @@
   font-weight: 600;
   white-space: nowrap;
   transition: opacity 120ms ease, background-color 120ms ease;
-  clip-path: polygon(
-    var(--fm) 0, calc(100% - var(--fn)) 0, 100% var(--fn),
-    100% calc(100% - var(--fm)), calc(100% - var(--fm)) 100%, var(--fn) 100%,
-    0 calc(100% - var(--fn)), 0 var(--fm)
-  );
 }
 
 .navLink:hover {
@@ -197,11 +145,25 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
+/*
+ * Active nav state: a high-contrast neutral chip, not the copper
+ * accent. Copper has exactly one meaning in this system -- the current
+ * live reading -- and "which page you're on" is a wayfinding fact, not
+ * a reading. Diluting the accent to also mean "selected" would make it
+ * mean nothing precisely, which is the failure mode the Visual
+ * Language document names directly.
+ */
 .navLink[data-active] {
   opacity: 1;
-  background: linear-gradient(135deg, #c8763a, #a8582a);
-  color: #16130f;
-  box-shadow: 0 4px 16px rgba(200, 118, 58, 0.35);
+  background: rgba(243, 239, 233, 0.95);
+  color: #12100d;
+}
+
+@media (prefers-color-scheme: light) {
+  .navLink[data-active] {
+    background: rgba(16, 13, 10, 0.9);
+    color: #f3efe9;
+  }
 }
 
 .navIcon {
@@ -214,10 +176,6 @@
   display: none;
 }
 
-/* Below 640px every pixel of the floating pill counts; labels reappear
-   at 640px, where the "no visible label" gap from the CD review actually
-   applied (tablet and up -- see .navLinks mask-image above for the
-   affordance that covers true phone width). */
 @media (min-width: 640px) {
   .navLabel {
     display: inline;
@@ -238,11 +196,6 @@
 .signOut:hover { opacity: 1; }
 
 .content {
-  /* Wider base column and a tighter top gutter than before -- the
-     previous 72rem/4rem-top combination read as an article's centered
-     column with page-like margins around it. This is software chrome,
-     not a page: less runway before content starts, more of the
-     viewport actually doing work. */
   max-width: 80rem;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 4rem;
@@ -252,26 +205,16 @@
 }
 
 /*
- * Signature "faceted convergence" corner treatment: two opposite
- * corners (top-left, bottom-right) are cut at a hard 45deg facet --
- * the same move as the brand mark's converging lines -- while the
- * other two get a small chamfer rather than a sharp default corner.
- * Repeated on .card and .navLink[data-active] at smaller scale so the
- * same geometric rule reads consistently across every surface.
- * A single screenshot with the logo cropped out should still be
- * identifiable as Zenith from this corner language alone.
+ * The primary panel's single geometric cut: one truncated corner, not
+ * four. It marks the aperture the current reading is admitted
+ * through (the observatory-slit metaphor from the DNA document) --
+ * a boundary, not a repeated brand shape. No other surface on the
+ * page repeats this cut; a mark repeated purely for recognizability,
+ * with no boundary it actually marks, is the geometry law's definition
+ * of a gimmick.
  */
 .primary {
-  --fm: 34px;
-  --fn: 8px;
-  /* Reading measure below (.headline/.reasoning/.disclosure p) is sized
-     in cqi -- a percentage of THIS panel's own width, not the viewport's.
-     Round 3 pinned those to fixed rem values disconnected from how wide
-     the panel actually was, which is exactly what produced "narrow
-     newspaper column with a large dead margin beside it": the text
-     measure never grew when the panel did. Container queries make the
-     text genuinely use more of the panel on a wide/ultrawide grid tier
-     while a hard cap still keeps the line length readable. */
+  --corner: 28px;
   container-type: inline-size;
   position: relative;
   padding: 3.25rem 3.25rem 3.25rem 3.75rem;
@@ -279,128 +222,96 @@
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  clip-path: polygon(
-    var(--fm) 0, calc(100% - var(--fn)) 0, 100% var(--fn),
-    100% calc(100% - var(--fm)), calc(100% - var(--fm)) 100%, var(--fn) 100%,
-    0 calc(100% - var(--fn)), 0 var(--fm)
-  );
+  clip-path: polygon(var(--corner) 0, 100% 0, 100% 100%, 0 100%, 0 var(--corner));
   /* box-shadow, not filter:drop-shadow -- drop-shadow forces the browser
      to rasterize this element (backdrop-filter blur + clip-path + large
      ultrawide size) into an offscreen buffer, which reproducibly
      corrupted the compositor in dark mode at >=2200px viewports during
-     testing (the entire region to the right of this panel rendered as a
-     flat white overlay instead of the page background). box-shadow is
-     not clipped by the faceted corners, but it is compositor-safe. */
+     testing. box-shadow is compositor-safe. */
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
 }
 
 @media (prefers-color-scheme: light) {
   .primary {
-    background: rgba(251, 243, 228, 0.85);
-    border: 1px solid rgba(150, 90, 45, 0.2);
-    box-shadow: 0 26px 50px rgba(30, 20, 10, 0.14);
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(16, 13, 10, 0.14);
+    box-shadow: 0 26px 50px rgba(30, 20, 10, 0.1);
   }
 }
 
 @media (min-width: 1600px) {
-  .primary { --fm: 48px; padding: 4rem 4rem 4rem 4.5rem; }
+  .primary { --corner: 40px; padding: 4rem 4rem 4rem 4.5rem; }
 }
 
 /*
- * The spine: a persistent copper bar on the panel that carries the
- * single most important reading on the page. This is the one mark
- * meant to be recognizable at a glance, cropped, at thumbnail size,
- * with no text legible -- the corner cut and divider glyph reward
- * close attention, this one doesn't require it. Clipped by the
- * parent's own clip-path, so it respects the facet cut rather than
- * overlapping it.
+ * The spine: the one place the copper accent marks location -- this is
+ * where the current reading lives on the page. Starts exactly where
+ * the corner cut above ends, so it reads as part of the same aperture,
+ * not a stripe glued beside it. Runs to the panel's own bottom edge,
+ * which is a plain right angle now that only one corner is cut.
  */
 .primary::after {
   content: '';
   position: absolute;
   left: 0;
-  /* Left edge is only cut by the large facet at the top (--fm); the
-     bottom-left corner gets the small chamfer (--fn) instead, since
-     the large cut is reserved for the opposite corner (bottom-right).
-     Insetting the spine by exactly those two values means it hugs the
-     real clipped edge with no dead gap and no overflow into the cut. */
-  top: var(--fm);
-  bottom: var(--fn);
+  top: var(--corner);
+  bottom: 0;
   width: 5px;
   background: linear-gradient(180deg, #c8763a, #a8582a 55%, #7a3f1f);
 }
 
+/*
+ * Ambient light around the primary panel: desaturated warm-neutral,
+ * not the saturated brand accent. This is "light is present here," a
+ * much weaker and different claim than "this is the reading" -- using
+ * the same copper for both would blur the one meaning the accent is
+ * allowed to carry.
+ */
 .primaryGlow {
   position: absolute;
-  top: -40%;
-  right: -20%;
-  width: 60%;
-  height: 140%;
-  background: radial-gradient(circle, rgba(200, 118, 58, 0.25), transparent 70%);
+  top: -30%;
+  right: -15%;
+  width: 55%;
+  height: 130%;
+  background: radial-gradient(circle, rgba(220, 190, 160, 0.14), transparent 72%);
   pointer-events: none;
 }
 
-/* At the wide/ultrawide tiers the panel is proportionally much wider
-   than the reading column ever should be (see the cqi measure below),
-   which used to leave the right two-fifths of the panel reading as
-   dead margin. Rather than force the text wider than is comfortable,
-   the glow that already lives there is given more presence so that
-   space visibly belongs to the panel's atmosphere instead of looking
-   like an accident of the grid. */
-@media (min-width: 1600px) {
+@media (prefers-color-scheme: light) {
   .primaryGlow {
-    width: 72%;
-    background: radial-gradient(circle, rgba(200, 118, 58, 0.32), transparent 72%);
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.5), transparent 72%);
   }
 }
 
 .eyebrow {
   position: relative;
-  display: flex;
-  align-items: center;
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #c8763a;
+  opacity: 0.5;
   margin: 0 0 1.1rem;
 }
 
 /*
- * Typographic voice, round 5: three registers, not two. Judgment and
- * narrative (.headline, .reasoning, .disclosure) now set in a serif
- * built for dense reading -- Charter, designed by Matthew Carter
- * specifically for legibility at small sizes and low resolution, the
- * same family behind most editorial reading products. Data
- * (.cardNumeral, unchanged from round 3) stays monospace. Interface
- * chrome (nav, labels, eyebrows) stays the system sans. No other
- * product in this space pairs "financial publication" type with
- * "terminal" type on one page -- that pairing, not any single value,
- * is the identity move.
+ * Typographic voice: three registers. Judgment and narrative (.headline,
+ * .reasoning, .disclosure, .cardBody) set in Charter -- a serif built
+ * for dense legibility at small sizes, not a display face chosen for
+ * flourish. Data (.cardNumeral) stays monospace. Interface chrome (nav,
+ * labels, eyebrows) stays system sans. No product in this category
+ * pairs "financial publication" type with "terminal" type on one page.
  */
 .headline {
   position: relative;
   font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
-  /* Confident, not timid: scales from 2.75rem to a hard 5.25rem cap as
-     the viewport widens, instead of sitting at one fixed size that
-     looks proportionally small once the workspace grid gives it more
-     room on a wide monitor. This is the one sentence on the page that
-     must be read and understood in under a second -- everything else
-     (cards, peripheral links) is deliberately quieter so there's no
-     competition for the first look. */
   font-size: clamp(2.75rem, 1.85rem + 3vw, 5.25rem);
   line-height: 1.06;
   font-weight: 700;
   letter-spacing: -0.01em;
-  margin: 0 0 0;
-  /* cqi, not a fixed rem: grows with the panel's own width (see
-     .primary's container-type) instead of the old fixed-then-shrinking
-     46rem/38rem step, which actually got narrower as the panel got
-     wider -- backwards for a "use the space intentionally" product. */
+  margin: 0;
   max-width: min(94cqi, 46rem);
   /* Explicit, undiluted ink -- must always be the single darkest/lightest
-     text on screen. Not left to `inherit` through the translucent glass
-     panel, where it measurably lost contrast against its own body copy. */
+     text on screen, never left to inherit through the translucent panel. */
   color: #100d0a;
 }
 
@@ -415,73 +326,93 @@
 }
 
 /*
- * The masthead rule: a short accent line after the headline, fading
- * out rather than running the full column width -- the same gesture a
- * financial report's title makes before the body begins, not a full
- * divider. display:block places it after the headline's own text flow
- * regardless of how many lines the headline wraps to, no matter the
- * viewport, without needing a separate DOM element.
+ * Confluence Scale -- recognition signal #1 from the Visual Language
+ * document. Ticks are real votes (see ConfluenceScale in page.tsx):
+ * `data-lit` ticks are agreeing dimensions, unlit ticks are the
+ * remaining dimensions of the seven the Confluence Engine evaluates.
+ * The one accent color appears here for the second and only other
+ * reason it is allowed to: this is, together with the spine, the live
+ * reading. Lit ticks stand taller than unlit ones -- an actual
+ * graduated scale, not a uniform decorative row.
  */
-.headline::after {
-  content: '';
-  display: block;
-  width: 4.5rem;
-  height: 2px;
-  margin: 1.15rem 0 1.4rem;
-  background: linear-gradient(90deg, #c8763a, transparent);
+.confluenceScale {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 15px;
+  margin: 1.1rem 0 1.6rem;
+}
+
+.confluenceTick {
+  width: 3px;
+  height: 9px;
+  border-radius: 1px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+@media (prefers-color-scheme: light) {
+  .confluenceTick {
+    background: rgba(16, 13, 10, 0.14);
+  }
+}
+
+.confluenceTick[data-lit] {
+  height: 15px;
+  background: #c8763a;
 }
 
 /*
- * The reading column -- .reasoning and .disclosure p carry the actual
+ * The reading column. .reasoning and .disclosure p carry the actual
  * intelligence-briefing prose (today a template sentence; tomorrow AI
  * explanations, behavioral analysis, decision reports that can run to
- * several paragraphs). The previous fixed 42rem cap was tuned for a
- * classic optimal-reading-measure (~65-70 characters) but was disconnected
- * from how wide the panel actually was, which on a 1600px+ workspace tier
- * read as an uncomfortably narrow column with a large dead margin beside
- * it -- a "narrow newspaper column," not a confident editorial one. This
- * widens the measure and ties it to the panel's own width via cqi (see
- * .primary's container-type) so it grows with the panel instead of
- * sitting at a value tuned for a much narrower one, while the rem cap
- * still keeps a very wide ultrawide panel from producing an unreadably
- * long line. Line-height opened slightly (1.65->1.72, 1.6->1.68) to
- * match -- a wider measure needs more vertical air per line to still
- * read calmly rather than densely.
+ * several paragraphs). Measure widened again this round -- "luxurious,
+ * not cramped" -- and tied to the panel's own width via cqi (see
+ * .primary's container-type) rather than a fixed rem value, so it
+ * keeps growing with the panel instead of plateauing at a width tuned
+ * for a narrower one.
  */
 .reasoning {
   position: relative;
   font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
   font-size: 1.1875rem;
   line-height: 1.7;
-  opacity: 0.82;
-  max-width: min(94cqi, 44rem);
-  margin: 0 0 1.5rem;
+  opacity: 0.88;
+  max-width: min(94cqi, 50rem);
+  margin: 0 0 2rem;
 }
 
 .errorText,
 .emptyText {
   position: relative;
-  display: flex;
-  align-items: center;
   font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
   font-size: 1.1875rem;
-  opacity: 0.82;
-  max-width: min(94cqi, 44rem);
+  line-height: 1.7;
+  opacity: 0.88;
+  max-width: min(94cqi, 50rem);
 }
 
+/*
+ * Uncertainty must carry the same visual weight as certainty (Visual
+ * Language, Typography law) -- the words may hedge, the typography
+ * never does. The previous version set .disclosure p in a smaller
+ * size, lower opacity, and indented a full 1.5rem under its summary:
+ * three separate ways of quietly deflating the one part of the page
+ * whose entire job is to be trusted exactly as much as the headline.
+ * All three are corrected here: same size and opacity as .reasoning,
+ * flush against the same left edge, separated by rhythm (margin) and a
+ * label, not by shrinking it.
+ */
 .disclosure {
   position: relative;
-  margin-top: 0.75rem;
-  font-size: 0.9375rem;
+  margin-top: 1.75rem;
 }
 .disclosure summary {
-  display: flex;
-  align-items: center;
   cursor: pointer;
   font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
   font-style: italic;
   font-weight: 700;
-  opacity: 0.85;
+  font-size: 1.0625rem;
+  opacity: 0.92;
   list-style: none;
 }
 .disclosure summary::-webkit-details-marker {
@@ -489,10 +420,11 @@
 }
 .disclosure p {
   font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
-  opacity: 0.72;
-  max-width: min(90cqi, 42rem);
-  margin: 0.5rem 0 0 1.5rem;
-  line-height: 1.66;
+  font-size: 1.1875rem;
+  line-height: 1.7;
+  opacity: 0.88;
+  max-width: min(94cqi, 50rem);
+  margin: 0.6rem 0 0;
 }
 
 .secondaryRow {
@@ -507,74 +439,52 @@
   }
 }
 
+/*
+ * Cards: a plain rectangle with a minimal radius, not a repeated cut
+ * corner. The corner cut belongs to the primary panel alone, where it
+ * marks a real boundary (see above) -- repeating it here would be
+ * exactly the "recognizable silhouette with no informational job"
+ * the geometry law forbids.
+ */
 .card {
-  --fm: 20px;
-  --fn: 6px;
-  position: relative;
   display: block;
   padding: 1.7rem;
-  /* Deliberately quieter than .primary -- lower background/border
-     alpha, smaller type (below), no spine. The secondary modules
-     should read as "orbiting the decision," not competing with it. */
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.035);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.09);
   color: inherit;
   text-decoration: none;
-  clip-path: polygon(
-    var(--fm) 0, calc(100% - var(--fn)) 0, 100% var(--fn),
-    100% calc(100% - var(--fm)), calc(100% - var(--fm)) 100%, var(--fn) 100%,
-    0 calc(100% - var(--fn)), 0 var(--fm)
-  );
-  transition: border-color 160ms ease;
+  transition: border-color 160ms ease, background-color 160ms ease;
 }
 
 @media (prefers-color-scheme: light) {
   .card {
-    background: rgba(247, 237, 219, 0.66);
-    border: 1px solid rgba(150, 90, 45, 0.15);
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(16, 13, 10, 0.1);
   }
 }
 
 /*
- * "Facet ignite" replaces the generic lift+glow hover (translateY +
- * box-shadow) that every dashboard card in every product uses. Instead
- * the exact corner that is already cut lights up -- the interaction
- * belongs to this geometry specifically and would mean nothing on a
- * plain rectangular card. Border warms at the same time; nothing
- * moves, nothing lifts.
+ * Hover is a usability affordance, not a reading -- it stays neutral.
+ * The previous "facet ignite" glow was copper, which is exactly the
+ * dilution the one-accent law forbids: hovering a card doesn't mean
+ * "this is the live reading."
  */
-.card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: var(--fm);
-  height: var(--fm);
-  background: linear-gradient(135deg, rgba(200, 118, 58, 0.85), transparent 70%);
-  opacity: 0;
-  transition: opacity 200ms ease;
-  pointer-events: none;
-}
-
 .card:hover {
-  border-color: rgba(200, 118, 58, 0.45);
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.card:hover::before {
-  opacity: 1;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .card::before {
-    transition: none;
+@media (prefers-color-scheme: light) {
+  .card:hover {
+    border-color: rgba(16, 13, 10, 0.22);
+    background: rgba(255, 255, 255, 0.55);
   }
 }
 
 .cardLabel {
-  display: flex;
-  align-items: center;
   font-size: 0.75rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -584,30 +494,20 @@
 }
 
 .cardBody {
-  /* Narrative prose, not UI chrome -- the same reasoning that put
-     .reasoning and .disclosure p in the serif voice applies here.
-     Leaving this in the sans default would have meant the three-voice
-     system held everywhere except the one other place a full written
-     sentence appears on the page. */
   font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
   font-size: 1rem;
   line-height: 1.55;
-  opacity: 0.78;
+  opacity: 0.82;
   margin: 0;
 }
 
 /*
- * Typographic voice, decided rather than defaulted: every figure that
- * is data (a count, a P/L number) sets in a monospace face; every
- * label narrating that figure stays in the humanist display sans.
- * The pairing itself is the identity move -- "instrument reading" next
- * to "human sentence" -- and it does not require licensing or loading
- * a new font, only deciding that Zenith's numbers and Zenith's prose
- * are not the same voice.
+ * Numbers stay monospace and tabular, flush against the same left edge
+ * as the label above them -- recognition signal #2 (lawful numeric
+ * alignment). No colored tick mark: alignment itself is the signal,
+ * not a decorative accent applied on top of it.
  */
 .cardNumeral {
-  position: relative;
-  padding-left: 0.9rem;
   font-family: ui-monospace, 'SF Mono', 'JetBrains Mono', 'Roboto Mono', Menlo, Consolas, monospace;
   font-size: 2rem;
   font-weight: 600;
@@ -615,21 +515,6 @@
   font-variant-numeric: tabular-nums;
   margin: 0;
   line-height: 1.3;
-}
-
-/* Signature metric tick: every headline figure on the page gets a
-   small angled copper facet at its left edge, echoing the same cut
-   used on card/panel corners -- a number in this product should be
-   recognizable as "a Zenith metric" even cropped out of context. */
-.cardNumeral::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.2em;
-  width: 4px;
-  height: 0.8em;
-  background: #c8763a;
-  transform: skewX(-18deg);
 }
 
 .cardUnit {
@@ -640,16 +525,7 @@
   letter-spacing: 0.06em;
 }
 
-/* Peripheral areas previously had zero geometric treatment -- plain
-   text links with only an opacity change, the one part of the page
-   that still looked like "normal UI around the beautiful panel." An
-   eyebrow label (matching .eyebrow's grammar) gives the row a module
-   identity of its own, and each link picks up the same skewed tick
-   used on card numerals so the accent vocabulary is consistent even
-   here, not just on the two showcase surfaces. */
 .peripheralLabel {
-  display: flex;
-  align-items: center;
   font-size: 0.6875rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -667,42 +543,32 @@
 }
 
 .peripheralLink {
-  position: relative;
-  padding-left: 0.85rem;
   font-size: 0.875rem;
   font-weight: 600;
   color: inherit;
-  opacity: 0.48;
+  opacity: 0.5;
   text-decoration: none;
-}
-
-.peripheralLink::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0.15em;
-  width: 3px;
-  height: 0.75em;
-  background: #c8763a;
-  transform: skewX(-18deg) scaleY(0);
-  transform-origin: bottom;
-  transition: transform 160ms ease;
+  border-bottom: 1px solid transparent;
+  transition: opacity 160ms ease, border-color 160ms ease;
 }
 
 .peripheralLink:hover {
-  opacity: 0.9;
+  opacity: 0.95;
+  border-bottom-color: currentColor;
 }
 
-.peripheralLink:hover::before {
-  transform: skewX(-18deg) scaleY(1);
-}
-
-/* -- Entrance: the decision-readiness panel is the single most important
-   moment on the page. It should arrive, not just appear. -- */
+/*
+ * Entrance: the moment the primary panel's reading resolves from
+ * "loading" to "available" is a real state transition, not decoration
+ * -- the same category of event the Motion Language law permits (a
+ * reading settling into confirmation). Kept short and damped, not a
+ * marketing-site fade/slide: 10px of travel, not 14, so it reads as a
+ * settle rather than an entrance.
+ */
 @keyframes riseIn {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -711,7 +577,7 @@
 }
 
 .entrance {
-  animation: riseIn 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: riseIn 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -720,14 +586,19 @@
   }
 }
 
-/* -- Keyboard focus: every interactive element gets a visible, on-brand
-   ring. There was none before this pass. -- */
+/*
+ * Keyboard focus uses currentColor, not the copper accent -- a focus
+ * ring communicates "keyboard position," a system-level accessibility
+ * fact, not a reading. currentColor stays high-contrast against the
+ * canvas in both modes without borrowing the one meaning copper is
+ * reserved for.
+ */
 .navLink:focus-visible,
 .signOut:focus-visible,
 .card:focus-visible,
 .peripheralLink:focus-visible,
 .disclosure summary:focus-visible {
-  outline: 2px solid #c8763a;
+  outline: 2px solid currentColor;
   outline-offset: 3px;
   border-radius: 4px;
 }
@@ -742,19 +613,17 @@
 
 /*
  * Workspace tiers -- placed last in the file on purpose: several rules
- * here override unconditional base declarations (.secondaryRow's row
- * layout, .peripheralRow's flex properties) further up, and CSS gives
- * source order the final say between two rules of equal specificity
- * regardless of which one sits inside an @media block. Below 1600px
- * this stays the single-column reading layout defined above. From
- * 1600px (a 27"+/1440p monitor) the page becomes an actual
- * multi-surface workspace: the decision panel keeps authority on the
- * left, the three module cards move into a vertical sidebar beside it
- * instead of a row underneath it. From 2200px (21:9 ultrawide, 32" 4K)
- * a third rail appears for the peripheral links, so the extra width
- * becomes more workspace, not more empty margin. DOM order is
- * unchanged at every tier -- this is CSS Grid re-flowing the same
- * three children, not a restructure.
+ * here override unconditional base declarations further up, and CSS
+ * gives source order the final say between two rules of equal
+ * specificity regardless of which one sits inside an @media block.
+ * Below 1600px this stays the single-column reading layout defined
+ * above. From 1600px the page becomes an actual multi-surface
+ * workspace: the decision panel keeps authority on the left, the three
+ * module cards move into a vertical sidebar beside it. From 2200px a
+ * third rail appears for the peripheral links. DOM order is unchanged
+ * at every tier -- this is CSS Grid re-flowing the same three
+ * children, not a restructure. Unchanged this round: no founder review
+ * has ever called this part forgettable.
  */
 @media (min-width: 1600px) {
   .content {
@@ -793,7 +662,7 @@
 
   .peripheralGroup {
     padding-left: 2rem;
-    border-left: 1px solid rgba(200, 160, 120, 0.18);
+    border-left: 1px solid rgba(150, 130, 110, 0.16);
   }
 
   .peripheralRow {
@@ -803,35 +672,4 @@
     padding: 0;
     margin-top: 0;
   }
-}
-
-/*
- * Large-screen frame: at 21:9/32"+ widths the workspace grid above
- * already turns extra width into a third column rather than empty
- * margin, but past that third column there is still real unclaimed
- * space at the far edges of the viewport. Rather than leave it inert,
- * two hairline copper guides mark it as a deliberate boundary of the
- * workspace -- closer to a drafting table's margin lines than a
- * decorative flourish. Fixed to the viewport, not the content column,
- * so they read as a property of the whole screen, not the page.
- */
-@media (min-width: 2200px) {
-  .root {
-    position: relative;
-  }
-
-  .root::before,
-  .root::after {
-    content: '';
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    width: 1px;
-    background: linear-gradient(180deg, transparent, rgba(200, 118, 58, 0.16) 12%, rgba(200, 118, 58, 0.16) 88%, transparent);
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .root::before { left: 2.5rem; }
-  .root::after { right: 2.5rem; }
 }

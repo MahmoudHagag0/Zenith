@@ -23,19 +23,25 @@ import {
 import styles from './page.module.css';
 
 /**
- * Signature convergence mark -- the same three-lines-into-a-point motif
- * as the nav brand mark, reused as the section/disclosure divider so
- * the identity repeats at a much smaller scale throughout the page,
- * not just once in the header.
+ * Confluence Scale -- the recognition mark named in
+ * ZENITH_VISUAL_LANGUAGE_v1.0 section 2. Not decoration: `agreeing` and
+ * `total` are the actual `agreeingDimensions` count and the seven
+ * ratified normalized dimensions the Confluence Engine votes across
+ * (see api.ts RankedOpportunity, normalized-vocabulary.types.ts). Each
+ * tick is a real vote, lit or unlit. This replaces the previous
+ * `.headline::after` decorative gradient rule, which measured nothing.
+ * Renders only where a real reading exists to measure -- there is no
+ * fallback/default state, because a mark with nothing to measure must
+ * not appear (Visual Language law: "a mark exists only if it measures
+ * something").
  */
-function DividerMark() {
+function ConfluenceScale({ agreeing, total }: { agreeing: number; total: number }) {
   return (
-    <svg className={styles.dividerMark} viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M3 4L11 11.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path d="M3 19L11 11.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path d="M21 11.5H11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="11" cy="11.5" r="2.4" fill="currentColor" />
-    </svg>
+    <div className={styles.confluenceScale} role="img" aria-label={`${agreeing} of ${total} Confluence dimensions agree`}>
+      {Array.from({ length: total }, (_, i) => (
+        <span key={i} className={styles.confluenceTick} data-lit={i < agreeing ? '' : undefined} />
+      ))}
+    </div>
   );
 }
 
@@ -50,20 +56,23 @@ function DividerMark() {
  * fully self-contained so it cannot affect the shipped Dashboard and
  * can be deleted cleanly once the founders choose a direction.
  *
- * Philosophy: spatial, dark, confident -- a single floating glass
- * navigation bar (not a sidebar) hovering over a deep charcoal canvas,
- * oversized numerals, one warm copper glow as the entire accent
- * vocabulary.
- *
- * Identity pass: "Faceted convergence" -- every panel/card has two
- * opposite corners cut at a hard 45deg facet (echoing the brand mark's
- * three lines converging to a point), the same convergence mark repeats
- * as a small divider glyph before every section label and disclosure
- * summary, and the icon language (./icons.tsx, exclusive to this route)
- * carries a matching single-corner facet cut on every glyph. Workspace
- * container widens in two tiers (1600px, 2200px) into an asymmetric
- * grid so wide/ultra-wide monitors get a real multi-column workspace
- * instead of one centered column stretching into empty margin.
+ * Identity, rebuilt from ZENITH_VISUAL_DNA_v1.0 / ZENITH_VISUAL_LANGUAGE_v1.0
+ * rather than iterated from the prior "faceted convergence" pass: the
+ * product is treated as an instrument (a sextant -- several independent
+ * methodology readings resolved into one disclosed position), not a
+ * dashboard. The governing law -- "a mark exists only if it measures
+ * something" -- removed the repeated corner-cut motif, the DividerMark
+ * glyph, and every use of the copper accent that did not mean "this is
+ * the current live reading." What remains: a single geometric cut on
+ * the primary panel only (the aperture the reading is admitted
+ * through), the copper spine (the reading's location), the Confluence
+ * Scale above (the reading's actual measured agreement), and a
+ * single-source ambient light anchored at the panel rather than a
+ * decorative gradient/texture background. Workspace container still
+ * widens in two tiers (1600px, 2200px) into an asymmetric grid so
+ * wide/ultra-wide monitors get a real multi-column workspace instead of
+ * one centered column stretching into empty margin -- unchanged, since
+ * that was never the part any founder review called forgettable.
  */
 
 const NAV_ITEMS = [
@@ -147,38 +156,39 @@ export default async function DashboardAPage() {
           <div className={styles.primaryGlow} aria-hidden="true" />
           <div className={styles.entrance}>
             {!decisionCenter ? (
-              <p className={styles.errorText}><DividerMark />The Confluence Engine did not respond. Decision readiness could not be computed this session.</p>
+              <p className={styles.errorText}>The Confluence Engine did not respond. Decision readiness could not be computed this session.</p>
             ) : decisionCenter.readiness === 'DEGRADED' ? (
-              <p className={styles.errorText}><DividerMark />Decision readiness is degraded -- one or more instruments could not be fully evaluated this session.</p>
+              <p className={styles.errorText}>Decision readiness is degraded -- one or more instruments could not be fully evaluated this session.</p>
             ) : decisionCenter.readiness === 'OPPORTUNITIES_AVAILABLE' && topOpportunity && topEntry ? (
               <>
-                <p className={styles.eyebrow}><DividerMark /> Decision Readiness</p>
+                <p className={styles.eyebrow}>Decision Readiness</p>
                 <h1 className={styles.headline}>{topEntry.story}</h1>
+                <ConfluenceScale agreeing={topOpportunity.agreeingDimensions} total={7} />
                 <p className={styles.reasoning}>{topEntry.why}</p>
                 <details className={styles.disclosure}>
-                  <summary><DividerMark />Confidence</summary>
+                  <summary>Confidence</summary>
                   <p>{topEntry.confidenceExplanation}</p>
                 </details>
                 <details className={styles.disclosure}>
-                  <summary><DividerMark />Uncertainty</summary>
+                  <summary>Uncertainty</summary>
                   <p>{topEntry.uncertaintyExplanation}</p>
                 </details>
               </>
             ) : (
-              <p className={styles.emptyText}><DividerMark />{morningBrief?.noTradeNarrative ?? 'No clear opportunity.'}</p>
+              <p className={styles.emptyText}>{morningBrief?.noTradeNarrative ?? 'No clear opportunity.'}</p>
             )}
           </div>
         </section>
 
         <div className={styles.secondaryRow}>
           <Link href="/morning-brief" className={styles.card}>
-            <p className={styles.cardLabel}><DividerMark />Morning Brief</p>
+            <p className={styles.cardLabel}>Morning Brief</p>
             <p className={styles.cardBody}>
               {morningBriefResult.status === 'fulfilled' ? morningBriefResult.value.headline : 'Morning Brief could not be loaded.'}
             </p>
           </Link>
           <Link href="/portfolio" className={styles.card}>
-            <p className={styles.cardLabel}><DividerMark />Portfolio</p>
+            <p className={styles.cardLabel}>Portfolio</p>
             {portfolioResult.status === 'rejected' ? (
               <p className={styles.cardBody}>Portfolio could not be loaded.</p>
             ) : portfolioData === null ? (
@@ -192,7 +202,7 @@ export default async function DashboardAPage() {
             )}
           </Link>
           <Link href="/watchlist" className={styles.card}>
-            <p className={styles.cardLabel}><DividerMark />Watchlist</p>
+            <p className={styles.cardLabel}>Watchlist</p>
             {watchlistResult.status === 'rejected' ? (
               <p className={styles.cardBody}>Watchlist could not be loaded.</p>
             ) : !watchlistData?.watchlist ? (
@@ -206,7 +216,7 @@ export default async function DashboardAPage() {
         </div>
 
         <div className={styles.peripheralGroup}>
-          <p className={styles.peripheralLabel}><DividerMark />More Areas</p>
+          <p className={styles.peripheralLabel}>More Areas</p>
           <nav className={styles.peripheralRow} aria-label="More areas">
             {PERIPHERAL_ITEMS.map((item) => (
               <Link key={item.href} href={item.href} className={styles.peripheralLink}>
