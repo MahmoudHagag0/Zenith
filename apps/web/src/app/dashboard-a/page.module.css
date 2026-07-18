@@ -30,50 +30,33 @@
 }
 
 /*
- * Color system, rebuilt from psychology rather than preference. The
- * previous warm-black + brass-orange pairing is close enough to the
- * amber-on-black terminal convention (Bloomberg's own palette) that it
- * risked reading as an homage rather than something Zenith owns. Petrol
- * -- a deep, heavily desaturated blue-teal -- replaces warm-black as
- * the base neutral in both modes. Blue is the single most consistently
- * trust-coded hue across finance and cognition research; petrol
- * specifically (near-black, almost no chroma) gets that association
- * without reading as "corporate SaaS blue," which is bright and
- * saturated where this is deep and quiet. Brass narrows to a more
- * muted, browner bronze -- warmth resolving out of a cool room, not a
- * second amber signal. Light and dark mode now share one hue family
- * (petrol neutrals + bronze accent) rather than two unrelated stories,
- * which is a stronger cross-mode identity signal than either mode
- * being independently "nice." Acid test applied against Stripe
- * (violet/white), Linear (near-black/violet), Apple (neutral gray/
- * blue), Notion (warm-neutral/near-none), Arc (saturated multicolor),
- * Bloomberg (black/amber), and TradingView (blue-black/green-red) --
- * a desaturated petrol base with a muted bronze accent sits in none of
- * those exact positions.
- *
- * Background: a single light source, not a texture (Visual Language,
- * Light law) -- light indicates where the instrument is currently
- * reading, has one honest source, and creates depth as an epistemic
- * signal, not decoration. Anchored near the primary panel, because
- * that is where the current reading actually is. Dark mode's light is
- * warm and low-alpha, like a lamp over an instrument at night in a
- * cool room; light mode's is a diffuse, cool, near-white lift, like
- * daylight through an observatory slit. Neither mode was produced by
- * brightening or inverting the other.
+ * Color system: the ratified Zenith Color System (final synthesis,
+ * approved). Background, surface, text, and the single accent are the
+ * ten tokens defined there -- Background / Surface / Text / Secondary
+ * text / Accent / Positive / Negative / Borders / Focus / Hover --
+ * implemented here as literal hex/rgba values, not re-derived. The
+ * accent's one job is unchanged: mark the current live reading (the
+ * spine, the confluence scale) -- Focus and Hover now also resolve to
+ * the accent per the approved palette, since both are, functionally,
+ * "the current point of attention," the same job the accent already
+ * does. Neutral overlays (glass panels, borders) are tinted from the
+ * approved text color rather than pure white/black, so every neutral
+ * in the file comes from the same two hues (the base + the accent),
+ * not a third, unaccounted-for gray.
  */
 .root {
   min-height: 100vh;
-  background: #070a0b;
-  background-image: radial-gradient(ellipse 1100px 750px at 26% 6%, rgba(191, 134, 84, 0.08), transparent 60%);
-  color: #eef1ef;
+  background: #0c1112;
+  background-image: radial-gradient(ellipse 1100px 750px at 26% 6%, rgba(189, 100, 64, 0.08), transparent 60%);
+  color: #eef3f3;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: light) {
   .root {
-    background: #e9edec;
+    background: #eef1f1;
     background-image: radial-gradient(ellipse 1300px 850px at 26% 6%, rgba(255, 255, 255, 0.55), transparent 65%);
-    color: #0d1113;
+    color: #10171a;
   }
 }
 
@@ -88,23 +71,17 @@
   gap: 1.5rem;
   padding: 0.75rem 1.25rem;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.07);
+  background: rgba(238, 243, 243, 0.07);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(238, 243, 243, 0.09);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
 }
 
 @media (prefers-color-scheme: light) {
   .navBar {
-    /* Border tinted petrol (the base neutral), not bronze -- the
-       accent stays reserved for the spine and the confluence scale.
-       A prior round tinted light-mode borders with the accent to fix
-       "reads as generic"; the petrol base itself now carries that
-       distinctiveness, so the accent no longer needs to bleed into
-       every edge to do it. */
-    background: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(13, 17, 19, 0.12);
+    background: rgba(247, 249, 249, 0.5);
+    border: 1px solid rgba(16, 23, 26, 0.1);
     box-shadow: 0 20px 50px rgba(8, 12, 13, 0.1);
   }
 }
@@ -128,7 +105,13 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
-  color: #bf8654;
+  color: #bd6440;
+}
+
+@media (prefers-color-scheme: light) {
+  .brandMark {
+    color: #b25a36;
+  }
 }
 
 .brand {
@@ -165,29 +148,37 @@
   transition: opacity 120ms ease, background-color 120ms ease;
 }
 
+/*
+ * Hover: a faint wash of the accent (approved palette, Hover token) --
+ * confirms interactivity without introducing a second color.
+ */
 .navLink:hover {
   opacity: 0.9;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(189, 100, 64, 0.12);
+}
+
+@media (prefers-color-scheme: light) {
+  .navLink:hover {
+    background: rgba(178, 90, 54, 0.08);
+  }
 }
 
 /*
- * Active nav state: a high-contrast neutral chip, not the copper
- * accent. Copper has exactly one meaning in this system -- the current
- * live reading -- and "which page you're on" is a wayfinding fact, not
- * a reading. Diluting the accent to also mean "selected" would make it
- * mean nothing precisely, which is the failure mode the Visual
- * Language document names directly.
+ * Active nav state: a high-contrast neutral chip, not the accent.
+ * The accent's one meaning is the current live reading (the spine,
+ * the confluence scale); "which page you're on" is a wayfinding fact,
+ * not a reading, so it stays a neutral inversion of the base tokens.
  */
 .navLink[data-active] {
   opacity: 1;
-  background: rgba(238, 241, 239, 0.95);
-  color: #0a0d0e;
+  background: rgba(238, 243, 243, 0.95);
+  color: #0c1112;
 }
 
 @media (prefers-color-scheme: light) {
   .navLink[data-active] {
-    background: rgba(13, 17, 19, 0.9);
-    color: #eef1ef;
+    background: rgba(16, 23, 26, 0.9);
+    color: #eef3f3;
   }
 }
 
@@ -250,17 +241,17 @@
   position: relative;
   padding: 3.25rem 3.25rem 3.25rem 3.75rem;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.065);
+  background: rgba(238, 243, 243, 0.065);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(238, 243, 243, 0.09);
   box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
 }
 
 @media (prefers-color-scheme: light) {
   .primary {
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(13, 17, 19, 0.14);
+    background: rgba(247, 249, 249, 0.55);
+    border: 1px solid rgba(16, 23, 26, 0.1);
     box-shadow: 0 26px 50px rgba(8, 12, 13, 0.1);
   }
 }
@@ -281,7 +272,13 @@
   top: 0;
   bottom: 0;
   width: 5px;
-  background: linear-gradient(180deg, #bf8654, #96693c 55%, #6b4a29);
+  background: linear-gradient(180deg, #bd6440, #944f32 55%, #6a3824);
+}
+
+@media (prefers-color-scheme: light) {
+  .primary::after {
+    background: linear-gradient(180deg, #b25a36, #8c472a 55%, #64321e);
+  }
 }
 
 /*
@@ -297,7 +294,7 @@
   right: -15%;
   width: 55%;
   height: 130%;
-  background: radial-gradient(circle, rgba(191, 134, 84, 0.13), transparent 72%);
+  background: radial-gradient(circle, rgba(189, 100, 64, 0.13), transparent 72%);
   pointer-events: none;
 }
 
@@ -336,12 +333,12 @@
   max-width: min(94cqi, 46rem);
   /* Explicit, undiluted ink -- must always be the single darkest/lightest
      text on screen, never left to inherit through the translucent panel. */
-  color: #0d1113;
+  color: #10171a;
 }
 
 @media (prefers-color-scheme: dark) {
   .headline {
-    color: #f4f6f5;
+    color: #eef3f3;
   }
 }
 
@@ -371,18 +368,24 @@
   width: 3px;
   height: 9px;
   border-radius: 1px;
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(238, 243, 243, 0.14);
 }
 
 @media (prefers-color-scheme: light) {
   .confluenceTick {
-    background: rgba(13, 17, 19, 0.14);
+    background: rgba(16, 23, 26, 0.14);
   }
 }
 
 .confluenceTick[data-lit] {
   height: 15px;
-  background: #bf8654;
+  background: #bd6440;
+}
+
+@media (prefers-color-scheme: light) {
+  .confluenceTick[data-lit] {
+    background: #b25a36;
+  }
 }
 
 /*
@@ -473,10 +476,10 @@
   display: block;
   padding: 1.7rem;
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.035);
+  background: rgba(238, 243, 243, 0.035);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(238, 243, 243, 0.09);
   color: inherit;
   text-decoration: none;
   transition: border-color 160ms ease, background-color 160ms ease;
@@ -484,26 +487,27 @@
 
 @media (prefers-color-scheme: light) {
   .card {
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(13, 17, 19, 0.1);
+    background: rgba(247, 249, 249, 0.4);
+    border: 1px solid rgba(16, 23, 26, 0.1);
   }
 }
 
 /*
- * Hover is a usability affordance, not a reading -- it stays neutral.
- * The previous "facet ignite" glow was copper, which is exactly the
- * dilution the one-accent law forbids: hovering a card doesn't mean
- * "this is the live reading."
+ * Hover: border brightens slightly (neutral -- confirms the surface is
+ * interactive) and the background takes the approved accent wash. The
+ * accent's one meaning stays "the current live reading"; the wash is
+ * intentionally faint enough that it reads as warmth returning to a
+ * touched surface, not a second reading being reported.
  */
 .card:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(238, 243, 243, 0.18);
+  background: rgba(189, 100, 64, 0.12);
 }
 
 @media (prefers-color-scheme: light) {
   .card:hover {
-    border-color: rgba(13, 17, 19, 0.22);
-    background: rgba(255, 255, 255, 0.55);
+    border-color: rgba(16, 23, 26, 0.18);
+    background: rgba(178, 90, 54, 0.08);
   }
 }
 
@@ -618,20 +622,29 @@
 }
 
 /*
- * Keyboard focus uses currentColor, not the copper accent -- a focus
- * ring communicates "keyboard position," a system-level accessibility
- * fact, not a reading. currentColor stays high-contrast against the
- * canvas in both modes without borrowing the one meaning copper is
- * reserved for.
+ * Keyboard focus uses the accent (approved palette, Focus token) --
+ * a keyboard position is, functionally, the current point of
+ * attention, the same job the accent already does marking the live
+ * reading elsewhere on the page.
  */
 .navLink:focus-visible,
 .signOut:focus-visible,
 .card:focus-visible,
 .peripheralLink:focus-visible,
 .disclosure summary:focus-visible {
-  outline: 2px solid currentColor;
+  outline: 2px solid #bd6440;
   outline-offset: 3px;
   border-radius: 4px;
+}
+
+@media (prefers-color-scheme: light) {
+  .navLink:focus-visible,
+  .signOut:focus-visible,
+  .card:focus-visible,
+  .peripheralLink:focus-visible,
+  .disclosure summary:focus-visible {
+    outline-color: #b25a36;
+  }
 }
 
 .navLink:focus-visible {
@@ -693,7 +706,7 @@
 
   .peripheralGroup {
     padding-left: 2rem;
-    border-left: 1px solid rgba(160, 170, 168, 0.14);
+    border-left: 1px solid rgba(238, 243, 243, 0.09);
   }
 
   .peripheralRow {
@@ -702,5 +715,11 @@
     gap: 1.15rem;
     padding: 0;
     margin-top: 0;
+  }
+}
+
+@media (min-width: 2200px) and (prefers-color-scheme: light) {
+  .peripheralGroup {
+    border-left-color: rgba(16, 23, 26, 0.1);
   }
 }
