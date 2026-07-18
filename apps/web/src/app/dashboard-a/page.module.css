@@ -25,53 +25,47 @@
 }
 
 /*
- * Background identity system. Prior rounds treated the canvas as a
- * neutral surface the UI happens to sit on -- a comfortable gradient
- * wash, nothing a viewer would recognize with the glass panels removed.
- * Three additions make the environment itself carry the identity
- * instead of only supporting it:
+ * Background identity system -- round 5, replacing the round-3/4
+ * diagonal-grain treatment entirely rather than tuning it further. The
+ * grain was tied to the facet-cut corners, which is a real geometric
+ * decision but not one a viewer registers without already looking
+ * closely at an edge. This canvas is instead ruled -- fine horizontal
+ * lines running the width of the page, the way ledger paper and every
+ * price chart a trader has ever looked at are ruled. It is a texture
+ * with a reason to exist in this specific product, not an abstract
+ * pattern, and it is legible as "a page," not just "a gradient," even
+ * with every panel removed.
  *
- * 1. A diagonal grain at exactly 45deg -- the same angle as every
- *    facet cut on every panel, card, and nav element. This is not a
- *    generic texture; it is the corner-cut language extended from the
- *    edges of components into the environment those components sit
- *    in. It is intentionally almost subliminal (2.5-4% alpha) -- felt
- *    as depth, not read as a pattern.
- * 2. A vignette -- the far edges of the canvas sit slightly darker/
- *    deeper than the center, the way a photograph or a physical room
- *    has falloff toward its corners. This is what turns a flat gradient
- *    into something with actual dimensionality.
- * 3. The primary glow's anchor moved from a generic top-center position
- *    to roughly where the decision panel itself begins, so the
- *    environment's light source reads as coming from the product's
- *    core surface rather than floating independently above the page.
+ * The rule spacing (32px) is not arbitrary: it is the same rhythm as
+ * .reasoning's own line-height (1.125rem * 1.72 ~= 31px), so the
+ * canvas's ruling and the report's own text baseline share one grid --
+ * a detail nobody consciously measures, but one more thing tying the
+ * environment to what's written on it instead of sitting behind it.
  */
 .root {
   min-height: 100vh;
-  background: #0b0a09;
+  background: #0a0908;
   background-image:
-    radial-gradient(ellipse 1500px 950px at 34% -8%, rgba(200, 118, 58, 0.19), transparent 60%),
-    radial-gradient(ellipse 1600px 1000px at 88% 68%, rgba(200, 118, 58, 0.07), transparent 65%),
-    repeating-linear-gradient(45deg, transparent, transparent 45px, rgba(216, 140, 80, 0.028) 45px, rgba(216, 140, 80, 0.028) 46px),
-    radial-gradient(ellipse 140% 120% at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.32) 100%);
+    radial-gradient(ellipse 1400px 900px at 30% -10%, rgba(200, 118, 58, 0.16), transparent 58%),
+    repeating-linear-gradient(180deg, transparent, transparent 31px, rgba(216, 140, 80, 0.05) 31px, rgba(216, 140, 80, 0.05) 32px),
+    radial-gradient(ellipse 130% 110% at 50% 45%, transparent 60%, rgba(0, 0, 0, 0.3) 100%);
   color: #f3efe9;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 
 @media (prefers-color-scheme: light) {
   .root {
-    /* Round 3 moved warmth into the glass borders; the canvas still
-       read as "calmer but less memorable" than dark mode. The grain
-       and vignette below are the same environmental treatment dark
-       mode gets -- light mode was previously just a flat wash with no
-       equivalent depth cue, which is a large part of why it read as
-       emotionally weaker rather than merely lighter. */
-    background: #f1e7d4;
+    /* Not a brightened dark mode -- a paper. Warm parchment base, the
+       same ledger ruling at slightly higher contrast (paper needs more
+       than glass does to read as ruled), no attempt to reproduce dark
+       mode's drama by the same means. A trader should want to stay in
+       this the way they'd want to stay with a well-printed report, not
+       tolerate it as the "off" theme. */
+    background: #f2e8d3;
     background-image:
-      radial-gradient(ellipse 1500px 950px at 34% -8%, rgba(200, 118, 58, 0.21), transparent 62%),
-      radial-gradient(ellipse 1600px 1000px at 88% 70%, rgba(200, 118, 58, 0.13), transparent 68%),
-      repeating-linear-gradient(45deg, transparent, transparent 45px, rgba(150, 90, 45, 0.04) 45px, rgba(150, 90, 45, 0.04) 46px),
-      radial-gradient(ellipse 140% 120% at 50% 40%, transparent 55%, rgba(70, 45, 20, 0.07) 100%);
+      radial-gradient(ellipse 1400px 900px at 30% -10%, rgba(200, 118, 58, 0.16), transparent 60%),
+      repeating-linear-gradient(180deg, transparent, transparent 31px, rgba(150, 90, 45, 0.07) 31px, rgba(150, 90, 45, 0.07) 32px),
+      radial-gradient(ellipse 130% 110% at 50% 45%, transparent 62%, rgba(70, 45, 20, 0.05) 100%);
     color: #16130f;
   }
 }
@@ -372,8 +366,21 @@
   margin: 0 0 1.1rem;
 }
 
+/*
+ * Typographic voice, round 5: three registers, not two. Judgment and
+ * narrative (.headline, .reasoning, .disclosure) now set in a serif
+ * built for dense reading -- Charter, designed by Matthew Carter
+ * specifically for legibility at small sizes and low resolution, the
+ * same family behind most editorial reading products. Data
+ * (.cardNumeral, unchanged from round 3) stays monospace. Interface
+ * chrome (nav, labels, eyebrows) stays the system sans. No other
+ * product in this space pairs "financial publication" type with
+ * "terminal" type on one page -- that pairing, not any single value,
+ * is the identity move.
+ */
 .headline {
   position: relative;
+  font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
   /* Confident, not timid: scales from 2.75rem to a hard 5.25rem cap as
      the viewport widens, instead of sitting at one fixed size that
      looks proportionally small once the workspace grid gives it more
@@ -382,10 +389,10 @@
      (cards, peripheral links) is deliberately quieter so there's no
      competition for the first look. */
   font-size: clamp(2.75rem, 1.85rem + 3vw, 5.25rem);
-  line-height: 1.02;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  margin: 0 0 1.25rem;
+  line-height: 1.06;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 0;
   /* cqi, not a fixed rem: grows with the panel's own width (see
      .primary's container-type) instead of the old fixed-then-shrinking
      46rem/38rem step, which actually got narrower as the panel got
@@ -395,10 +402,6 @@
      text on screen. Not left to `inherit` through the translucent glass
      panel, where it measurably lost contrast against its own body copy. */
   color: #100d0a;
-  /* A hairline stroke gives the system sans a heavier, more deliberate
-     presence at this size than font-weight alone provides -- there is
-     no true black/900 cut of the system font stack to reach for. */
-  -webkit-text-stroke: 0.4px currentColor;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -409,6 +412,23 @@
 
 @media (max-width: 640px) {
   .headline { font-size: 2.25rem; }
+}
+
+/*
+ * The masthead rule: a short accent line after the headline, fading
+ * out rather than running the full column width -- the same gesture a
+ * financial report's title makes before the body begins, not a full
+ * divider. display:block places it after the headline's own text flow
+ * regardless of how many lines the headline wraps to, no matter the
+ * viewport, without needing a separate DOM element.
+ */
+.headline::after {
+  content: '';
+  display: block;
+  width: 4.5rem;
+  height: 2px;
+  margin: 1.15rem 0 1.4rem;
+  background: linear-gradient(90deg, #c8763a, transparent);
 }
 
 /*
@@ -430,10 +450,11 @@
  */
 .reasoning {
   position: relative;
-  font-size: 1.125rem;
-  line-height: 1.72;
-  opacity: 0.78;
-  max-width: min(94cqi, 48rem);
+  font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
+  font-size: 1.1875rem;
+  line-height: 1.7;
+  opacity: 0.82;
+  max-width: min(94cqi, 44rem);
   margin: 0 0 1.5rem;
 }
 
@@ -442,9 +463,10 @@
   position: relative;
   display: flex;
   align-items: center;
-  font-size: 1.125rem;
-  opacity: 0.8;
-  max-width: min(94cqi, 48rem);
+  font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
+  font-size: 1.1875rem;
+  opacity: 0.82;
+  max-width: min(94cqi, 44rem);
 }
 
 .disclosure {
@@ -456,6 +478,8 @@
   display: flex;
   align-items: center;
   cursor: pointer;
+  font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
+  font-style: italic;
   font-weight: 700;
   opacity: 0.85;
   list-style: none;
@@ -464,10 +488,11 @@
   display: none;
 }
 .disclosure p {
-  opacity: 0.7;
-  max-width: min(90cqi, 46rem);
+  font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
+  opacity: 0.72;
+  max-width: min(90cqi, 42rem);
   margin: 0.5rem 0 0 1.5rem;
-  line-height: 1.68;
+  line-height: 1.66;
 }
 
 .secondaryRow {
@@ -559,7 +584,13 @@
 }
 
 .cardBody {
-  font-size: 0.9375rem;
+  /* Narrative prose, not UI chrome -- the same reasoning that put
+     .reasoning and .disclosure p in the serif voice applies here.
+     Leaving this in the sans default would have meant the three-voice
+     system held everywhere except the one other place a full written
+     sentence appears on the page. */
+  font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
+  font-size: 1rem;
   line-height: 1.55;
   opacity: 0.78;
   margin: 0;
