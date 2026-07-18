@@ -1,0 +1,26 @@
+{
+  "name": "@zenith/ui",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Zenith shared component library (M5-002). Consumed as TypeScript/TSX source by apps/web via Next.js `transpilePackages` -- no separate build step for the component tree itself.",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "@zenith/design-tokens": "workspace:*"
+  },
+  "peerDependencies": {
+    "next": "^15.1.3",
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@zenith/tooling": "workspace:*",
+    "@types/react": "^19.0.2",
+    "next": "^15.1.3",
+    "react": "^19.0.0",
+    "typescript": "^5.7.2"
+  }
+}

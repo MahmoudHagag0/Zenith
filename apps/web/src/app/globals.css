@@ -1,4 +1,15 @@
 /*
+ * M5/Dashboard implementation: the D2 design token layer (M5-001),
+ * imported once, globally. Every rule below this line predates the
+ * design system (S1-022's own header said so explicitly) and is left
+ * untouched -- it still serves every screen other than Dashboard,
+ * which now consumes @zenith/ui + these tokens exclusively instead of
+ * the rules below. Migrating another screen's own hardcoded styles is
+ * out of this task's scope.
+ */
+@import '@zenith/design-tokens/css/tokens.css';
+
+/*
  * S1-022 Dashboard Production UI V1 -- restrained, professional, calm.
  * No design system, no theme tokens, no CSS framework: plain rules
  * expressing one fixed hierarchy (hero > secondary > supporting) through
@@ -6,6 +17,11 @@
  * hierarchy, not decoration" instruction. Colors communicate state only
  * (direction), never decoration -- desaturated, and never the sole
  * carrier of meaning (every color-coded value is also a text label).
+ *
+ * NOTE: this block and everything below now styles every screen EXCEPT
+ * Dashboard (moved to `(authenticated)/page.tsx`, styled entirely via
+ * @zenith/ui). Left in place unmodified for the other, not-yet-migrated
+ * screens (`M5-003` §3's own "confirm, don't restructure" rule).
  */
 
 body {
@@ -247,20 +263,29 @@ tbody tr:hover {
  * on interaction. Kept local (not merged into the shared `.link` class,
  * which the login page's register/sign-in toggle still uses unchanged).
  */
+/*
+ * M6 Visual Identity fix: previously hardcoded (#6b6b6f/#3a3a3d),
+ * matching neither the sidebar's other nav items nor either theme mode
+ * -- flagged during the prior Dashboard visual review as visibly
+ * inconsistent. Now token-driven (`@zenith/design-tokens` is imported
+ * at the top of this file), so it follows both light/dark mode
+ * automatically and matches every other nav-tier control's rest/hover
+ * treatment, on this screen and the nine not-yet-migrated ones alike.
+ */
 .signout {
   background: none;
   border: none;
   padding: 0;
   font: inherit;
   font-size: 0.85rem;
-  color: #6b6b6f;
+  color: var(--zenith-text-secondary, #6b6b6f);
   text-decoration: none;
   cursor: pointer;
 }
 
 .signout:hover,
 .signout:focus-visible {
-  color: #3a3a3d;
+  color: var(--zenith-accent-default, #3a3a3d);
   text-decoration: underline;
 }
 

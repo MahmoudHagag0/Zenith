@@ -1,0 +1,12 @@
+/*
+ * Panel -- D2-005 §3. A screen's own Primary Attention region: full-bleed,
+ * never a boxed surface. No radius, no border, no elevation (M5-001 §8 /
+ * M4-003.2 §4's corrected rule) -- exactly one Panel per screen holds
+ * Primary Attention (D1-002 §1.1).
+ */
+.panel {
+  background: var(--zenith-surface-base);
+  box-shadow: var(--zenith-elevation-0);
+  border-radius: var(--zenith-radius-none);
+  padding: 0;
+}

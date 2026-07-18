@@ -1,0 +1,145 @@
+/*
+ * Navigation Shell (M5-002 §1). Sidebar at wide/regular, Top Bar with a
+ * native <details> expandable menu at compact -- resolves D1-005 §6's
+ * own deferred Sidebar-vs-Top-Bar decision. Breakpoint literals below
+ * are the CSS-side half of M5-001 §12's synchronized-breakpoint pair
+ * (`packages/design-tokens/src/breakpoints.ts` is the JS-side source of
+ * truth; 640px here matches `breakpoints.regular`).
+ */
+
+.navItem {
+  display: block;
+  font-size: var(--zenith-text-caption-size);
+  line-height: var(--zenith-text-caption-line-height);
+  color: var(--zenith-text-secondary);
+  font-family: var(--zenith-font-family-text);
+  text-decoration: none;
+  padding: var(--zenith-space-8) var(--zenith-space-12);
+  border-radius: var(--zenith-radius-sm);
+  transition: background-color var(--zenith-duration-fast) var(--zenith-easing-standard), color var(--zenith-duration-fast) var(--zenith-easing-standard);
+}
+
+/*
+ * M6-002 §17 fix: color-only hover (previous version) measured too
+ * faint to notice at a glance during the prior Dashboard visual
+ * review. Adding the same background-tint mechanism Card uses makes
+ * the affordance readable without close inspection.
+ */
+.navItem:hover {
+  color: var(--zenith-text-primary);
+  background: color-mix(in srgb, transparent calc((1 - var(--zenith-opacity-hover)) * 100%), var(--zenith-text-primary) calc(var(--zenith-opacity-hover) * 100%));
+}
+
+.navItem[data-active] {
+  color: var(--zenith-accent-default);
+  font-weight: 600;
+}
+
+.navItem:focus-visible {
+  outline: 2px solid var(--zenith-accent-focus);
+  outline-offset: 2px;
+}
+
+.sidebar {
+  display: none;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--zenith-space-16) var(--zenith-space-16);
+  border-bottom: 1px solid var(--zenith-border-default);
+  /* Anchors `.topbarMenuList`'s absolute positioning below (bug fix, see it). */
+  position: relative;
+}
+
+.brand {
+  font-size: var(--zenith-text-title-size);
+  font-weight: var(--zenith-text-title-weight);
+  color: var(--zenith-text-primary);
+  font-family: var(--zenith-font-family-text);
+  margin: 0;
+}
+
+.topbarMenu summary {
+  cursor: pointer;
+  font-size: var(--zenith-text-caption-size);
+  color: var(--zenith-text-secondary);
+  list-style: none;
+}
+
+.topbarMenu summary::-webkit-details-marker {
+  display: none;
+}
+
+/*
+ * Bug fix (found during the prior Dashboard visual review): this list
+ * previously flowed in normal document layout inside `.topbar`, so
+ * opening it inflated the whole flex row's height -- with
+ * `align-items: center` on `.topbar`, that dragged `.brand` and the
+ * utility slot down into the middle of the now-tall row instead of
+ * staying pinned to the top. Taking the open list out of flow
+ * (`position: absolute`, anchored to `.topbar`'s new `position:
+ * relative`) means opening the menu no longer changes the row's own
+ * height at all -- brand/summary/utility stay exactly where they were.
+ */
+.topbarMenuList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zenith-space-4);
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin-top: var(--zenith-space-8);
+  padding: var(--zenith-space-12);
+  background: var(--zenith-surface-raised);
+  border: 1px solid var(--zenith-border-emphasis);
+  border-radius: var(--zenith-radius-md);
+  z-index: var(--zenith-layer-overlay);
+}
+
+@media (min-width: 640px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--zenith-space-4);
+    position: sticky;
+    top: 0;
+    z-index: var(--zenith-layer-sticky);
+    align-self: flex-start;
+    width: 12rem;
+    padding: var(--zenith-space-24) var(--zenith-space-16);
+    border-right: 1px solid var(--zenith-border-default);
+  }
+
+  .topbar {
+    display: none;
+  }
+}
+
+/*
+ * Explicit token-driven background/text color on the root wrapper --
+ * `apps/web`'s shared `globals.css` still hardcodes `body { background:
+ * #fff; color: #1c1c1e }` for the nine not-yet-migrated screens (left
+ * untouched deliberately, M5-003 §3). Without this, this Shell's own
+ * dark-mode Cards/Panel would render correctly while the surrounding
+ * canvas stayed stuck in light mode -- caught during live dark-mode
+ * verification, fixed here rather than by editing the shared body rule.
+ */
+.root {
+  background: var(--zenith-surface-base);
+  color: var(--zenith-text-primary);
+  min-height: 100vh;
+}
+
+.layout {
+  display: flex;
+  align-items: flex-start;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}

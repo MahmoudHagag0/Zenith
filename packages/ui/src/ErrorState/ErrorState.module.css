@@ -1,0 +1,19 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zenith-space-8);
+}
+
+.message {
+  font-size: var(--zenith-text-body-size);
+  line-height: var(--zenith-text-body-line-height);
+  color: var(--zenith-text-secondary);
+  font-family: var(--zenith-font-family-text);
+  margin: 0;
+}
+
+.timestamp {
+  font-size: var(--zenith-text-micro-size);
+  color: var(--zenith-text-muted);
+  font-family: var(--zenith-font-family-text);
+}

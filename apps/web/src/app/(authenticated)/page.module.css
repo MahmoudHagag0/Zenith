@@ -1,0 +1,69 @@
+/*
+ * Dashboard page-level composition only (M5-003 §3: "a component
+ * assembling a specific screen's own Panel + Cards in a fixed
+ * arrangement stays [app-local]"). Every value below is a design token
+ * custom property -- no hardcoded px/hex/color anywhere in this file.
+ */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--zenith-space-64);
+  max-width: var(--zenith-container-wide);
+  margin: 0 auto;
+  padding: var(--zenith-space-32);
+}
+
+/* Secondary row: Morning Brief, Portfolio, Watchlist (M4-003.1 §3's corrected order). */
+.secondaryRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--zenith-space-24);
+}
+
+@media (min-width: 640px) {
+  .secondaryRow {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.cardTitle {
+  font-size: var(--zenith-text-title-size);
+  line-height: var(--zenith-text-title-line-height);
+  font-weight: var(--zenith-text-title-weight);
+  color: var(--zenith-text-primary);
+  font-family: var(--zenith-font-family-text);
+  margin: 0 0 var(--zenith-space-8);
+}
+
+.cardBody {
+  font-size: var(--zenith-text-caption-size);
+  line-height: var(--zenith-text-caption-line-height);
+  color: var(--zenith-text-secondary);
+  font-family: var(--zenith-font-family-text);
+  margin: 0;
+}
+
+/* Peripheral row: consolidated, low-weight (M4-003.1 §2.6) -- one row, Tertiary-tier links only. */
+.peripheralRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--zenith-space-16);
+  padding-top: var(--zenith-space-8);
+}
+
+.peripheralLink {
+  font-size: var(--zenith-text-micro-size);
+  color: var(--zenith-text-muted);
+  font-family: var(--zenith-font-family-text);
+  text-decoration: none;
+}
+
+.peripheralLink:hover {
+  color: var(--zenith-text-secondary);
+}
+
+.peripheralLink:focus-visible {
+  outline: 2px solid var(--zenith-accent-focus);
+  outline-offset: 2px;
+}

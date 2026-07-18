@@ -1,0 +1,39 @@
+/*
+ * Skeleton (D2-005 §17, M6-004 §13). Slow, low-contrast pulse -- never
+ * a bright shimmer (Constitution §5.1). Matches the eventual content's
+ * own shape via `width`/`height` props, not a fixed size.
+ *
+ * M6-004 §13 fix: previously animated `surface.raised`'s own opacity
+ * between `opacity.hover`/`opacity.pressed` (6%/12%) -- tokens
+ * calibrated for an interactive-state tint *on top of* an already-
+ * colored element, not for a placeholder block's own baseline
+ * visibility, so the block was nearly invisible at every point in its
+ * cycle (a finding from the prior Dashboard visual review -- the
+ * loading state read as blank). The block's own color is now
+ * `border.default` (a static, visible, neutral tone), and the pulse
+ * animates *that* color's opacity between 0.6 and 1.0 -- always at
+ * least partially visible, still calm, over the corrected slower
+ * `duration.slow` cycle (M6-004 §12).
+ */
+@keyframes zenithSkeletonPulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/*
+ * No local `prefers-reduced-motion` override here -- M5-001 §9's single
+ * global token override (`--zenith-duration-slow` -> 0ms) already
+ * collapses this animation to instant. Adding a second, per-component
+ * override here would reintroduce exactly the duplicated logic that
+ * architecture decision exists to avoid.
+ */
+.skeleton {
+  background: var(--zenith-border-default);
+  border-radius: var(--zenith-radius-md);
+  animation: zenithSkeletonPulse var(--zenith-duration-slow) var(--zenith-easing-standard) infinite;
+}

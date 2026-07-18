@@ -1,0 +1,49 @@
+/*
+ * Decision Card (M5-002 §9). Source: DASH-002 + DASH-003 (26 §3),
+ * reused identically by Morning Brief / AI Workspace. One synthesized
+ * conclusion at Primary weight + nested Confidence/Uncertainty, nested
+ * -- never a sibling Card (M4-003.1 §2.2's binding fix).
+ */
+.conclusion {
+  font-size: var(--zenith-text-heading-size);
+  line-height: var(--zenith-text-heading-line-height);
+  letter-spacing: var(--zenith-text-heading-letter-spacing);
+  font-weight: var(--zenith-text-heading-weight);
+  color: var(--zenith-text-primary);
+  font-family: var(--zenith-font-family-text);
+  margin: 0;
+}
+
+.reasoning {
+  margin-top: var(--zenith-space-16);
+  font-size: var(--zenith-text-body-size);
+  line-height: var(--zenith-text-body-line-height);
+  color: var(--zenith-text-secondary);
+  font-family: var(--zenith-font-family-text);
+  max-width: 75ch;
+}
+
+/* Nested Confidence & Uncertainty (DASH-003) -- space.24 from the conclusion above (M5-001 tokens; M4-003.2 §3). */
+.disclosure {
+  margin-top: var(--zenith-space-24);
+  display: flex;
+  flex-direction: column;
+  gap: var(--zenith-space-8);
+}
+
+/* `<details>` used natively for the "one deliberate action away, never omitted" expand pattern (D1-005 §3.1) -- no client JS required. */
+.disclosureItem summary {
+  font-size: var(--zenith-text-caption-size);
+  line-height: var(--zenith-text-caption-line-height);
+  font-weight: 600;
+  color: var(--zenith-text-secondary);
+  cursor: pointer;
+}
+
+.disclosureItem p {
+  margin: var(--zenith-space-8) 0 0;
+  font-size: var(--zenith-text-caption-size);
+  line-height: var(--zenith-text-caption-line-height);
+  color: var(--zenith-text-secondary);
+  font-family: var(--zenith-font-family-text);
+}

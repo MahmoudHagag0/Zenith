@@ -1,0 +1,31 @@
+/*
+ * Status Indicator (= Status Chip, D2-005 §14, M5-002 §4). The sole
+ * component permitted to render signal.critical/warn/info as fill/text
+ * color -- color-coding always paired with a text label (D1-002 §9.3).
+ */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--zenith-space-4);
+  border-radius: var(--zenith-radius-sm);
+  padding: 2px var(--zenith-space-8);
+  font-size: var(--zenith-text-micro-size);
+  line-height: var(--zenith-text-micro-line-height);
+  font-weight: var(--zenith-text-micro-weight);
+  letter-spacing: var(--zenith-text-micro-letter-spacing);
+}
+
+.critical {
+  color: var(--zenith-signal-critical);
+  background: color-mix(in srgb, var(--zenith-signal-critical) 12%, transparent);
+}
+
+.warn {
+  color: var(--zenith-signal-warn);
+  background: color-mix(in srgb, var(--zenith-signal-warn) 12%, transparent);
+}
+
+.info {
+  color: var(--zenith-signal-info);
+  background: color-mix(in srgb, var(--zenith-signal-info) 12%, transparent);
+}
