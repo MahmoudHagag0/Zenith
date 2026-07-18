@@ -30,9 +30,16 @@
   background: color-mix(in srgb, transparent calc((1 - var(--zenith-opacity-hover)) * 100%), var(--zenith-text-primary) calc(var(--zenith-opacity-hover) * 100%));
 }
 
+/* "Ivory Editorial": the active item is a solid, sharp-cornered brick-red block -- a graphic "editor's mark," not a soft pill. */
 .navItem[data-active] {
-  color: var(--zenith-accent-default);
-  font-weight: 600;
+  color: var(--zenith-surface-base);
+  background: var(--zenith-accent-default);
+  font-weight: 700;
+}
+
+.navItem[data-active]:hover {
+  color: var(--zenith-surface-base);
+  background: var(--zenith-accent-emphasis);
 }
 
 .navItem:focus-visible {
@@ -111,7 +118,7 @@
     align-self: flex-start;
     width: 12rem;
     padding: var(--zenith-space-24) var(--zenith-space-16);
-    border-right: 1px solid var(--zenith-border-default);
+    border-right: 2px solid var(--zenith-border-emphasis);
   }
 
   .topbar {
