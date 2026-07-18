@@ -90,7 +90,15 @@ export default async function DashboardAPage() {
   return (
     <div className={styles.root}>
       <header className={styles.navBar}>
-        <span className={styles.brand}>Zenith</span>
+        <span className={styles.brandGroup}>
+          <svg className={styles.brandMark} viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M3 4L11 11.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" opacity="0.55" />
+            <path d="M3 19L11 11.5" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" opacity="0.55" />
+            <path d="M21 11.5H11" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" opacity="0.55" />
+            <circle cx="11" cy="11.5" r="2.5" fill="currentColor" />
+          </svg>
+          <span className={styles.brand}>Zenith</span>
+        </span>
         <nav className={styles.navLinks} aria-label="Primary">
           {NAV_ITEMS.map(({ href, label, Icon }) => (
             <Link key={href} href={href} className={styles.navLink} data-active={href === '/dashboard-a' ? '' : undefined} title={label}>
@@ -107,27 +115,29 @@ export default async function DashboardAPage() {
       <main className={styles.content}>
         <section className={styles.primary}>
           <div className={styles.primaryGlow} aria-hidden="true" />
-          {!decisionCenter ? (
-            <p className={styles.errorText}>The Confluence Engine did not respond. Decision readiness could not be computed this session.</p>
-          ) : decisionCenter.readiness === 'DEGRADED' ? (
-            <p className={styles.errorText}>Decision readiness is degraded -- one or more instruments could not be fully evaluated this session.</p>
-          ) : decisionCenter.readiness === 'OPPORTUNITIES_AVAILABLE' && topOpportunity && topEntry ? (
-            <>
-              <p className={styles.eyebrow}>Decision Readiness</p>
-              <h1 className={styles.headline}>{topEntry.story}</h1>
-              <p className={styles.reasoning}>{topEntry.why}</p>
-              <details className={styles.disclosure}>
-                <summary>Confidence</summary>
-                <p>{topEntry.confidenceExplanation}</p>
-              </details>
-              <details className={styles.disclosure}>
-                <summary>Uncertainty</summary>
-                <p>{topEntry.uncertaintyExplanation}</p>
-              </details>
-            </>
-          ) : (
-            <p className={styles.emptyText}>{morningBrief?.noTradeNarrative ?? 'No clear opportunity.'}</p>
-          )}
+          <div className={styles.entrance}>
+            {!decisionCenter ? (
+              <p className={styles.errorText}>The Confluence Engine did not respond. Decision readiness could not be computed this session.</p>
+            ) : decisionCenter.readiness === 'DEGRADED' ? (
+              <p className={styles.errorText}>Decision readiness is degraded -- one or more instruments could not be fully evaluated this session.</p>
+            ) : decisionCenter.readiness === 'OPPORTUNITIES_AVAILABLE' && topOpportunity && topEntry ? (
+              <>
+                <p className={styles.eyebrow}>Decision Readiness</p>
+                <h1 className={styles.headline}>{topEntry.story}</h1>
+                <p className={styles.reasoning}>{topEntry.why}</p>
+                <details className={styles.disclosure}>
+                  <summary>Confidence</summary>
+                  <p>{topEntry.confidenceExplanation}</p>
+                </details>
+                <details className={styles.disclosure}>
+                  <summary>Uncertainty</summary>
+                  <p>{topEntry.uncertaintyExplanation}</p>
+                </details>
+              </>
+            ) : (
+              <p className={styles.emptyText}>{morningBrief?.noTradeNarrative ?? 'No clear opportunity.'}</p>
+            )}
+          </div>
         </section>
 
         <div className={styles.secondaryRow}>
