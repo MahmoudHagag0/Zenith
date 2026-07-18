@@ -1,0 +1,258 @@
+/*
+ * EXPERIMENTAL VISUAL IDENTITY -- Direction B, "The Journal".
+ * Fully self-contained: no dependency on @zenith/design-tokens or
+ * @zenith/ui. Every value is hardcoded and local to this file/route.
+ */
+
+.root {
+  min-height: 100vh;
+  background: #f7f1e3;
+  color: #211c14;
+  font-family: Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  .root {
+    background: #1c1810;
+    color: #f3ecdc;
+  }
+}
+
+.masthead {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 0;
+  text-align: center;
+}
+
+.mastheadTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.signOut {
+  background: none;
+  border: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+.signOut:hover { opacity: 0.7; }
+
+.nameplate {
+  font-size: 4.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0.5rem 0 0.25rem;
+}
+
+@media (max-width: 640px) {
+  .nameplate { font-size: 2.75rem; }
+}
+
+.tagline {
+  font-style: italic;
+  font-size: 0.9375rem;
+  opacity: 0.6;
+  margin: 0 0 1rem;
+}
+
+.navRule {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1.25rem;
+  padding: 0.85rem 0;
+  border-top: 3px double currentColor;
+  border-bottom: 1px solid currentColor;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.navLink {
+  color: inherit;
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.55;
+  padding-bottom: 2px;
+}
+
+.navLink:hover {
+  opacity: 0.85;
+}
+
+.navLink[data-active] {
+  opacity: 1;
+  color: #7a1f1f;
+  border-bottom: 2px solid #7a1f1f;
+}
+
+@media (prefers-color-scheme: dark) {
+  .navLink[data-active] {
+    color: #c96b5a;
+    border-bottom-color: #c96b5a;
+  }
+}
+
+.content {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.sectionTag {
+  display: inline-block;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #f7f1e3;
+  background: #7a1f1f;
+  padding: 0.2rem 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .sectionTag {
+    background: #c96b5a;
+    color: #1c1810;
+  }
+}
+
+.primary {
+  border-top: 1px solid currentColor;
+  border-bottom: 1px solid currentColor;
+  padding: 2rem 0;
+}
+
+.headline {
+  font-size: 2.75rem;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  margin: 0 0 1.25rem;
+  max-width: 42rem;
+}
+
+@media (max-width: 640px) {
+  .headline { font-size: 2rem; }
+}
+
+.reasoning {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  max-width: 42rem;
+  margin: 0 0 1.25rem;
+  column-width: 20rem;
+  column-gap: 2rem;
+}
+
+.errorText,
+.emptyText {
+  font-size: 1.1875rem;
+  line-height: 1.6;
+}
+
+.disclosureRow {
+  display: flex;
+  gap: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.disclosure {
+  font-size: 0.9375rem;
+}
+.disclosure summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+.disclosure p {
+  opacity: 0.75;
+  margin: 0.5rem 0 0;
+  line-height: 1.6;
+  max-width: 20rem;
+}
+
+.secondaryRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 640px) {
+  .secondaryRow {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+  }
+  .secondaryRow > .column {
+    padding: 0 1.75rem;
+    border-left: 1px solid currentColor;
+  }
+  .secondaryRow > .column:first-child {
+    border-left: none;
+    padding-left: 0;
+  }
+}
+
+.column {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.columnTitle {
+  font-size: 1.375rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+}
+
+.columnBody {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  opacity: 0.75;
+  margin: 0;
+}
+
+.column:hover .columnTitle {
+  text-decoration: underline;
+  text-decoration-color: #7a1f1f;
+  text-decoration-thickness: 2px;
+}
+
+.peripheralRow {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.8125rem;
+  border-top: 1px solid currentColor;
+  padding-top: 1.25rem;
+  opacity: 0.6;
+}
+
+.peripheralGroup {
+  white-space: nowrap;
+}
+
+.peripheralLink {
+  color: inherit;
+  text-decoration: none;
+}
+.peripheralLink:hover { text-decoration: underline; }
+
+.peripheralDot {
+  margin: 0 0.6rem;
+}
