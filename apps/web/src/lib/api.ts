@@ -105,8 +105,19 @@ export interface ContributingProviderView {
   readonly uncertainty: UncertaintyView;
 }
 
-/** Subset of `InstrumentReading` (S1-019) -- already embedded on every `RankedOpportunity` by the existing `GET /dashboard/decision-center` response; no backend change was needed to read it. */
+/** The seven ratified Confluence dimensions (v1) -- see `apps/api/src/analysis-engine/providers/normalized-vocabulary.types.ts`. */
+export type NormalizedDimension = 'TREND' | 'MOMENTUM' | 'LIQUIDITY' | 'STRUCTURE' | 'VOLATILITY' | 'VOLUME' | 'CONFIRMATION';
+
+/** One dimension's own aggregate reading, reshaped for Dashboard consumption -- never re-aggregated here, only relabeled (mirrors `DimensionConfluenceView` in `apps/api/src/dashboard/dashboard.types.ts`). */
+export interface DimensionConfluenceView {
+  readonly dimension: NormalizedDimension;
+  readonly aggregateReading: 'BULLISH' | 'BEARISH' | 'NEUTRAL' | 'NOT_APPLICABLE';
+  readonly disagreement: boolean;
+}
+
+/** Subset of `InstrumentReading` (S1-019) -- already embedded on every `RankedOpportunity` by the existing `GET /dashboard/decision-center` response; no backend change was needed to read it. `dimensions` was already on the wire but previously unmodeled by this type. */
 export interface InstrumentReadingView {
+  readonly dimensions: readonly DimensionConfluenceView[];
   readonly topContributors: readonly ContributingProviderView[];
   readonly disagreementDimensions: readonly string[];
 }
