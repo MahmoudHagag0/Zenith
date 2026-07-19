@@ -80,6 +80,29 @@ describe('validateEvidence', () => {
     expect(result.ok).toBe(false);
   });
 
+  it('accepts a lead contributor providerId/methodologyFamily cited alongside dimension names (live Gemini verification, 2026-07-19: the model legitimately cites which Provider it drew on in this same field)', () => {
+    const context = instrumentContext({
+      reading: {
+        assetId: 'asset-1',
+        computedAt: new Date().toISOString(),
+        dimensions: [{ dimension: 'TREND', aggregateReading: 'BULLISH', disagreement: false }],
+        participation: { participatingCount: 9, totalRegistered: 9, nonParticipating: [] },
+        topContributors: [{ providerId: 'PRICE_ACTION', methodologyFamily: 'PRICE_ACTION' } as never],
+        netDirection: 'BULLISH',
+        relevanceScore: 50,
+        agreeingDimensions: 1,
+        disagreementDimensions: [],
+      } as never,
+    });
+    const result = validateEvidence(draft({ referencedDimensions: ['TREND', 'PRICE_ACTION'] }), context);
+    expect(result.ok).toBe(true);
+  });
+
+  it('still rejects a provider name that is not actually among the context\'s topContributors', () => {
+    const result = validateEvidence(draft({ referencedDimensions: ['TREND', 'WYCKOFF'] }), instrumentContext());
+    expect(result.ok).toBe(false);
+  });
+
   it('rejects any referenced dimension when the Confluence reading itself failed', () => {
     const context = instrumentContext({ readingFailureReason: 'MarketSeries unavailable', reading: null });
     const result = validateEvidence(draft(), context);

@@ -4,7 +4,12 @@ import type { LLMProvider, LLMStructuredRequest } from './llm-provider.interface
 import { withRetry } from '../../market-data/retry.util';
 import { ProviderRateLimitedError, ProviderUnavailableError } from '../../market-data/providers/provider-errors';
 
-const DEFAULT_MODEL_ID = 'gemini-2.0-flash';
+// 'gemini-flash-latest' verified against the real Gemini API during Blueprint
+// Step 8 live verification -- 'gemini-2.0-flash' returned a 0-quota 429 on
+// the free tier for the provisioned key/project, while 'gemini-flash-latest'
+// succeeded with real quota. Override via GEMINI_MODEL if a given key's
+// available free-tier models differ.
+const DEFAULT_MODEL_ID = 'gemini-flash-latest';
 const DEFAULT_TIMEOUT_MS = 30_000;
 const DEFAULT_RETRIES = 2;
 const DEFAULT_BASE_DELAY_MS = 500;

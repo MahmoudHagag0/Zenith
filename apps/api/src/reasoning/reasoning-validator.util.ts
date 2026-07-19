@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import type { NormalizedDimension } from '../analysis-engine/providers/normalized-vocabulary.types';
 import type { ReasoningContext, ReasoningDraft } from './reasoning.types';
 
 const reasoningDraftSchema = z.object({
@@ -52,10 +51,22 @@ export function validateEvidence(draft: ReasoningDraft, context: ReasoningContex
       }
       return { ok: true };
     }
-    const validDimensions = new Set<NormalizedDimension>((context.asset.reading?.dimensions ?? []).map((d) => d.dimension));
-    const ungrounded = draft.referencedDimensions.filter((dimension) => !validDimensions.has(dimension as NormalizedDimension));
+    // Grounded against dimension names AND the lead contributor's own
+    // providerId/methodologyFamily -- live verification against the real
+    // Gemini API (4/4 runs) showed the model consistently and legitimately
+    // cites which Provider/methodology it drew on (e.g. "WYCKOFF",
+    // "PRICE_ACTION") in this same field alongside true dimension names.
+    // That citation IS grounded (the Provider really is in
+    // topContributors) -- rejecting it was a false positive from too
+    // narrow a definition of "grounded", not evidence of fabrication.
+    const validDimensions = new Set<string>((context.asset.reading?.dimensions ?? []).map((d) => d.dimension));
+    for (const contributor of context.asset.reading?.topContributors ?? []) {
+      validDimensions.add(contributor.providerId);
+      if (contributor.methodologyFamily) validDimensions.add(contributor.methodologyFamily);
+    }
+    const ungrounded = draft.referencedDimensions.filter((dimension) => !validDimensions.has(dimension));
     if (ungrounded.length > 0) {
-      return { ok: false, reason: `The model referenced dimension(s) not present in the supplied context: ${ungrounded.join(', ')}` };
+      return { ok: false, reason: `The model referenced dimension(s)/provider(s) not present in the supplied context: ${ungrounded.join(', ')}` };
     }
   }
   return { ok: true };
