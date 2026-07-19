@@ -1,7 +1,7 @@
 # 08_ROADMAP
 
 **Document ID:** ZOS-008\
-**Version:** 1.7.0\
+**Version:** 1.8.0\
 **Status:** Approved\
 **Owner:** Architecture Team
 
@@ -69,7 +69,14 @@ Calendar/News (S1-031 screen, live backend at L1-003), COT (S1-032
 screen, live backend at L1-004), and AI Workspace (S1-033) join the
 already-complete Dashboard/Home, Morning Brief, Watchlist, and
 Portfolio; Reports (S1-034) and Foundation Hardening (S1-035) were
-also delivered. **None of S1-021 through S1-035 (excepting S1-022/023/
+also delivered. **Update 2026-07-19:** `25_PRODUCT_BLUEPRINT.md` §10
+Implementation Order Step 8 ("Generative AI Reasoning Layer and AI
+Workspace") is now complete — the last of the Blueprint's eleven steps
+to remain unfinished. Real Google Gemini integration, the Reasoning
+Pipeline, the Safety Validator, and AI Workspace frontend integration
+are implemented and verified end-to-end against the real Gemini API;
+see `09_PROJECT_BRAIN.md`'s Completed Sprints for the full record.
+**None of S1-021 through S1-035 (excepting S1-022/023/
 024's own already-disclosed "execution over architecture" exception)
 has a filed Sprint Brief, Task Breakdown, Completion Report, or
 Decision Log entry**, and the Constitution §10.3 leadership approval
