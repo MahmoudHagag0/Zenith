@@ -1,8 +1,9 @@
 import type { ReactElement, SVGProps } from 'react';
 
 /**
- * Direction A's exclusive icon language ("Faceted") -- approved, Design
- * Freeze at commit 5b2f135. Not shared with any other route; Zenith's own
+ * The approved Zenith icon language ("Faceted") -- Design Freeze at
+ * commit 5b2f135, now the single shared icon set for every screen's nav
+ * (Visual Propagation phase), not just the Dashboard. Zenith's own
  * constructed system, not a reskinned Heroicons/Lucide/Material set.
  *
  * The rule every glyph follows: one corner of the icon's primary shape

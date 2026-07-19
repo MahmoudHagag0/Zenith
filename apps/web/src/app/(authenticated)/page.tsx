@@ -20,7 +20,7 @@ import {
   IconReports,
   IconAiWorkspace,
   IconJournal,
-} from './icons';
+} from '@/components/nav-icons';
 import styles from './page.module.css';
 
 const CONFLUENCE_DIMENSION_ORDER: readonly NormalizedDimension[] = [

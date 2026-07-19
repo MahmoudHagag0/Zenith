@@ -1,37 +1,42 @@
 /*
- * M5/Dashboard implementation: the D2 design token layer (M5-001),
- * imported once, globally. Every rule below this line predates the
- * design system (S1-022's own header said so explicitly) and is left
- * untouched -- it still serves every screen other than Dashboard,
- * which now consumes @zenith/ui + these tokens exclusively instead of
- * the rules below. Migrating another screen's own hardcoded styles is
- * out of this task's scope.
- */
-@import '@zenith/design-tokens/css/tokens.css';
-
-/*
- * S1-022 Dashboard Production UI V1 -- restrained, professional, calm.
- * No design system, no theme tokens, no CSS framework: plain rules
- * expressing one fixed hierarchy (hero > secondary > supporting) through
- * type scale and whitespace, per this Sprint's own "typography creates
- * hierarchy, not decoration" instruction. Colors communicate state only
- * (direction), never decoration -- desaturated, and never the sole
- * carrier of meaning (every color-coded value is also a text label).
+ * VISUAL PROPAGATION PHASE. Every rule below derives from the approved
+ * Dashboard visual language (Direction A "Monolith", Design Freeze at
+ * commit 5b2f135 -- see `(authenticated)/page.module.css`, the literal
+ * source of every color/type/radius/shadow value used here). This file
+ * now styles the nine screens that predate that design (plus Login) so
+ * the whole product reads as one coherent system; the Dashboard route
+ * itself remains self-contained (its own CSS Module, not this file).
  *
- * NOTE: this block and everything below now styles every screen EXCEPT
- * Dashboard (moved to `(authenticated)/page.tsx`, styled entirely via
- * @zenith/ui). Left in place unmodified for the other, not-yet-migrated
- * screens (`M5-003` §3's own "confirm, don't restructure" rule).
+ * Values are hardcoded, not custom-property tokens, matching the
+ * Dashboard's own "fully self-contained, no design-token package"
+ * approach exactly -- the old `@zenith/design-tokens` import and its
+ * `--zenith-*` variables are removed from this file since that package
+ * still reflects an earlier, superseded design attempt ("Ivory
+ * Editorial") and is not the approved source of truth.
+ *
+ * Structure, routes, class names, and JSX are unchanged screen-by-screen
+ * (Visual Propagation, not a rebuild): every selector below targets the
+ * exact same class already used by every page.
  */
 
 body {
-  font-family: system-ui, sans-serif;
-  color: #1c1c1e;
-  background: #ffffff;
-  max-width: 720px;
-  margin: 3rem auto;
-  padding: 0 1.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  color: #10171a;
+  background: #eef1f1;
+  background-image: radial-gradient(ellipse 1300px 850px at 26% 6%, rgba(255, 255, 255, 0.55), transparent 65%);
+  background-attachment: fixed;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
   line-height: 1.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #eef3f3;
+    background: #0c1112;
+    background-image: radial-gradient(ellipse 1100px 750px at 26% 6%, rgba(189, 100, 64, 0.08), transparent 60%);
+  }
 }
 
 .page {
@@ -48,78 +53,210 @@ body {
   gap: 0.5rem 1.5rem;
 }
 
-h1 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #6b6b6f;
+/* ---- Shared page header / navigation -- the Dashboard's own nav bar, propagated (S1-024 markup, Visual Propagation styling). ---- */
+
+header.row {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 50;
+  align-items: center;
+  margin: 0 0 2.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  background: rgba(247, 249, 249, 0.5);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(16, 23, 26, 0.1);
+  box-shadow: 0 20px 50px rgba(8, 12, 13, 0.1);
 }
 
-/* ---- Shared page header / navigation (S1-024) ---- */
+@media (prefers-color-scheme: dark) {
+  header.row {
+    background: rgba(238, 243, 243, 0.07);
+    border: 1px solid rgba(238, 243, 243, 0.09);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  }
+}
+
+h1 {
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: inherit;
+  margin: 0;
+}
 
 .app-brand {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 1.5rem;
   flex-wrap: wrap;
 }
 
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.brand-mark {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  color: #b25a36;
+}
+
+@media (prefers-color-scheme: dark) {
+  .brand-mark {
+    color: #bd6440;
+  }
+}
+
 .app-nav {
   display: flex;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.25rem;
   flex-wrap: wrap;
 }
 
 .nav-link {
-  font-size: 0.85rem;
-  color: var(--zenith-text-secondary, #6b6b6f);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: 6px;
+  color: inherit;
   text-decoration: none;
+  opacity: 0.6;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: opacity 120ms ease, background-color 120ms ease;
 }
 
-.nav-link:hover,
+.nav-link:hover {
+  opacity: 0.9;
+  background: rgba(178, 90, 54, 0.08);
+}
+
+@media (prefers-color-scheme: dark) {
+  .nav-link:hover {
+    background: rgba(189, 100, 64, 0.12);
+  }
+}
+
 .nav-link:focus-visible {
-  color: var(--zenith-accent-default, #3a3a3d);
+  outline: 2px solid #b25a36;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .nav-link:focus-visible {
+    outline-color: #bd6440;
+  }
 }
 
 .nav-link-active {
-  color: #1c1c1e;
-  font-weight: 600;
+  opacity: 1;
+  background: rgba(16, 23, 26, 0.9);
+  color: #eef3f3;
 }
 
-/* ---- 1. Decision Readiness (hero) -- the strongest visual weight on the page. ---- */
+@media (prefers-color-scheme: dark) {
+  .nav-link-active {
+    background: rgba(238, 243, 243, 0.95);
+    color: #0c1112;
+  }
+}
+
+.nav-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* Labels stay in the DOM (accessible name + a `title` tooltip) but are
+   visually hidden, matching the Dashboard's own icon-only nav treatment. */
+.nav-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.signout {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  opacity: 0.6;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 0.75rem;
+}
+
+.signout:hover {
+  opacity: 1;
+}
+
+.signout:focus-visible {
+  opacity: 1;
+  outline: 2px solid #b25a36;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .signout:focus-visible {
+    outline-color: #bd6440;
+  }
+}
+
+/* ---- 1. Hero -- the strongest visual weight on the page (Dashboard's .eyebrow/.headline voice). ---- */
 
 .hero {
   display: flex;
   flex-direction: column;
 }
 
-/*
- * S1-023: caption and statement are one perceptual unit (a label and the
- * value it describes) and sit close together (Gestalt law of proximity);
- * the disclosure below is a separate, optional affordance and gets a
- * visibly larger gap so the eye reads "headline, then -- if wanted --
- * more detail" rather than three evenly-spaced, undifferentiated lines.
- */
 .hero-caption {
   margin: 0 0 0.35rem;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: #6b6b6f;
+  opacity: 0.5;
 }
 
 .hero-statement {
   margin: 0;
-  font-size: 1.6rem;
-  font-weight: 600;
-  line-height: 1.35;
+  font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
+  font-size: clamp(1.6rem, 1.3rem + 1vw, 2.25rem);
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   max-width: 34rem;
+  color: #10171a;
+}
+
+@media (prefers-color-scheme: dark) {
+  .hero-statement {
+    color: #eef3f3;
+  }
 }
 
 .muted-statement {
   font-weight: 400;
   font-style: italic;
-  color: #4a4a4d;
+  opacity: 0.88;
 }
 
 .confidence-disclosure {
@@ -135,20 +272,40 @@ h1 {
 
 .disclosure summary {
   cursor: pointer;
-  font-weight: 600;
-  color: #3a3a3d;
-  /* S1-023: a few px of vertical padding grows the click/tap target
-     (Fitts' Law) without visibly enlarging the text itself. */
+  font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
+  font-style: italic;
+  font-weight: 700;
+  color: inherit;
+  opacity: 0.92;
+  list-style: none;
   padding: 0.2rem 0;
 }
 
+.disclosure summary::-webkit-details-marker {
+  display: none;
+}
+
+.disclosure summary:focus-visible {
+  outline: 2px solid #b25a36;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .disclosure summary:focus-visible {
+    outline-color: #bd6440;
+  }
+}
+
 .disclosure p {
-  margin: 0.4rem 0 0;
-  color: #3a3a3d;
+  margin: 0.5rem 0 0;
+  font-family: Charter, 'Bitstream Charter', Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Liberation Serif', serif;
+  opacity: 0.88;
+  line-height: 1.6;
   max-width: 34rem;
 }
 
-/* ---- Watchlist / Portfolio list items (S1-024) ---- */
+/* ---- List items (watchlist/portfolio/journal/alerts/etc.) -- the Dashboard's own .card treatment, repeated per item. ---- */
 
 .watchlist-items,
 .portfolio-positions {
@@ -157,20 +314,35 @@ h1 {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.85rem;
 }
 
 .watchlist-item {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #eee;
+  padding: 1.25rem 1.4rem;
+  border-radius: 8px;
+  background: rgba(247, 249, 249, 0.4);
+  border: 1px solid rgba(16, 23, 26, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .watchlist-item {
+    background: rgba(238, 243, 243, 0.035);
+    border-color: rgba(238, 243, 243, 0.09);
+  }
 }
 
 .watchlist-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+  /* Every item is its own card now; no trailing border to omit. */
+  border: 1px solid rgba(16, 23, 26, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .watchlist-item:last-child {
+    border-color: rgba(238, 243, 243, 0.09);
+  }
 }
 
 .inline-form {
@@ -184,9 +356,32 @@ h1 {
 .inline-form textarea {
   font: inherit;
   font-size: 0.9rem;
-  padding: 0.35rem 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid rgba(16, 23, 26, 0.18);
+  border-radius: 6px;
+  background: rgba(247, 249, 249, 0.6);
+  color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  .inline-form input[type='text'],
+  .inline-form textarea {
+    border-color: rgba(238, 243, 243, 0.18);
+    background: rgba(238, 243, 243, 0.05);
+  }
+}
+
+.inline-form input[type='text']:focus-visible,
+.inline-form textarea:focus-visible {
+  outline: 2px solid #b25a36;
+  outline-offset: 1px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .inline-form input[type='text']:focus-visible,
+  .inline-form textarea:focus-visible {
+    outline-color: #bd6440;
+  }
 }
 
 .inline-form textarea {
@@ -199,27 +394,67 @@ h1 {
 .stack button {
   font: inherit;
   font-size: 0.85rem;
-  padding: 0.35rem 0.75rem;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-  background: #fafafa;
+  font-weight: 600;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid rgba(16, 23, 26, 0.18);
+  border-radius: 6px;
+  background: rgba(16, 23, 26, 0.9);
+  color: #eef3f3;
   cursor: pointer;
+  transition: opacity 120ms ease;
 }
 
-/* ---- 2 & 3. Secondary sections -- support the hero, never compete with it. ---- */
+.inline-form button:hover,
+.stack button:hover {
+  opacity: 0.85;
+}
+
+.inline-form button:focus-visible,
+.stack button:focus-visible {
+  outline: 2px solid #b25a36;
+  outline-offset: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .inline-form button,
+  .stack button {
+    border-color: rgba(238, 243, 243, 0.18);
+    background: rgba(238, 243, 243, 0.95);
+    color: #0c1112;
+  }
+
+  .inline-form button:focus-visible,
+  .stack button:focus-visible {
+    outline-color: #bd6440;
+  }
+}
+
+/* ---- 2 & 3. Secondary sections -- the Dashboard's card surface, applied to each page section. ---- */
 
 .section-quiet {
-  border-top: 1px solid #e4e4e6;
-  padding-top: 1.25rem;
+  padding: 1.5rem 1.75rem;
+  border-radius: 8px;
+  background: rgba(247, 249, 249, 0.4);
+  border: 1px solid rgba(16, 23, 26, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .section-quiet {
+    background: rgba(238, 243, 243, 0.035);
+    border-color: rgba(238, 243, 243, 0.09);
+  }
 }
 
 .section-quiet h2 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #3a3a3d;
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.62;
 }
 
 table {
@@ -231,127 +466,170 @@ table {
 th,
 td {
   text-align: left;
-  padding: 0.4rem 0.6rem 0.4rem 0;
-  border-bottom: 1px solid #eee;
+  padding: 0.5rem 0.6rem 0.5rem 0;
+  border-bottom: 1px solid rgba(16, 23, 26, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  th,
+  td {
+    border-bottom-color: rgba(238, 243, 243, 0.09);
+  }
 }
 
 th {
-  font-weight: 600;
-  color: #6b6b6f;
-  font-size: 0.85rem;
+  font-weight: 800;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.62;
 }
 
-/* S1-023: a subtle hover keeps the eye anchored to one row while scanning
-   across several columns -- a standard tabular-data reading aid. */
+td {
+  font-variant-numeric: tabular-nums;
+}
+
+/* A subtle hover keeps the eye anchored to one row while scanning across several columns. */
 tbody tr:hover {
-  background: #fafafa;
+  background: rgba(178, 90, 54, 0.06);
 }
 
-/* S1-023: counts are conventionally aligned so they can be compared by
-   magnitude scanning straight down the column, not read line by line. */
+@media (prefers-color-scheme: dark) {
+  tbody tr:hover {
+    background: rgba(189, 100, 64, 0.08);
+  }
+}
+
 .num-col {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
 .direction-badge {
-  font-weight: 600;
-  font-size: 0.85rem;
+  display: inline-block;
+  font-weight: 700;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
 }
 
 .direction-bullish {
   color: #3d7a68;
+  background: rgba(61, 122, 104, 0.12);
 }
 
 .direction-bearish {
   color: #a24a3f;
+  background: rgba(162, 74, 63, 0.12);
 }
 
-/*
- * S1-023: the header's sign-out control measured higher contrast (9.74:1,
- * underlined) than the brand heading it sits beside (5.31:1) -- an
- * infrequent, non-primary action was visually outweighing the page title
- * on first fixation (Von Restorff effect). Its top-right position already
- * makes it findable by convention, so it doesn't need visual weight too;
- * underline is deferred to hover/focus so the affordance still surfaces
- * on interaction. Kept local (not merged into the shared `.link` class,
- * which the login page's register/sign-in toggle still uses unchanged).
- */
-/*
- * M6 Visual Identity fix: previously hardcoded (#6b6b6f/#3a3a3d),
- * matching neither the sidebar's other nav items nor either theme mode
- * -- flagged during the prior Dashboard visual review as visibly
- * inconsistent. Now token-driven (`@zenith/design-tokens` is imported
- * at the top of this file), so it follows both light/dark mode
- * automatically and matches every other nav-tier control's rest/hover
- * treatment, on this screen and the nine not-yet-migrated ones alike.
- */
-.signout {
-  background: none;
-  border: none;
-  padding: 0;
-  font: inherit;
-  font-size: 0.85rem;
-  color: var(--zenith-text-secondary, #6b6b6f);
-  text-decoration: none;
-  cursor: pointer;
-}
+/* ---- 4. Supporting information -- present, visually quiet (Dashboard's .cardUnit/.peripheralLabel voice). ---- */
 
-.signout:hover,
-.signout:focus-visible {
-  color: var(--zenith-accent-default, #3a3a3d);
-  text-decoration: underline;
-}
-
-/* ---- 4. Supporting information -- present, visually quiet. ---- */
-
-/*
- * S1-023: the previous #8a8a8e measured 3.44:1 against white -- below the
- * WCAG AA 4.5:1 minimum for normal-size text. #6b6b6f (already used for
- * captions/labels elsewhere, 5.31:1) keeps this tier visibly quieter than
- * body text while staying legible.
- */
 .supporting {
   font-size: 0.8rem;
-  color: #6b6b6f;
+  opacity: 0.62;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
 
 .muted {
-  color: #6b6b6f;
+  opacity: 0.62;
 }
 
-/* ---- Login / register (S1-021, unchanged in spirit -- intentionally plain) ---- */
+/* ---- Login / register -- the same card + button system, applied to the auth screen. ---- */
 
 .preview-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  max-width: 24rem;
+  margin: 3rem auto 0;
 }
 
 .stack {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.9rem;
   max-width: 320px;
+  padding: 1.75rem;
+  border-radius: 8px;
+  background: rgba(247, 249, 249, 0.4);
+  border: 1px solid rgba(16, 23, 26, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .stack {
+    background: rgba(238, 243, 243, 0.035);
+    border-color: rgba(238, 243, 243, 0.09);
+  }
 }
 
 .stack label {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  opacity: 0.85;
+}
+
+.stack input {
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid rgba(16, 23, 26, 0.18);
+  border-radius: 6px;
+  background: rgba(247, 249, 249, 0.6);
+  color: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  .stack input {
+    border-color: rgba(238, 243, 243, 0.18);
+    background: rgba(238, 243, 243, 0.05);
+  }
+}
+
+.stack input:focus-visible {
+  outline: 2px solid #b25a36;
+  outline-offset: 1px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .stack input:focus-visible {
+    outline-color: #bd6440;
+  }
 }
 
 .link {
   background: none;
   border: none;
   padding: 0;
-  color: #444;
+  color: #b25a36;
   text-decoration: underline;
   cursor: pointer;
   font: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  .link {
+    color: #bd6440;
+  }
+}
+
+.link:focus-visible {
+  outline: 2px solid #b25a36;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .link:focus-visible {
+    outline-color: #bd6440;
+  }
 }
 
 .error {
