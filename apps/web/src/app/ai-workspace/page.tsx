@@ -3,6 +3,7 @@ import { getWatchlistItems, getWatchlists, getWorkspace } from '@/lib/api';
 import { withAuth } from '@/lib/auth';
 import { AppHeader } from '@/components/app-nav';
 import { DirectionBadge } from '@/components/dashboard-parts';
+import { ReasoningAsk } from './reasoning-ask';
 
 /**
  * The AI Workspace production screen (S1-033, Phase 5 of the post-S1-024
@@ -76,6 +77,8 @@ export default async function AiWorkspacePage({ searchParams }: { searchParams: 
               <p className="muted">Could not be evaluated this session: {workspace.readingFailureReason}</p>
             )}
           </section>
+
+          <ReasoningAsk assetId={workspace.assetId} />
 
           <section className="section-quiet">
             <h2>Alerts ({workspace.alerts.length})</h2>

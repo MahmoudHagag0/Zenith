@@ -13,5 +13,10 @@ import { WorkspaceService } from './workspace.service';
   imports: [AuthModule, AssetsModule, DashboardModule, CalendarNewsModule, CotModule, AlertsModule, JournalModule],
   controllers: [WorkspaceController],
   providers: [WorkspaceService],
+  // Exported so ReasoningModule can reuse getWorkspace() as its own
+  // single-instrument context source rather than re-aggregating the same
+  // six services itself (implementation architecture §3: "already exactly
+  // the cross-module context").
+  exports: [WorkspaceService],
 })
 export class WorkspaceModule {}

@@ -16,5 +16,8 @@ import { NarrativeComposerService } from './narrative-composer.service';
   imports: [AuthModule, DashboardModule],
   controllers: [MorningBriefController],
   providers: [MorningBriefService, NarrativeComposerService],
+  // Exported so ReasoningModule can reuse getMorningBrief() as its own
+  // multi-instrument (tracked-assets-scope) context source.
+  exports: [MorningBriefService],
 })
 export class MorningBriefModule {}

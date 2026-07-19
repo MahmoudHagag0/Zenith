@@ -44,6 +44,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
 }
 
 h1 {
@@ -58,21 +60,24 @@ h1 {
   display: flex;
   align-items: baseline;
   gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .app-nav {
   display: flex;
   gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .nav-link {
   font-size: 0.85rem;
-  color: #6b6b6f;
+  color: var(--zenith-text-secondary, #6b6b6f);
   text-decoration: none;
 }
 
-.nav-link:hover {
-  color: #3a3a3d;
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: var(--zenith-accent-default, #3a3a3d);
 }
 
 .nav-link-active {
@@ -170,11 +175,13 @@ h1 {
 
 .inline-form {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
   align-items: center;
 }
 
-.inline-form input[type='text'] {
+.inline-form input[type='text'],
+.inline-form textarea {
   font: inherit;
   font-size: 0.9rem;
   padding: 0.35rem 0.5rem;
@@ -182,7 +189,14 @@ h1 {
   border-radius: 3px;
 }
 
-.inline-form button {
+.inline-form textarea {
+  flex: 1 1 100%;
+  resize: vertical;
+  min-height: 3.5rem;
+}
+
+.inline-form button,
+.stack button {
   font: inherit;
   font-size: 0.85rem;
   padding: 0.35rem 0.75rem;

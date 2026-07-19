@@ -192,3 +192,18 @@ export const candlesQuerySchema = z
   });
 
 export type CandlesQueryInput = z.infer<typeof candlesQuerySchema>;
+
+// Reasoning Layer validation — Blueprint Step 8 (Generative AI Reasoning Layer).
+
+export const reasoningAskSchema = z
+  .object({
+    question: z.string().min(1, 'question is required').max(2_000, 'question must be at most 2000 characters'),
+    assetId: z.string().uuid('assetId must be a valid UUID').optional(),
+    portfolioId: z.string().uuid('portfolioId must be a valid UUID').optional(),
+  })
+  .refine((value) => !(value.assetId !== undefined && value.portfolioId !== undefined), {
+    message: 'At most one of assetId or portfolioId may be set',
+    path: ['assetId'],
+  });
+
+export type ReasoningAskInput = z.infer<typeof reasoningAskSchema>;
