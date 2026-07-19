@@ -21,6 +21,7 @@ import { AlertsModule } from './alerts/alerts.module';
 import { CalendarNewsModule } from './calendar-news/calendar-news.module';
 import { CotModule } from './cot/cot.module';
 import { WorkspaceModule } from './workspace/workspace.module';
+import { ReasoningModule } from './reasoning/reasoning.module';
 import { ReportsModule } from './reports/reports.module';
 import { CorporateActionsModule } from './corporate-actions/corporate-actions.module';
 import { MacroDataModule } from './macro-data/macro-data.module';
@@ -55,6 +56,7 @@ import { MonitoringModule } from './monitoring/monitoring.module';
     CalendarNewsModule,
     CotModule,
     WorkspaceModule,
+    ReasoningModule,
     ReportsModule,
     CorporateActionsModule,
     MacroDataModule,
