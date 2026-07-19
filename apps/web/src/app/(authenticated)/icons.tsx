@@ -1,10 +1,8 @@
 import type { ReactElement, SVGProps } from 'react';
 
 /**
- * DIRECTION A -- exclusive icon language ("Faceted").
- *
- * Not shared with `@/components/experimental-icons` (used by
- * dashboard-b/dashboard-c) or any other route -- this is Zenith's own
+ * Direction A's exclusive icon language ("Faceted") -- approved, Design
+ * Freeze at commit 5b2f135. Not shared with any other route; Zenith's own
  * constructed system, not a reskinned Heroicons/Lucide/Material set.
  *
  * The rule every glyph follows: one corner of the icon's primary shape
@@ -152,7 +150,7 @@ export function IconJournal(props: IconProps) {
 }
 
 export const NAV_ICON_BY_HREF: Record<string, (props: IconProps) => ReactElement> = {
-  '/dashboard-a': IconDashboard,
+  '/': IconDashboard,
   '/morning-brief': IconBrief,
   '/watchlist': IconWatchlist,
   '/portfolio': IconPortfolio,
