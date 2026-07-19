@@ -449,3 +449,35 @@ export interface WeeklyReportView {
 export function getWeeklyReport(token: string): Promise<WeeklyReportView> {
   return apiFetch('/reports/weekly', { headers: authHeader(token) });
 }
+
+// ---- Reasoning Layer (Blueprint Step 8) ----
+
+/** Subset of `TraceabilityView` actually rendered -- the full shape (intermediateCalculations, conditionDerivations) already exists on the wire but is not needed by this screen. */
+export interface TraceabilityView {
+  readonly rawDataReferences: readonly string[];
+  readonly confidenceDerivation: string;
+}
+
+export interface ReasoningAskPayload {
+  readonly question: string;
+  readonly assetId?: string;
+  readonly portfolioId?: string;
+}
+
+/** The structured response from `POST /reasoning/ask` -- never raw model text. `failureReason` is populated, never thrown, on any pipeline-stage failure. */
+export interface ReasoningResponseView {
+  readonly reasoning: string;
+  readonly confidence: readonly LabeledConfidenceView[];
+  readonly uncertainty: UncertaintyView;
+  readonly evidence: readonly TraceabilityView[];
+  readonly contradictions: readonly string[];
+  readonly suggestedNextSteps: readonly string[];
+  readonly behaviorNotes: readonly string[];
+  readonly scope: { readonly description: string; readonly modulesUsed: readonly string[] };
+  readonly generatedAt: string;
+  readonly failureReason: string | null;
+}
+
+export function askReasoning(token: string, payload: ReasoningAskPayload): Promise<ReasoningResponseView> {
+  return apiFetch('/reasoning/ask', { method: 'POST', headers: authHeader(token), body: JSON.stringify(payload) });
+}
