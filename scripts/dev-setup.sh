@@ -123,3 +123,20 @@ echo "==> Done. Run: pnpm dev"
 echo "    apps/web  -> http://localhost:3200"
 echo "    apps/api  -> http://localhost:3000/api/v1 (Swagger: /api/docs)"
 echo "    Demo login: demo@zenith.dev / DemoPass123!"
+
+# apps/api's Reasoning Layer (Blueprint Step 8) has no mocked/fake LLM
+# provider by design -- ReasoningModule's useFactory throws during Nest
+# bootstrap if GEMINI_API_KEY is unset, which fails apps/api's entire
+# startup, not just that one feature. .env.example ships this key empty
+# (no secret is ever committed), so this is expected and not a bug in
+# this script; it is only surfaced here so a fresh container's first
+# `pnpm dev` failure has an obvious, actionable explanation instead of a
+# bare stack trace.
+if [ -f apps/api/.env ] && ! grep -qE '^GEMINI_API_KEY=.+' apps/api/.env; then
+  echo ""
+  echo "==> WARNING: apps/api/.env has no GEMINI_API_KEY set."
+  echo "    apps/api will fail to start until you set a real key there --"
+  echo "    this is a deliberate 'no fake AI provider' design choice, not"
+  echo "    a bug. Edit apps/api/.env and set GEMINI_API_KEY=<your key>"
+  echo "    before running 'pnpm dev'."
+fi

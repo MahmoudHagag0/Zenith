@@ -15,7 +15,11 @@ Open this repository in a Codespace. On creation, `.devcontainer/devcontainer.js
 5. Runs Prisma migrations.
 6. Seeds development data: a demo account (`demo@zenith.dev` / `DemoPass123!`) with a tracked instrument, a watchlist, and an open position, so the Dashboard, Morning Brief, Watchlist, and Portfolio all show real data immediately.
 
-All of this is idempotent (`scripts/dev-setup.sh`) and re-runs safely on every container restart. All you need to run yourself is:
+All of this is idempotent (`scripts/dev-setup.sh`) and re-runs safely on every container restart.
+
+**Before running `pnpm dev`, set a real `GEMINI_API_KEY` in `apps/api/.env`.** The Reasoning Layer (AI Workspace's "Ask" feature) has no mocked/fake LLM provider by design -- `apps/api` fails to start at all without a real key, not just that one feature. `apps/api/.env.example` ships this key empty (no secret is ever committed), so `dev-setup.sh` cannot fill it in for you.
+
+Then:
 
 ```
 pnpm dev
